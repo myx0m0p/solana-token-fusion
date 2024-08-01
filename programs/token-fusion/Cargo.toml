@@ -1,0 +1,27 @@
+[package]
+name = "token-fusion"
+version = "0.1.0"
+description = "Solana Token Fusion Protocol Program"
+authors = ["STF Protocol <hello@stf.org>"]
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "token_fusion"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = [
+    "anchor-lang/idl-build",
+    "anchor-spl/idl-build"
+    # "mpl-core/idl-build"
+]
+
+[dependencies]
+anchor-lang = { version="0.30.1", features = ["init-if-needed"] }
+anchor-spl = { version = "0.30.1", features = ["spl-associated-token-account", "spl-token", "metadata"] }
+mpl-core = { version = "0.7.2", features = ["anchor"] }
