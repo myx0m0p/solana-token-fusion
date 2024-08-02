@@ -1,16 +1,24 @@
 import { TokenStandard, createFungible, mintV1 } from '@metaplex-foundation/mpl-token-metadata';
 import { percentAmount, transactionBuilder } from '@metaplex-foundation/umi';
-import { AuthorityType, setAuthority } from '@metaplex-foundation/mpl-toolbox';
+import { AuthorityType, setAuthority, setComputeUnitPrice } from '@metaplex-foundation/mpl-toolbox';
 
 import { explorerAddressLink, explorerTxLink } from '../utils/explorer';
 import { AppLogger } from '../utils/logger';
 import { ClusterType } from '../utils/cluster';
 import { createUmi } from '../utils/umi';
 
-import { SPL_TOKEN_METADATA } from './_config';
+//TODO Move this to cli params with defaults
+export const SPL_TOKEN_METADATA = {
+  name: 'SFT Token',
+  symbol: 'STF',
+  uri: 'https://sft.org/token.json',
+  decimals: 9n,
+  mint: true,
+  mintAmount: 1_000_000n,
+};
 
 export const deployToken = async (cluster: ClusterType = 'localnet') => {
-  const { umi, deployer, token, treasure } = await createUmi(cluster);
+  const { umi, deployer, token, treasure, clusterSettings } = await createUmi(cluster);
 
   // local wallet
   const tokenOwner = cluster === 'localnet' ? deployer.publicKey : treasure.publicKey;
@@ -24,8 +32,15 @@ export const deployToken = async (cluster: ClusterType = 'localnet') => {
     return;
   }
 
+  let builder = transactionBuilder();
+
+  // add priority
+  if (clusterSettings.priority) {
+    builder = builder.add(setComputeUnitPrice(umi, { microLamports: clusterSettings.priority }));
+  }
+
   // create token mint
-  let builder = transactionBuilder().add(
+  builder = builder.add(
     createFungible(umi, {
       mint: token,
       authority: deployer,
@@ -73,7 +88,7 @@ export const deployToken = async (cluster: ClusterType = 'localnet') => {
 
   const builderResult = await builder.sendAndConfirm(umi);
 
-  AppLogger.info('Create Tx', explorerTxLink(builderResult.signature, { cluster }));
+  AppLogger.info('Create Token Tx', explorerTxLink(builderResult.signature, { cluster }));
 
-  AppLogger.info('Done.');
+  AppLogger.info('Done');
 };

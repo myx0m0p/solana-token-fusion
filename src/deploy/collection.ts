@@ -1,13 +1,21 @@
-import { createNft } from '@metaplex-foundation/mpl-token-metadata';
+import { createCollection, fetchCollection, ruleSet } from '@metaplex-foundation/mpl-core';
+import { setComputeUnitPrice } from '@metaplex-foundation/mpl-toolbox';
+import { transactionBuilder } from '@metaplex-foundation/umi';
 
 import { explorerAddressLink, explorerTxLink } from '../utils/explorer';
 import { AppLogger } from '../utils/logger';
 import { ClusterType } from '../utils/cluster';
 import { createUmi } from '../utils/umi';
-import { NFT_COLLECTION_SETTINGS } from './_config';
+
+//TODO Move this to cli params with defaults
+export const COLLECTION_DATA = {
+  royalty: 500,
+  name: 'STF Collection',
+  uri: 'https://sft.org/collection.json',
+};
 
 export const deployCollection = async (cluster: ClusterType = 'localnet') => {
-  const { umi, deployer, collection } = await createUmi(cluster);
+  const { umi, deployer, collection, clusterSettings } = await createUmi(cluster);
 
   AppLogger.info('Collection Mint', explorerAddressLink(collection.publicKey, { cluster }));
 
@@ -18,17 +26,41 @@ export const deployCollection = async (cluster: ClusterType = 'localnet') => {
     return;
   }
 
-  const collectionResult = await createNft(umi, {
-    mint: collection,
-    authority: deployer,
-    name: NFT_COLLECTION_SETTINGS.name,
-    symbol: NFT_COLLECTION_SETTINGS.symbol,
-    uri: NFT_COLLECTION_SETTINGS.uri,
-    sellerFeeBasisPoints: NFT_COLLECTION_SETTINGS.sellerFeeBasisPoints,
-    isCollection: true,
-  }).sendAndConfirm(umi);
+  let builder = transactionBuilder();
 
-  AppLogger.info('Create Collection Tx', explorerTxLink(collectionResult.signature, { cluster }));
+  // add priority
+  if (clusterSettings.priority) {
+    builder = builder.add(setComputeUnitPrice(umi, { microLamports: clusterSettings.priority }));
+  }
 
-  AppLogger.info('Done.');
+  // create collection
+  builder = builder.add(
+    createCollection(umi, {
+      collection,
+      name: COLLECTION_DATA.name,
+      uri: COLLECTION_DATA.uri,
+      plugins: [
+        {
+          type: 'Royalties',
+          basisPoints: COLLECTION_DATA.royalty,
+          creators: [
+            {
+              address: deployer.publicKey,
+              percentage: 100,
+            },
+          ],
+          ruleSet: ruleSet('None'), // Compatibility rule set
+        },
+      ],
+    })
+  );
+
+  const builderResult = await builder.sendAndConfirm(umi);
+
+  AppLogger.info('Create Collection Tx', explorerTxLink(builderResult.signature, { cluster }));
+
+  const collectionData = await fetchCollection(umi, collection.publicKey);
+  AppLogger.info('Collection Data', collectionData);
+
+  AppLogger.info('Done');
 };

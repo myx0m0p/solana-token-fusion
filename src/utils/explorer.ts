@@ -1,5 +1,5 @@
 import { PublicKey } from '@metaplex-foundation/umi';
-import * as bs58 from 'bs58';
+import bs58 from 'bs58';
 import { ClusterType } from './cluster';
 
 export enum Explorer {

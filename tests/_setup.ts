@@ -25,17 +25,17 @@ type CollectionData = Pick<
 >;
 
 export const collectionData = (): CollectionData => ({
-  name: 'My Asset',
-  symbol: 'OLD',
+  name: 'STF Asset',
+  symbol: 'STF',
   sellerFeeBasisPoints: percentAmount(10, 2),
-  uri: 'https://example.com/my-asset.json',
+  uri: 'https://sft.org/asset.json',
 });
 
-export const newCollectionData = (): CollectionData => ({
-  name: 'My new Asset',
-  symbol: 'NEW',
+export const updatedCollectionData = (): CollectionData => ({
+  name: 'STF Asset - Updated',
+  symbol: 'STFU',
   sellerFeeBasisPoints: percentAmount(100, 2),
-  uri: 'https://example.com/my-new-asset.json',
+  uri: 'https://sft.org/asset_updated.json',
 });
 
 export type CollectionAccounts = {

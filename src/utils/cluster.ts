@@ -5,6 +5,7 @@ export type ClusterType = 'localnet' | 'devnet' | 'mainnet';
 type ClusterSettings = {
   rpc: string;
   commitment: Commitment;
+  priority?: number;
   airdropEnabled?: boolean;
   aidropAmount?: number;
 };
@@ -13,17 +14,20 @@ const CLUSTER_RPC: Record<ClusterType, ClusterSettings> = {
   localnet: {
     rpc: process.env.SOLANA_LOCALNET_RPC || 'http://localhost:8899',
     commitment: 'confirmed',
+    priority: 10_000,
     airdropEnabled: true,
     aidropAmount: 1, // 1 SOL
   },
   devnet: {
     rpc: process.env.SOLANA_DEVNET_RPC || 'https://api.devnet.solana.com',
     commitment: 'processed',
+    priority: 10_000,
     airdropEnabled: false,
   },
   mainnet: {
     rpc: process.env.SOLANA_MAINNET_RPC || 'https://api.mainnet-beta.solana.com',
     commitment: 'processed',
+    priority: 10_000,
     airdropEnabled: false,
   },
 };
