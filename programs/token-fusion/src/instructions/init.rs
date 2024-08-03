@@ -73,7 +73,7 @@ pub struct InitV1Ctx<'info> {
     fusion_data: Account<'info, FusionDataV1>,
 
     /// Authority PDA used to verify minted NFTs to the collection
-    /// and to authorize transfers from token treasure.
+    /// and to authorize transfers from token escrow.
     ///
     /// CHECK: account checked in seeds constraint
     #[account(
@@ -95,21 +95,21 @@ pub struct InitV1Ctx<'info> {
     /// Mint account of the token.
     token_mint: Account<'info, Mint>,
 
-    /// Treasure ata with authority_pda as authority.
+    /// Token escrow pda ata account.
     #[account(
         init,
         payer = payer,
         associated_token::mint = token_mint,
         associated_token::authority = authority_pda
     )]
-    token_treasure: Account<'info, TokenAccount>,
+    escrow_ata_pda: Account<'info, TokenAccount>,
 
     /// Collection account
     #[account(
         mut,
         constraint = collection.update_authority == authority.key(),
     )]
-    pub collection: Account<'info, BaseCollectionV1>,
+    collection: Account<'info, BaseCollectionV1>,
 
     /// Token program.
     token_program: Program<'info, Token>,

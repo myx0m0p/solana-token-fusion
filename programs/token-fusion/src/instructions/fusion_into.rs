@@ -79,7 +79,7 @@ pub fn handler_fusion_into_v1<'info>(
     process_mint(fusion, &accounts, ctx.bumps.authority_pda)
 }
 
-/// Transfers tokens to the treasure and burn some of them.
+/// Transfers tokens to the escrow and burn some of them.
 pub(crate) fn process_burn_and_transfer(
     fusion: &mut Account<'_, FusionDataV1>,
     accounts: &FusionIntoAccountsV1,
@@ -211,11 +211,11 @@ pub struct FusionIntoV1Ctx<'info> {
     asset: Signer<'info>,
 
     /// Collection account.
-    #[account(address = fusion_data.collection, owner = CORE_PROGRAM_ID)]
+    #[account(mut, address = fusion_data.collection, owner = CORE_PROGRAM_ID)]
     collection: Account<'info, BaseCollectionV1>,
 
     /// Mint account of the token.
-    #[account(mut, address = fusion_data.token_mint)]
+    #[account(address = fusion_data.token_mint)]
     token_mint: Account<'info, Mint>,
 
     /// Token escrow pda ata account.

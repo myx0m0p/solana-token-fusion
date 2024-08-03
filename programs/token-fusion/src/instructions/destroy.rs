@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::{close_account, transfer, CloseAccount, Mint, Token, TokenAccount, Transfer},
+    token::{CloseAccount, Mint, Token, TokenAccount, Transfer},
 };
 use mpl_core::types::PluginType;
 use mpl_core::ID as CORE_PROGRAM_ID;
@@ -27,7 +27,7 @@ pub fn handler_destroy_v1(ctx: Context<DestroyV1Ctx>) -> Result<()> {
     let token_accounts = SplTokenAccounts {
         authority: ctx.accounts.authority.to_account_info(),
         authority_pda: ctx.accounts.authority_pda.to_account_info(),
-        from: ctx.accounts.token_treasure.clone(),
+        from: ctx.accounts.escrow_ata_pda.clone(),
         to: ctx.accounts.authority_ata.clone(),
         spl_token_program: ctx.accounts.token_program.to_account_info(),
     };
@@ -62,7 +62,7 @@ pub(crate) fn process_transfer(accounts: SplTokenAccounts, bump: u8) -> Result<(
     // get current balance
     let transfer_amount: u64 = accounts.from.amount;
 
-    // transfer tokens from the token treasure account to the authority_token_ata account
+    // transfer tokens from the escrow ata to the authority_token_ata account
     let cpi_ctx = CpiContext::new_with_signer(
         accounts.spl_token_program.to_account_info(),
         Transfer {
@@ -72,7 +72,7 @@ pub(crate) fn process_transfer(accounts: SplTokenAccounts, bump: u8) -> Result<(
         },
         signer_seeds,
     );
-    transfer(cpi_ctx, transfer_amount)?;
+    anchor_spl::token::transfer(cpi_ctx, transfer_amount)?;
 
     msg!("Transferred {} tokens", transfer_amount);
 
@@ -87,11 +87,11 @@ pub(crate) fn process_transfer(accounts: SplTokenAccounts, bump: u8) -> Result<(
         signer_seeds,
     );
 
-    close_account(cpi_ctx)
+    anchor_spl::token::close_account(cpi_ctx)
 }
 
 /// Close data account and withdraw the rent SOL to the authority.
-/// Also transfers all tokens from treasure to the authority ata and closes the token account.
+/// Also transfers all tokens from escrow to the authority and closes the escrow ata.
 #[derive(Accounts)]
 pub struct DestroyV1Ctx<'info> {
     /// Fusion data account.
@@ -112,13 +112,13 @@ pub struct DestroyV1Ctx<'info> {
     #[account(address = fusion_data.token_mint)]
     token_mint: Account<'info, Mint>,
 
-    /// Treasure ata with authority_pda as authority.
+    /// Token escrow pda ata account.
     #[account(
         mut,
         associated_token::mint = token_mint,
         associated_token::authority = authority_pda
     )]
-    token_treasure: Account<'info, TokenAccount>,
+    escrow_ata_pda: Account<'info, TokenAccount>,
 
     /// Authority ata.
     #[account(
@@ -133,9 +133,9 @@ pub struct DestroyV1Ctx<'info> {
     ///
     /// CHECK: account checked in address constraint
     #[account(
-            mut,
-            address = fusion_data.collection,
-        )]
+        mut,
+        address = fusion_data.collection,
+    )]
     collection: UncheckedAccount<'info>,
 
     /// SPL Token program.

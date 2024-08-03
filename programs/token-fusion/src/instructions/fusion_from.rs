@@ -74,7 +74,7 @@ pub fn handler_fusion_from_v1<'info>(
     process_burn(fusion, &accounts)
 }
 
-/// Transfers tokens from the treasure to the user token account.
+/// Transfers tokens from the escrow to the user token account.
 pub(crate) fn process_transfer(
     fusion: &mut Account<'_, FusionDataV1>,
     accounts: &FusionFromAccountsV1,

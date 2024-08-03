@@ -22,27 +22,20 @@ pub mod token_fusion {
 
     /// Initialize the fusion data account with the specified data.
     ///
-    /// # Accountss
+    /// # Input accounts
     ///
-    ///   0.  `[writable]` fusion data account (seeds `[b"fusion_data"]`)
-    ///   1.  `[writable]` Authority PDA (seeds `[b"authority"]`)
-    ///   2.  `[]` authority
-    ///   3.  `[signer]` Payer
-    ///   4.  `[]` Token mint
-    ///   5.  `[]` Token treasure associated account with program pda as authority.
-    ///   6.  `[]` Collection metadata
-    ///   7.  `[]` Collection mint
-    ///   8.  `[]` Collection master edition
-    ///   9.  `[signer]` Collection update authority
-    ///   10. `[writable]` Collection delegate record
-    ///   11. `[optional]` Rule Set for minted assets
-    ///   12. `[]` Token program
-    ///   13. `[]` Associated Token program
-    ///   14. `[]` Token Metadata program
-    ///   15. `[]` System program
-    ///   16. `[]` Sysvar program
-    ///   17. `[optional]` Token Authorization Rules program
-    ///   18. `[optional]` Token Authorization rules account for the collection metadata (if any).
+    ///   0. `[writable]` fusion data account (seeds `[b"fusion_data"]`)
+    ///   1. `[writable]` Authority PDA (seeds `[b"authority"]`)
+    ///   2. `[signer]` Collection update authority
+    ///   3. `[signer]` Payer of the transaction
+    ///   4. `[]` Token mint
+    ///   5. `[]` Token escrow associated account with program authority pda
+    ///   6. `[writable]` Collection account
+    ///   7. `[]` Token program
+    ///   8. `[]` Associated Token program
+    ///   9. `[]` Core program
+    ///   10.`[]` System program
+    ///   11.`[optional]` SPL Noop program
     pub fn init_v1(
         ctx: Context<InitV1Ctx>,
         asset_data: AssetDataV1,
@@ -51,68 +44,61 @@ pub mod token_fusion {
         instructions::handler_init_v1(ctx, asset_data, token_data)
     }
 
-    /// Transmute NFT into Tokens.
+    /// Fusion tokens into Asset.
     ///
-    /// User burns NFT in exchange fixed amount of Token minted to this user
+    /// User's tokens transferred to the escrow and optionally partially burned
+    /// and new Asset is minted in exchange.
     ///
     /// # Accounts
     ///
-    ///   0. `[]` fusion data account
-    ///   1. `[signer]` Asset owner or Utility delegate
-    ///   2. `[writable]` Mint of token asset
-    ///   3. `[optional, writable]` Metadata of the Collection
-    ///   4. `[writable]` Metadata account of the NFT
-    ///   5. `[optional, writable]` Master edition account of the NFT
-    ///   6. `[writable]` Token account to close
-    ///   7. `[optional, writable]` Token record (required for pNFT)
-    ///   8. `[]` Token Metadata program
-    ///   9. `[]` SPL Token program
-    ///   10. `[]` System program
-    ///   11. `[]` Instructions sysvar account
+    ///   0. `[writable]` fusion data account (seeds `[b"fusion_data"]`)
+    ///   1. `[writable]` Authority PDA (seeds `[b"authority"]`)
+    ///   2. `[signer]` User
+    ///   3. `[signer]` Asset account
+    ///   4. `[writable]` Collection account
+    ///   5. `[]` Token mint
+    ///   6. `[]` Escrow ata with authority_pda as authority
+    ///   7. `[]` User ata with user as authority
+    ///   8. `[]` Fee sol account
+    ///   9. `[]` Token program
+    ///   10.`[]` Associated Token program
+    ///   11.`[]` Core program
+    ///   12.`[]` System program
+    ///   13.`[optional]` SPL Noop program
     pub fn fusion_into_v1<'info>(
         ctx: Context<'_, '_, '_, 'info, FusionIntoV1Ctx<'info>>,
     ) -> Result<()> {
         instructions::handler_fusion_into_v1(ctx)
     }
 
-    /// Transmute Tokens into Asset.
+    /// Fusion tokens from Asset.
     ///
-    /// User's tokens partially burned and partially transferred to the treasure
-    /// new Asset is minted in exchange
+    /// User's asset is burned and corresponding amount of tokens are transferred
+    /// to the user's account from the escrow.
     ///
     /// # Accounts
     ///
-    ///   0.  `[writable]` fusion data account (seeds `[b"fusion_data"]`)
-    ///   1.  `[writable]` Authority PDA (seeds `[b"authority"]`)
-    ///   2.  `[signer]` Payer and authority of token associated account
-    ///   3.  `[]` Owner of the minted asset
-    ///   4.  `[writable]` Asset Mint account
-    ///   5.  `[writable]` Asset Metadata account
-    ///   6.  `[writable]` Asset Master edition account
-    ///   7.  `[optional, writable]` Destination token account
-    ///   8.  `[optional, writable]` Token record
-    ///   9.  `[]` Collection delegate or authority record
-    ///   10. `[]` Collection mint
-    ///   11. `[writable]` Collection metadata
-    ///   12. `[]` Collection master edition
-    ///   13. `[]` Collection update authority
-    ///   14. `[writable]` Token Mint account
-    ///   15. `[writable]` Token treasure associated account with authority_pda as authority
-    ///   16. `[writable]` Associated token account with payer as authority.
-    ///   17. `[]` Token Metadata program
-    ///   18. `[]` SPL Token program
-    ///   19. `[]` SPL Associated Token program
-    ///   20. `[]` System program
-    ///   21. `[optional]` Instructions sysvar account
-    ///   22. `[optional]` Token Authorization Rules program
-    ///   23. `[optional]` Token Authorization rules account for the collection metadata (if any).
+    ///   0. `[writable]` fusion data account (seeds `[b"fusion_data"]`)
+    ///   1. `[writable]` Authority PDA (seeds `[b"authority"]`)
+    ///   2. `[signer]` User
+    ///   3. `[signer]` Asset account
+    ///   4. `[writable]` Collection account
+    ///   5. `[]` Token mint
+    ///   6. `[]` Escrow ata with authority_pda as authority
+    ///   7. `[]` User ata with user as authority
+    ///   8. `[]` Fee sol account
+    ///   9. `[]` Token program
+    ///   10.`[]` Associated Token program
+    ///   11.`[]` Core program
+    ///   12.`[]` System program
+    ///   13.`[optional]` SPL Noop program
     pub fn fusion_from_v1<'info>(
         ctx: Context<'_, '_, '_, 'info, FusionFromV1Ctx<'info>>,
     ) -> Result<()> {
         instructions::handler_fusion_from_v1(ctx)
     }
 
-    /// Set a new authority of the program.
+    /// Set the new authority of the program.
     ///
     /// # Accounts
     ///
@@ -122,7 +108,7 @@ pub mod token_fusion {
         instructions::handler_set_authority_v1(ctx, new_authority)
     }
 
-    /// Update the fusion fusion configuration.
+    /// Update the fusion data account with the specified data.
     ///
     /// # Accounts
     ///
@@ -136,25 +122,27 @@ pub mod token_fusion {
         instructions::handler_update_v1(ctx, asset_data, token_data)
     }
 
-    /// Withdraw the rent lamports and send them to the authority address.
-    /// Also transfers all tokens from treasure to the authority ata and closes the token account.
+    /// Destroy the fusion data account and withdraw all the funds.
     ///
     /// # Accounts
     ///
     ///   0. `[writable]` fusion data account (seeds `[b"fusion_data"]`)
     ///   1. `[writable]` Authority PDA (seeds `[b"authority"]`)
     ///   2. `[signer]` authority
-    ///   3. `[writable]` Token Mint account
-    ///   4. `[writable]` Token treasure associated account with authority_pda as authority
-    ///   5. `[writable]` fusion authority associated token account
-    ///   6. `[]` SPL Token program
-    ///   7. `[]` SPL Associated Token program
-    ///   8. `[]` System program
+    ///   3. `[]` Token Mint account
+    ///   4. `[writable]` Escrow ata with authority_pda as authority
+    ///   5. `[writable]` Authority associated token account
+    ///   6. `[writable]` Collection account
+    ///   7. `[]` Token program
+    ///   8. `[]` Associated Token program
+    ///   9. `[]` Core program
+    ///   10.`[]` System program
+    ///   11.`[]` SPL Noop program
     pub fn destroy_v1(ctx: Context<DestroyV1Ctx>) -> Result<()> {
         instructions::handler_destroy_v1(ctx)
     }
 
-    /// Pause or unpause all operations.
+    /// Pause or unpause all fusion operations.
     ///
     /// # Accounts
     ///
