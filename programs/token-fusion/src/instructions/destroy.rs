@@ -3,13 +3,19 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     token::{close_account, transfer, CloseAccount, Mint, Token, TokenAccount, Transfer},
 };
+use mpl_core::types::PluginType;
+use mpl_core::ID as CORE_PROGRAM_ID;
 
 use crate::{
     constants::{AUTHORITY_SEED, DATA_SEED},
-    TransmuteFactory,
+    utils::{
+        revoke_collection_authority_v1, CollectionPluginAuthorityV1Accounts,
+        RevokeCollectionPluginAuthorityV1Args,
+    },
+    FusionDataV1,
 };
 
-pub(crate) struct Accounts<'info> {
+pub(crate) struct SplTokenAccounts<'info> {
     pub authority: AccountInfo<'info>,
     pub authority_pda: AccountInfo<'info>,
     pub from: Account<'info, TokenAccount>,
@@ -17,17 +23,39 @@ pub(crate) struct Accounts<'info> {
     pub spl_token_program: AccountInfo<'info>,
 }
 
-pub fn disenchant(ctx: Context<Disenchant>) -> Result<()> {
-    let token_accounts = Accounts {
+pub fn handler_destroy_v1(ctx: Context<DestroyV1Ctx>) -> Result<()> {
+    let token_accounts = SplTokenAccounts {
         authority: ctx.accounts.authority.to_account_info(),
         authority_pda: ctx.accounts.authority_pda.to_account_info(),
         from: ctx.accounts.token_treasure.clone(),
-        to: ctx.accounts.authority_token_ata.clone(),
+        to: ctx.accounts.authority_ata.clone(),
         spl_token_program: ctx.accounts.token_program.to_account_info(),
     };
-    process_transfer_out(token_accounts, ctx.bumps.authority_pda)
+
+    process_transfer(token_accounts, ctx.bumps.authority_pda)?;
+
+    // revoke program delegate
+    let revoke_accounts = CollectionPluginAuthorityV1Accounts {
+        collection: ctx.accounts.collection.to_account_info(),
+        payer: ctx.accounts.authority.to_account_info(),
+        authority: Some(ctx.accounts.authority.to_account_info()),
+        core_program: ctx.accounts.core_program.to_account_info(),
+        system_program: ctx.accounts.system_program.to_account_info(),
+        log_wrapper: ctx
+            .accounts
+            .log_wrapper
+            .as_ref()
+            .map(|log_wrapper| log_wrapper.to_account_info()),
+    };
+
+    let revoke_args = RevokeCollectionPluginAuthorityV1Args {
+        plugin_type: PluginType::UpdateDelegate,
+    };
+
+    revoke_collection_authority_v1(revoke_accounts, revoke_args)
 }
-pub(crate) fn process_transfer_out(accounts: Accounts, bump: u8) -> Result<()> {
+
+pub(crate) fn process_transfer(accounts: SplTokenAccounts, bump: u8) -> Result<()> {
     let authority_seeds = &[AUTHORITY_SEED.as_bytes(), &[bump]];
     let signer_seeds = &[&authority_seeds[..]];
 
@@ -48,7 +76,7 @@ pub(crate) fn process_transfer_out(accounts: Accounts, bump: u8) -> Result<()> {
 
     msg!("Transferred {} tokens", transfer_amount);
 
-    // close token account and withdraw lamport to factory authority
+    // close token account and withdraw lamport to the authority
     let cpi_ctx = CpiContext::new_with_signer(
         accounts.spl_token_program.to_account_info(),
         CloseAccount {
@@ -62,12 +90,13 @@ pub(crate) fn process_transfer_out(accounts: Accounts, bump: u8) -> Result<()> {
     close_account(cpi_ctx)
 }
 
-/// Withdraw the rent SOL from the transmute factory account.
+/// Close data account and withdraw the rent SOL to the authority.
+/// Also transfers all tokens from treasure to the authority ata and closes the token account.
 #[derive(Accounts)]
-pub struct Disenchant<'info> {
-    /// Transmute Factory data account.
+pub struct DestroyV1Ctx<'info> {
+    /// Fusion data account.
     #[account(mut, close = authority, has_one = authority, seeds = [DATA_SEED.as_bytes()], bump)]
-    factory: Account<'info, TransmuteFactory>,
+    fusion_data: Account<'info, FusionDataV1>,
 
     /// Authority PDA account.
     ///
@@ -75,15 +104,15 @@ pub struct Disenchant<'info> {
     #[account(seeds = [AUTHORITY_SEED.as_bytes()], bump)]
     authority_pda: UncheckedAccount<'info>,
 
-    /// Authority of the transmute factory
+    /// Authority and payer of the transaction.
     #[account(mut)]
     authority: Signer<'info>,
 
     /// Mint account of the token.
-    #[account(address = factory.token_mint)]
+    #[account(address = fusion_data.token_mint)]
     token_mint: Account<'info, Mint>,
 
-    /// Token treasure associated account with authority_pda as authority.
+    /// Treasure ata with authority_pda as authority.
     #[account(
         mut,
         associated_token::mint = token_mint,
@@ -91,14 +120,23 @@ pub struct Disenchant<'info> {
     )]
     token_treasure: Account<'info, TokenAccount>,
 
-    /// Associated token account for authority.
+    /// Authority ata.
     #[account(
         init_if_needed,
         payer = authority,
         associated_token::mint = token_mint,
         associated_token::authority = authority
     )]
-    authority_token_ata: Account<'info, TokenAccount>,
+    authority_ata: Account<'info, TokenAccount>,
+
+    /// Collection account
+    ///
+    /// CHECK: account checked in address constraint
+    #[account(
+            mut,
+            address = fusion_data.collection,
+        )]
+    collection: UncheckedAccount<'info>,
 
     /// SPL Token program.
     token_program: Program<'info, Token>,
@@ -106,6 +144,14 @@ pub struct Disenchant<'info> {
     /// SPL Associated Token program.
     associated_token_program: Program<'info, AssociatedToken>,
 
+    /// CHECK: checked by account constraint
+    #[account(address = CORE_PROGRAM_ID)]
+    core_program: UncheckedAccount<'info>,
+
     /// System program.
     system_program: Program<'info, System>,
+
+    /// The SPL Noop program.
+    /// CHECK: Checked in mpl-core.
+    log_wrapper: Option<AccountInfo<'info>>,
 }

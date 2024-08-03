@@ -1,7 +1,7 @@
 use anchor_lang::error_code;
 
 #[error_code]
-pub enum FactoryError {
+pub enum FusionError {
     #[msg("Account does not have correct owner")]
     IncorrectOwner,
 
@@ -71,9 +71,15 @@ pub enum FactoryError {
     #[msg("The metadata account is empty")]
     MetadataAccountIsEmpty,
 
-    #[msg("Transmutations paused")]
-    TransmutationsPaused,
+    #[msg("Fusion paused")]
+    FusionPaused,
 
     #[msg("Invalid token amounts")]
     InvalidTokenAmounts,
+
+    #[msg("Max supply reached")]
+    MaxSupplyReached,
+
+    #[msg("Invalid protocol fee wallet")]
+    InvalidProtocolFeeWallet,
 }

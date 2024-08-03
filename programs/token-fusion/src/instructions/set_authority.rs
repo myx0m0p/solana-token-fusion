@@ -1,21 +1,24 @@
 use anchor_lang::prelude::*;
 
-use crate::{constants::DATA_SEED, TransmuteFactory};
+use crate::{constants::DATA_SEED, FusionDataV1};
 
-pub fn set_authority(ctx: Context<SetAuthority>, new_authority: Pubkey) -> Result<()> {
-    ctx.accounts.factory.authority = new_authority;
+pub fn handler_set_authority_v1(
+    ctx: Context<SetAuthorityV1Ctx>,
+    new_authority: Pubkey,
+) -> Result<()> {
+    ctx.accounts.fusion_data.authority = new_authority;
 
     Ok(())
 }
 
-/// Sets a new transmute factory authority.
+/// Sets a new authority.
 #[derive(Accounts)]
-pub struct SetAuthority<'info> {
-    /// Transmute Factory data account.
+pub struct SetAuthorityV1Ctx<'info> {
+    /// Fusion data account.
     #[account(mut, has_one = authority, seeds = [DATA_SEED.as_bytes()], bump)]
-    factory: Account<'info, TransmuteFactory>,
+    fusion_data: Account<'info, FusionDataV1>,
 
-    /// Authority of the transmute factory
+    /// Current authority
     #[account(mut)]
     authority: Signer<'info>,
 }

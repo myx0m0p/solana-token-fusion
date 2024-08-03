@@ -2,7 +2,7 @@
 
 use anchor_lang::prelude::*;
 
-pub use errors::FactoryError;
+pub use errors::FusionError;
 use instructions::*;
 use state::*;
 
@@ -20,13 +20,13 @@ pub mod token_fusion {
 
     use super::*;
 
-    /// Initialize the transmute factory account with the specified data.
+    /// Initialize the fusion data account with the specified data.
     ///
-    /// # Accounts
+    /// # Accountss
     ///
-    ///   0.  `[writable]` factory data account (seeds `[b"transmute_factory"]`)
+    ///   0.  `[writable]` fusion data account (seeds `[b"fusion_data"]`)
     ///   1.  `[writable]` Authority PDA (seeds `[b"authority"]`)
-    ///   2.  `[]` transmute factory authority
+    ///   2.  `[]` authority
     ///   3.  `[signer]` Payer
     ///   4.  `[]` Token mint
     ///   5.  `[]` Token treasure associated account with program pda as authority.
@@ -43,12 +43,12 @@ pub mod token_fusion {
     ///   16. `[]` Sysvar program
     ///   17. `[optional]` Token Authorization Rules program
     ///   18. `[optional]` Token Authorization rules account for the collection metadata (if any).
-    pub fn enchant(
-        ctx: Context<Enchant>,
-        asset_data: AssetData,
-        token_data: TokenData,
+    pub fn init_v1(
+        ctx: Context<InitV1Ctx>,
+        asset_data: AssetDataV1,
+        token_data: TokenDataV1,
     ) -> Result<()> {
-        instructions::enchant(ctx, asset_data, token_data)
+        instructions::handler_init_v1(ctx, asset_data, token_data)
     }
 
     /// Transmute NFT into Tokens.
@@ -57,7 +57,7 @@ pub mod token_fusion {
     ///
     /// # Accounts
     ///
-    ///   0. `[]` Transmute Factory account
+    ///   0. `[]` fusion data account
     ///   1. `[signer]` Asset owner or Utility delegate
     ///   2. `[writable]` Mint of token asset
     ///   3. `[optional, writable]` Metadata of the Collection
@@ -69,10 +69,10 @@ pub mod token_fusion {
     ///   9. `[]` SPL Token program
     ///   10. `[]` System program
     ///   11. `[]` Instructions sysvar account
-    pub fn transmute_into<'info>(
-        ctx: Context<'_, '_, '_, 'info, TransmuteInto<'info>>,
+    pub fn fusion_into_v1<'info>(
+        ctx: Context<'_, '_, '_, 'info, FusionIntoV1Ctx<'info>>,
     ) -> Result<()> {
-        instructions::transmute_into(ctx)
+        instructions::handler_fusion_into_v1(ctx)
     }
 
     /// Transmute Tokens into Asset.
@@ -82,7 +82,7 @@ pub mod token_fusion {
     ///
     /// # Accounts
     ///
-    ///   0.  `[writable]` factory data account (seeds `[b"transmute_factory"]`)
+    ///   0.  `[writable]` fusion data account (seeds `[b"fusion_data"]`)
     ///   1.  `[writable]` Authority PDA (seeds `[b"authority"]`)
     ///   2.  `[signer]` Payer and authority of token associated account
     ///   3.  `[]` Owner of the minted asset
@@ -106,34 +106,34 @@ pub mod token_fusion {
     ///   21. `[optional]` Instructions sysvar account
     ///   22. `[optional]` Token Authorization Rules program
     ///   23. `[optional]` Token Authorization rules account for the collection metadata (if any).
-    pub fn transmute_from<'info>(
-        ctx: Context<'_, '_, '_, 'info, TransmuteFrom<'info>>,
+    pub fn fusion_from_v1<'info>(
+        ctx: Context<'_, '_, '_, 'info, FusionFromV1Ctx<'info>>,
     ) -> Result<()> {
-        instructions::transmute_from(ctx)
+        instructions::handler_fusion_from_v1(ctx)
     }
 
     /// Set a new authority of the program.
     ///
     /// # Accounts
     ///
-    ///   0. `[writable]` factory data account (seeds `[b"transmute_factory"]`)
-    ///   1. `[signer]` factory current authority
-    pub fn set_authority(ctx: Context<SetAuthority>, new_authority: Pubkey) -> Result<()> {
-        instructions::set_authority(ctx, new_authority)
+    ///   0. `[writable]` fusion data account (seeds `[b"fusion_data"]`)
+    ///   1. `[signer]` current authority
+    pub fn set_authority_v1(ctx: Context<SetAuthorityV1Ctx>, new_authority: Pubkey) -> Result<()> {
+        instructions::handler_set_authority_v1(ctx, new_authority)
     }
 
-    /// Update the transmute factory configuration.
+    /// Update the fusion fusion configuration.
     ///
     /// # Accounts
     ///
-    ///   0. `[writable]` factory data account (seeds `[b"transmute_factory"]`)
-    ///   1. `[signer]` factory authority
-    pub fn update(
-        ctx: Context<Update>,
-        asset_data: AssetData,
-        token_data: TokenData,
+    ///   0. `[writable]` fusion data account (seeds `[b"fusion_data"]`)
+    ///   1. `[signer]` authority
+    pub fn update_v1(
+        ctx: Context<UpdateV1Ctx>,
+        asset_data: AssetDataV1,
+        token_data: TokenDataV1,
     ) -> Result<()> {
-        instructions::update(ctx, asset_data, token_data)
+        instructions::handler_update_v1(ctx, asset_data, token_data)
     }
 
     /// Withdraw the rent lamports and send them to the authority address.
@@ -141,26 +141,26 @@ pub mod token_fusion {
     ///
     /// # Accounts
     ///
-    ///   0. `[writable]` factory data account (seeds `[b"transmute_factory"]`)
+    ///   0. `[writable]` fusion data account (seeds `[b"fusion_data"]`)
     ///   1. `[writable]` Authority PDA (seeds `[b"authority"]`)
-    ///   2. `[signer]` Factory authority
+    ///   2. `[signer]` authority
     ///   3. `[writable]` Token Mint account
     ///   4. `[writable]` Token treasure associated account with authority_pda as authority
-    ///   5. `[writable]` Factory authority associated token account
+    ///   5. `[writable]` fusion authority associated token account
     ///   6. `[]` SPL Token program
     ///   7. `[]` SPL Associated Token program
     ///   8. `[]` System program
-    pub fn disenchant(ctx: Context<Disenchant>) -> Result<()> {
-        instructions::disenchant(ctx)
+    pub fn destroy_v1(ctx: Context<DestroyV1Ctx>) -> Result<()> {
+        instructions::handler_destroy_v1(ctx)
     }
 
-    /// Pause or unpause all transumations.
+    /// Pause or unpause all operations.
     ///
     /// # Accounts
     ///
-    ///   0. `[writable]` factory data account (seeds `[b"transmute_factory"]`)
-    ///   1. `[signer]` factory authority
-    pub fn set_pause(ctx: Context<SetPause>, paused: bool) -> Result<()> {
-        instructions::set_pause(ctx, paused)
+    ///   0. `[writable]` fusion data account (seeds `[b"fusion_data"]`)
+    ///   1. `[signer]` authority
+    pub fn set_pause_v1(ctx: Context<SetPauseV1Ctx>, paused: bool) -> Result<()> {
+        instructions::handler_set_pause_v1(ctx, paused)
     }
 }

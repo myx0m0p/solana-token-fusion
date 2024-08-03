@@ -1,15 +1,15 @@
-pub mod disenchant;
-pub mod enchant;
+pub mod destroy;
+pub mod fusion_from;
+pub mod fusion_into;
+pub mod init;
 pub mod set_authority;
 pub mod set_pause;
-pub mod transmute_from;
-pub mod transmute_into;
 pub mod update;
 
-pub use disenchant::*;
-pub use enchant::*;
+pub use destroy::*;
+pub use fusion_from::*;
+pub use fusion_into::*;
+pub use init::*;
 pub use set_authority::*;
 pub use set_pause::*;
-pub use transmute_from::*;
-pub use transmute_into::*;
 pub use update::*;
