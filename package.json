@@ -1,16 +1,18 @@
 {
   "private": true,
   "scripts": {
-    "generate": "pnpm generate:idls && pnpm generate:clients",
-    "generate:idls": "node ./config/shank.js",
-    "generate:clients": "node ./config/kinobi.js",
+    "generate": "pnpm generate:idls && pnpm generate:client",
+    "generate:idls": "anchor idl build -p token-fusion -o idls/token_fusion.json",
+    "generate:client": "node ./config/kinobi.mjs",
     "cli": "ts-node ./src/cli.ts"
   },
   "devDependencies": {
     "@commander-js/extra-typings": "^12.1.0",
+    "@kinobi-so/nodes-from-anchor": "^0.20.9",
+    "@kinobi-so/renderers-js-umi": "^0.21.0",
     "@metaplex-foundation/mpl-core": "^1.0.2",
-    "@metaplex-foundation/mpl-toolbox": "^0.9.4",
     "@metaplex-foundation/mpl-token-metadata": "^3.2.1",
+    "@metaplex-foundation/mpl-toolbox": "^0.9.4",
     "@metaplex-foundation/umi": "^0.9.2",
     "@metaplex-foundation/umi-bundle-defaults": "^0.9.2",
     "@metaplex-foundation/umi-web3js-adapters": "^0.9.2",

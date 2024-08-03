@@ -1,13 +1,21 @@
-const path = require('path');
-const k = require('@metaplex-foundation/kinobi');
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'url';
+import path, { dirname } from 'path';
 
-// Paths.
-const clientDir = path.join(__dirname, '..', 'packages', 'client');
-const rustClientDir = path.join(__dirname, '..', 'client', 'rust');
-const idlDir = path.join(__dirname, '..', 'idls');
+import { rootNodeFromAnchor } from '@kinobi-so/nodes-from-anchor';
+import { renderVisitor } from '@kinobi-so/renderers-js-umi';
+import { createFromRoot } from 'kinobi';
 
-// Instanciate Kinobi.
-const kinobi = k.createFromIdls([path.join(idlDir, 'sin_transmute_factory.json')]);
+// shim for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Read the content of your IDL file.
+const anchorIdlPath = path.join(__dirname, '..', 'idls', 'token_fusion.json');
+const anchorIdl = JSON.parse(readFileSync(anchorIdlPath, 'utf-8'));
+
+// Parse it into a Kinobi IDL.
+const kinobi = createFromRoot(rootNodeFromAnchor(anchorIdl));
 
 // Set default values for instruction accounts.
 // kinobi.update(
@@ -88,17 +96,22 @@ const kinobi = k.createFromIdls([path.join(idlDir, 'sin_transmute_factory.json')
 //     })
 // );
 
-// Render JavaScript.
-const jsDir = path.join(clientDir, 'src', 'generated');
-const prettier = require(path.join(clientDir, '.prettierrc.js'));
-kinobi.accept(new k.renderJavaScriptVisitor(jsDir, { prettier }));
+// // Render JavaScript.
+// const jsDir = path.join(clientDir, 'src', 'generated');
+// const prettier = require(path.join(clientDir, '.prettierrc.js'));
+// kinobi.accept(new k.renderJavaScriptVisitor(jsDir, { prettier }));
 
-// Render Rust.
-const rustDir = path.join(rustClientDir, 'src', 'generated');
-kinobi.accept(
-  k.renderRustVisitor(rustDir, {
-    formatCode: true,
-    crateFolder: rustClientDir,
-    renderParentInstructions: true,
-  })
-);
+// // Render Rust.
+// const rustDir = path.join(rustClientDir, 'src', 'generated');
+// kinobi.accept(
+//   k.renderRustVisitor(rustDir, {
+//     formatCode: true,
+//     crateFolder: rustClientDir,
+//     renderParentInstructions: true,
+//   })
+// );
+
+const clientDir = path.join(__dirname, '..', 'packages', 'client');
+const pathToGeneratedFolder = path.join(clientDir, 'src', 'generated');
+const options = {}; // See below.
+kinobi.accept(renderVisitor(pathToGeneratedFolder, options));

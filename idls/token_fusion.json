@@ -1,0 +1,1940 @@
+{
+  "address": "5KH8Y5eFJDjhqdQki5BEiomaCBEmkmAMALS6iBS4P4EV",
+  "metadata": {
+    "name": "token_fusion",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Solana Token Fusion Protocol Program"
+  },
+  "instructions": [
+    {
+      "name": "destroy_v1",
+      "docs": [
+        "Destroy the fusion data account and withdraw all the funds.",
+        "",
+        "# Accounts",
+        "",
+        "0. `[writable]` fusion data account (seeds `[b\"fusion_data\"]`)",
+        "1. `[writable]` Authority PDA (seeds `[b\"authority\"]`)",
+        "2. `[signer]` authority",
+        "3. `[]` Token Mint account",
+        "4. `[writable]` Escrow ata with authority_pda as authority",
+        "5. `[writable]` Authority associated token account",
+        "6. `[writable]` Collection account",
+        "7. `[]` Token program",
+        "8. `[]` Associated Token program",
+        "9. `[]` Core program",
+        "10.`[]` System program",
+        "11.`[]` SPL Noop program"
+      ],
+      "discriminator": [
+        239,
+        99,
+        81,
+        125,
+        255,
+        222,
+        125,
+        92
+      ],
+      "accounts": [
+        {
+          "name": "fusion_data",
+          "docs": [
+            "Fusion data account."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  117,
+                  115,
+                  105,
+                  111,
+                  110,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority_pda",
+          "docs": [
+            "Authority PDA account.",
+            ""
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Authority and payer of the transaction."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "fusion_data"
+          ]
+        },
+        {
+          "name": "token_mint",
+          "docs": [
+            "Mint account of the token."
+          ]
+        },
+        {
+          "name": "escrow_ata_pda",
+          "docs": [
+            "Token escrow pda ata account."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "authority_pda"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "authority_ata",
+          "docs": [
+            "Authority ata."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "authority"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "collection",
+          "docs": [
+            "Collection account",
+            ""
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "docs": [
+            "SPL Token program."
+          ],
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "docs": [
+            "SPL Associated Token program."
+          ],
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "System program."
+          ],
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "log_wrapper",
+          "docs": [
+            "The SPL Noop program."
+          ],
+          "optional": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "fusion_from_v1",
+      "docs": [
+        "Fusion tokens from Asset.",
+        "",
+        "User's asset is burned and corresponding amount of tokens are transferred",
+        "to the user's account from the escrow.",
+        "",
+        "# Accounts",
+        "",
+        "0. `[writable]` fusion data account (seeds `[b\"fusion_data\"]`)",
+        "1. `[writable]` Authority PDA (seeds `[b\"authority\"]`)",
+        "2. `[signer]` User",
+        "3. `[signer]` Asset account",
+        "4. `[writable]` Collection account",
+        "5. `[]` Token mint",
+        "6. `[]` Escrow ata with authority_pda as authority",
+        "7. `[]` User ata with user as authority",
+        "8. `[]` Fee sol account",
+        "9. `[]` Token program",
+        "10.`[]` Associated Token program",
+        "11.`[]` Core program",
+        "12.`[]` System program",
+        "13.`[optional]` SPL Noop program"
+      ],
+      "discriminator": [
+        220,
+        177,
+        173,
+        234,
+        227,
+        206,
+        111,
+        187
+      ],
+      "accounts": [
+        {
+          "name": "fusion_data",
+          "docs": [
+            "Fusion data account."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  117,
+                  115,
+                  105,
+                  111,
+                  110,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority_pda",
+          "docs": [
+            "Authority pda.",
+            ""
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "docs": [
+            "Transaction and rent payer.",
+            "Asset owner"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "asset",
+          "docs": [
+            "Account of the Asset."
+          ],
+          "writable": true
+        },
+        {
+          "name": "collection",
+          "docs": [
+            "Collection account."
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_mint",
+          "docs": [
+            "Mint account of the token."
+          ]
+        },
+        {
+          "name": "escrow_ata_pda",
+          "docs": [
+            "Token escrow pda ata account."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "authority_pda"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "user_ata",
+          "docs": [
+            "User ata account, will be initialized if needed"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "fee_sol_account",
+          "writable": true,
+          "address": "GjF4LqmEhV33riVyAwHwiEeAHx4XXFn2yMY3fmMigoP3"
+        },
+        {
+          "name": "token_program",
+          "docs": [
+            "Token program."
+          ],
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "docs": [
+            "Associated Token program."
+          ],
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "System program."
+          ],
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "log_wrapper",
+          "docs": [
+            "The SPL Noop program."
+          ],
+          "optional": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "fusion_into_v1",
+      "docs": [
+        "Fusion tokens into Asset.",
+        "",
+        "User's tokens transferred to the escrow and optionally partially burned",
+        "and new Asset is minted in exchange.",
+        "",
+        "# Accounts",
+        "",
+        "0. `[writable]` fusion data account (seeds `[b\"fusion_data\"]`)",
+        "1. `[writable]` Authority PDA (seeds `[b\"authority\"]`)",
+        "2. `[signer]` User",
+        "3. `[signer]` Asset account",
+        "4. `[writable]` Collection account",
+        "5. `[]` Token mint",
+        "6. `[]` Escrow ata with authority_pda as authority",
+        "7. `[]` User ata with user as authority",
+        "8. `[]` Fee sol account",
+        "9. `[]` Token program",
+        "10.`[]` Associated Token program",
+        "11.`[]` Core program",
+        "12.`[]` System program",
+        "13.`[optional]` SPL Noop program"
+      ],
+      "discriminator": [
+        33,
+        19,
+        30,
+        8,
+        103,
+        30,
+        102,
+        247
+      ],
+      "accounts": [
+        {
+          "name": "fusion_data",
+          "docs": [
+            "Fusion data account."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  117,
+                  115,
+                  105,
+                  111,
+                  110,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority_pda",
+          "docs": [
+            "Authority pda.",
+            ""
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "docs": [
+            "Transaction and rent payer.",
+            "Asset owner"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "asset",
+          "docs": [
+            "Account of the Asset. Will be initialized with the new asset."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "collection",
+          "docs": [
+            "Collection account."
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_mint",
+          "docs": [
+            "Mint account of the token."
+          ]
+        },
+        {
+          "name": "escrow_ata_pda",
+          "docs": [
+            "Token escrow pda ata account."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "authority_pda"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "user_ata",
+          "docs": [
+            "User ata account"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "fee_sol_account",
+          "writable": true,
+          "address": "GjF4LqmEhV33riVyAwHwiEeAHx4XXFn2yMY3fmMigoP3"
+        },
+        {
+          "name": "token_program",
+          "docs": [
+            "Token program."
+          ],
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "ata_program",
+          "docs": [
+            "Associated Token program."
+          ],
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "System program."
+          ],
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "log_wrapper",
+          "docs": [
+            "The SPL Noop program."
+          ],
+          "optional": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "init_v1",
+      "docs": [
+        "Initialize the fusion data account with the specified data.",
+        "",
+        "# Input accounts",
+        "",
+        "0. `[writable]` fusion data account (seeds `[b\"fusion_data\"]`)",
+        "1. `[writable]` Authority PDA (seeds `[b\"authority\"]`)",
+        "2. `[signer]` Collection update authority",
+        "3. `[signer]` Payer of the transaction",
+        "4. `[]` Token mint",
+        "5. `[]` Token escrow associated account with program authority pda",
+        "6. `[writable]` Collection account",
+        "7. `[]` Token program",
+        "8. `[]` Associated Token program",
+        "9. `[]` Core program",
+        "10.`[]` System program",
+        "11.`[optional]` SPL Noop program"
+      ],
+      "discriminator": [
+        152,
+        240,
+        247,
+        186,
+        91,
+        13,
+        124,
+        136
+      ],
+      "accounts": [
+        {
+          "name": "fusion_data",
+          "docs": [
+            "Fusion data account."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  117,
+                  115,
+                  105,
+                  111,
+                  110,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority_pda",
+          "docs": [
+            "Authority PDA used to verify minted NFTs to the collection",
+            "and to authorize transfers from token escrow.",
+            ""
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Authority. This is the address that controls the upate of the program.",
+            "And is also the authority of the collection.",
+            "Must be a signer."
+          ],
+          "signer": true
+        },
+        {
+          "name": "payer",
+          "docs": [
+            "Payer of the transaction."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "token_mint",
+          "docs": [
+            "Mint account of the token."
+          ]
+        },
+        {
+          "name": "escrow_ata_pda",
+          "docs": [
+            "Token escrow pda ata account."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "authority_pda"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "collection",
+          "docs": [
+            "Collection account"
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "docs": [
+            "Token program."
+          ],
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "docs": [
+            "Associated Token program."
+          ],
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "System program."
+          ],
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "log_wrapper",
+          "docs": [
+            "The SPL Noop program."
+          ],
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "asset_data",
+          "type": {
+            "defined": {
+              "name": "AssetDataV1"
+            }
+          }
+        },
+        {
+          "name": "token_data",
+          "type": {
+            "defined": {
+              "name": "TokenDataV1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_authority_v1",
+      "docs": [
+        "Set the new authority of the program.",
+        "",
+        "# Accounts",
+        "",
+        "0. `[writable]` fusion data account (seeds `[b\"fusion_data\"]`)",
+        "1. `[signer]` current authority"
+      ],
+      "discriminator": [
+        108,
+        174,
+        157,
+        222,
+        103,
+        150,
+        173,
+        66
+      ],
+      "accounts": [
+        {
+          "name": "fusion_data",
+          "docs": [
+            "Fusion data account."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  117,
+                  115,
+                  105,
+                  111,
+                  110,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Current authority"
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "fusion_data"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "new_authority",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "set_pause_v1",
+      "docs": [
+        "Pause or unpause all fusion operations.",
+        "",
+        "# Accounts",
+        "",
+        "0. `[writable]` fusion data account (seeds `[b\"fusion_data\"]`)",
+        "1. `[signer]` authority"
+      ],
+      "discriminator": [
+        72,
+        174,
+        209,
+        198,
+        115,
+        3,
+        4,
+        128
+      ],
+      "accounts": [
+        {
+          "name": "fusion_data",
+          "docs": [
+            "Fusion data account."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  117,
+                  115,
+                  105,
+                  111,
+                  110,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Current authority"
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "fusion_data"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "paused",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "update_v1",
+      "docs": [
+        "Update the fusion data account with the specified data.",
+        "",
+        "# Accounts",
+        "",
+        "0. `[writable]` fusion data account (seeds `[b\"fusion_data\"]`)",
+        "1. `[signer]` authority"
+      ],
+      "discriminator": [
+        207,
+        157,
+        187,
+        63,
+        205,
+        149,
+        31,
+        165
+      ],
+      "accounts": [
+        {
+          "name": "fusion_data",
+          "docs": [
+            "Fusion data account."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  117,
+                  115,
+                  105,
+                  111,
+                  110,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Current authority"
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "fusion_data"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "asset_data",
+          "type": {
+            "defined": {
+              "name": "AssetDataV1"
+            }
+          }
+        },
+        {
+          "name": "token_data",
+          "type": {
+            "defined": {
+              "name": "TokenDataV1"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BaseAssetV1",
+      "discriminator": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "BaseCollectionV1",
+      "discriminator": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "FusionDataV1",
+      "discriminator": [
+        188,
+        143,
+        154,
+        238,
+        143,
+        150,
+        224,
+        92
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "IncorrectOwner",
+      "msg": "Account does not have correct owner"
+    },
+    {
+      "code": 6001,
+      "name": "Uninitialized",
+      "msg": "Account is not initialized"
+    },
+    {
+      "code": 6002,
+      "name": "MintMismatch",
+      "msg": "Mint Mismatch"
+    },
+    {
+      "code": 6003,
+      "name": "IndexGreaterThanLength",
+      "msg": "Index greater than length"
+    },
+    {
+      "code": 6004,
+      "name": "NumericalOverflowError",
+      "msg": "Numerical overflow error"
+    },
+    {
+      "code": 6005,
+      "name": "TooManyCreators",
+      "msg": "Can only provide up to 4 creators"
+    },
+    {
+      "code": 6006,
+      "name": "IncorrectCollectionAuthority",
+      "msg": "Incorrect collection NFT authority"
+    },
+    {
+      "code": 6007,
+      "name": "MetadataAccountMustBeEmpty",
+      "msg": "The metadata account has data in it, and this must be empty to mint a new NFT"
+    },
+    {
+      "code": 6008,
+      "name": "ExceededLengthError",
+      "msg": "Value longer than expected maximum value"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidNextAssetIndex",
+      "msg": "Next asset index should be gt 0"
+    },
+    {
+      "code": 6010,
+      "name": "CollectionKeyMismatch",
+      "msg": "Collection public key mismatch"
+    },
+    {
+      "code": 6011,
+      "name": "TokenKeyMismatch",
+      "msg": "Token public key mismatch"
+    },
+    {
+      "code": 6012,
+      "name": "InstructionBuilderFailed",
+      "msg": "Instruction could not be created"
+    },
+    {
+      "code": 6013,
+      "name": "MissingCollectionAuthorityRecord",
+      "msg": "Missing collection authority record"
+    },
+    {
+      "code": 6014,
+      "name": "MissingMetadataDelegateRecord",
+      "msg": "Missing metadata delegate record"
+    },
+    {
+      "code": 6015,
+      "name": "InvalidTokenStandard",
+      "msg": "Invalid token standard"
+    },
+    {
+      "code": 6016,
+      "name": "MissingTokenAccount",
+      "msg": "Missing token account"
+    },
+    {
+      "code": 6017,
+      "name": "MissingTokenRecord",
+      "msg": "Missing token record"
+    },
+    {
+      "code": 6018,
+      "name": "MissingInstructionsSysvar",
+      "msg": "Missing instructions sysvar account"
+    },
+    {
+      "code": 6019,
+      "name": "MissingSplAtaProgram",
+      "msg": "Missing SPL ATA program"
+    },
+    {
+      "code": 6020,
+      "name": "IncorrectCollectionMint",
+      "msg": "Incorrect collection mint"
+    },
+    {
+      "code": 6021,
+      "name": "MissingCollectionMint",
+      "msg": "Missing collection mint metadata"
+    },
+    {
+      "code": 6022,
+      "name": "MetadataAccountIsEmpty",
+      "msg": "The metadata account is empty"
+    },
+    {
+      "code": 6023,
+      "name": "FusionPaused",
+      "msg": "Fusion paused"
+    },
+    {
+      "code": 6024,
+      "name": "InvalidTokenAmounts",
+      "msg": "Invalid token amounts"
+    },
+    {
+      "code": 6025,
+      "name": "MaxSupplyReached",
+      "msg": "Max supply reached"
+    },
+    {
+      "code": 6026,
+      "name": "InvalidProtocolFeeWallet",
+      "msg": "Invalid protocol fee wallet"
+    }
+  ],
+  "types": [
+    {
+      "name": "AssetDataV1",
+      "docs": [
+        "Asset Data Struct"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "max_supply",
+            "docs": [
+              "Optional asset mint limit"
+            ],
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "next_index",
+            "docs": [
+              "Asset next index to mint"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "name_prefix",
+            "docs": [
+              "Asset name prefix, i.e. `Token #`, max 10 symbols"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "uri_prefix",
+            "docs": [
+              "Asset URI prefix, i.e. `https://stf.org/metadata/` with trailing `/`, max 200 symbols"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "uri_suffix",
+            "docs": [
+              "Asset URI suffix, i.e. `.json`, max 5 symbols"
+            ],
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BaseAssetV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "key",
+            "type": {
+              "defined": {
+                "name": "Key"
+              }
+            }
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "update_authority",
+            "type": {
+              "defined": {
+                "name": "UpdateAuthority"
+              }
+            }
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "seq",
+            "type": {
+              "option": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "BaseCollectionV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "key",
+            "type": {
+              "defined": {
+                "name": "Key"
+              }
+            }
+          },
+          {
+            "name": "update_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "num_minted",
+            "type": "u32"
+          },
+          {
+            "name": "current_size",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FusionDataV1",
+      "docs": [
+        "Fusion Data Account"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": [
+              "Authority address, is able to update settings"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "collection",
+            "docs": [
+              "The collection account"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "token_mint",
+            "docs": [
+              "Token mint"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "paused",
+            "docs": [
+              "Paused status"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "asset_data",
+            "docs": [
+              "Asset specific data"
+            ],
+            "type": {
+              "defined": {
+                "name": "AssetDataV1"
+              }
+            }
+          },
+          {
+            "name": "token_data",
+            "docs": [
+              "Token specific data"
+            ],
+            "type": {
+              "defined": {
+                "name": "TokenDataV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Key",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Uninitialized"
+          },
+          {
+            "name": "AssetV1"
+          },
+          {
+            "name": "HashedAssetV1"
+          },
+          {
+            "name": "PluginHeaderV1"
+          },
+          {
+            "name": "PluginRegistryV1"
+          },
+          {
+            "name": "CollectionV1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenDataV1",
+      "docs": [
+        "Token Data Struct"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "into_amount",
+            "docs": [
+              "Amount of tokens needed to burn to mint a NFT, i.e. 100"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "from_amount",
+            "docs": [
+              "Amount of tokens received for burning a NFT, i.e. 90"
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateAuthority",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "Address",
+            "fields": [
+              "pubkey"
+            ]
+          },
+          {
+            "name": "Collection",
+            "fields": [
+              "pubkey"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
