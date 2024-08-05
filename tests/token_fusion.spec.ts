@@ -25,6 +25,7 @@ import {
   initV1,
   TokenDataV1,
 } from '../packages/client/dist/src';
+import { fetchAsset, fetchCollection } from '@metaplex-foundation/mpl-core';
 
 // const AUTH_ERROR_MESSAGE = 'Error Number: 2001. Error Message: A has one constraint was violated.';
 
@@ -112,11 +113,11 @@ describe('Solana Token Fusion', () => {
       // .sendAndConfirm(umi);
       .sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-    DEBUG && AppLogger.info('Init', explorerTxLink(initResult.signature));
+    DEBUG && AppLogger.info('Init TX', explorerTxLink(initResult.signature));
 
     const dataAccount = await fetchFusionDataV1(umi, dataPda);
 
-    AppLogger.info('Data Account', dataAccount);
+    DEBUG && AppLogger.info('Data Account', dataAccount);
 
     expect(dataAccount.assetData).to.deep.equal(expectedAssetData);
     expect(dataAccount.tokenData).to.deep.equal(expectedTokenData);
@@ -175,8 +176,6 @@ describe('Solana Token Fusion', () => {
   it('[Success] Fusion Into', async () => {
     const { umi, dataPda, collection, asset, token, escrowPda } = context;
 
-    AppLogger.info('Asset', explorerAddressLink(token.ata));
-
     const result = await fusionIntoV1(umi, {
       user: umi.identity,
       asset: asset.asset,
@@ -186,11 +185,16 @@ describe('Solana Token Fusion', () => {
       userAta: token.ata,
     }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-    DEBUG && AppLogger.info('Fusion Into', explorerTxLink(result.signature));
+    DEBUG && AppLogger.info('Fusion Into TX', explorerTxLink(result.signature));
 
     const dataAccount = await fetchFusionDataV1(umi, dataPda);
-
     DEBUG && AppLogger.info('Data Account', dataAccount);
+
+    const assetData = await fetchAsset(umi, asset.asset.publicKey);
+    DEBUG && AppLogger.info('Asset Data', assetData);
+
+    const collectionData = await fetchCollection(umi, collection.collection.publicKey);
+    DEBUG && AppLogger.info('Collection Data', collectionData);
 
     expect(dataAccount.assetData.nextIndex).to.equal(2n);
     // check escrow balance

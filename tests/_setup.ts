@@ -16,8 +16,8 @@ type CoreAsset = {
 };
 
 export const collectionData = (index?: string): CoreAsset => ({
-  name: 'STF Asset' + index ? ` #${index}` : '',
-  uri: 'https://stf.org/asset.json' + index ? `#${index}` : '',
+  name: `STF Collection${index ? `#${index}` : ''}`,
+  uri: `https://stf.org/collection${index ? `#${index}` : ''}.json`,
 });
 
 export type CollectionAccounts = {
