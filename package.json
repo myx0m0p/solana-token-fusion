@@ -5,7 +5,8 @@
     "generate:idls": "anchor idl build -p token-fusion -o idls/token_fusion.json",
     "generate:client": "node ./config/kinobi.mjs",
     "build:client": "pnpm --filter ./packages/client run build",
-    "cli": "ts-node ./src/cli.ts"
+    "cli": "ts-node ./src/cli.ts",
+    "test": "ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.spec.ts"
   },
   "devDependencies": {
     "@commander-js/extra-typings": "^12.1.0",
@@ -24,7 +25,7 @@
     "@types/node": "^20.11.0",
     "bip39": "^3.1.0",
     "bs58": "^6.0.0",
-    "chai": "^5.1.1",
+    "chai": "^4.5.0",
     "commander": "^12.1.0",
     "dotenv": "^16.4.5",
     "kinobi": "^0.21.0",
@@ -37,5 +38,5 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
-  "packageManager": "pnpm@8.15.0"
+  "packageManager": "pnpm@9.6.0"
 }
