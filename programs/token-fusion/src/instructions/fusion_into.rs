@@ -70,7 +70,7 @@ pub fn handler_fusion_into_v1<'info>(
 
     sol_transfer(
         accounts.payer.to_account_info(),
-        ctx.accounts.fee_sol_account.to_account_info(),
+        ctx.accounts.fee_account.to_account_info(),
         PROTOCOL_FEE,
     )?;
 
@@ -234,19 +234,21 @@ pub struct FusionIntoV1Ctx<'info> {
     )]
     user_ata: Account<'info, TokenAccount>,
 
+    /// Protocol fee account.
     /// CHECK: We check against constant
     #[account(
         mut,
         address = PROTOCOL_FEE_WALLET @ FusionError::InvalidProtocolFeeWallet
     )]
-    fee_sol_account: UncheckedAccount<'info>,
+    fee_account: UncheckedAccount<'info>,
 
     /// Token program.
     token_program: Program<'info, Token>,
 
     /// Associated Token program.
-    ata_program: Program<'info, AssociatedToken>,
+    associated_token_program: Program<'info, AssociatedToken>,
 
+    /// MPL Core program.
     /// CHECK: checked by account constraint
     #[account(address = CORE_PROGRAM_ID)]
     core_program: UncheckedAccount<'info>,

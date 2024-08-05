@@ -117,6 +117,7 @@ pub struct InitV1Ctx<'info> {
     /// Associated Token program.
     associated_token_program: Program<'info, AssociatedToken>,
 
+    /// MPL Core program.
     /// CHECK: checked by account constraint
     #[account(address = CORE_PROGRAM_ID)]
     core_program: UncheckedAccount<'info>,

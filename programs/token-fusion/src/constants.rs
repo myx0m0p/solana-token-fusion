@@ -18,4 +18,4 @@ pub const UNSET: u8 = 0;
 
 //FIXME: change to correct values
 pub const PROTOCOL_FEE: u64 = 10000000;
-pub const PROTOCOL_FEE_WALLET: Pubkey = pubkey!("GjF4LqmEhV33riVyAwHwiEeAHx4XXFn2yMY3fmMigoP3");
+pub const PROTOCOL_FEE_WALLET: Pubkey = pubkey!("CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG");
