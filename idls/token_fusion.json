@@ -803,7 +803,8 @@
           "name": "token_mint",
           "docs": [
             "Mint account of the token."
-          ]
+          ],
+          "writable": true
         },
         {
           "name": "escrow_ata_pda",

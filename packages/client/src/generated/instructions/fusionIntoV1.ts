@@ -130,7 +130,7 @@ export function fusionIntoV1(
     },
     tokenMint: {
       index: 5,
-      isWritable: false as boolean,
+      isWritable: true as boolean,
       value: input.tokenMint ?? null,
     },
     escrowAtaPda: {

@@ -99,17 +99,19 @@ pub(crate) fn process_burn_and_transfer(
     let transfer_amount = fusion.token_data.into_amount;
 
     // (2) burn
-    let cpi_ctx = CpiContext::new(
-        accounts.token_program.to_account_info(),
-        Burn {
-            mint: accounts.token_mint.to_account_info(),
-            from: accounts.from.to_account_info(),
-            authority: accounts.payer.to_account_info(),
-        },
-    );
+    if burn_amount > 0 {
+        let cpi_ctx = CpiContext::new(
+            accounts.token_program.to_account_info(),
+            Burn {
+                mint: accounts.token_mint.to_account_info(),
+                from: accounts.from.to_account_info(),
+                authority: accounts.payer.to_account_info(),
+            },
+        );
 
-    anchor_spl::token::burn(cpi_ctx, burn_amount)?;
-    msg!("Burned {} tokens", burn_amount);
+        anchor_spl::token::burn(cpi_ctx, burn_amount)?;
+        msg!("Burned {} tokens", burn_amount);
+    }
 
     // (3) transfer
     let cpi_ctx = CpiContext::new(
@@ -215,7 +217,7 @@ pub struct FusionIntoV1Ctx<'info> {
     collection: Account<'info, BaseCollectionV1>,
 
     /// Mint account of the token.
-    #[account(address = fusion_data.token_mint)]
+    #[account(mut, address = fusion_data.token_mint)]
     token_mint: Account<'info, Mint>,
 
     /// Token escrow pda ata account.
