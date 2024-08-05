@@ -317,6 +317,9 @@
         },
         {
           "name": "core_program",
+          "docs": [
+            "MPL Core program."
+          ],
           "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
         },
         {
@@ -639,9 +642,12 @@
           }
         },
         {
-          "name": "fee_sol_account",
+          "name": "fee_account",
+          "docs": [
+            "Protocol fee account."
+          ],
           "writable": true,
-          "address": "GjF4LqmEhV33riVyAwHwiEeAHx4XXFn2yMY3fmMigoP3"
+          "address": "CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG"
         },
         {
           "name": "token_program",
@@ -659,6 +665,9 @@
         },
         {
           "name": "core_program",
+          "docs": [
+            "MPL Core program."
+          ],
           "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
         },
         {
@@ -983,9 +992,12 @@
           }
         },
         {
-          "name": "fee_sol_account",
+          "name": "fee_account",
+          "docs": [
+            "Protocol fee account."
+          ],
           "writable": true,
-          "address": "GjF4LqmEhV33riVyAwHwiEeAHx4XXFn2yMY3fmMigoP3"
+          "address": "CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG"
         },
         {
           "name": "token_program",
@@ -995,7 +1007,7 @@
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         },
         {
-          "name": "ata_program",
+          "name": "associated_token_program",
           "docs": [
             "Associated Token program."
           ],
@@ -1003,6 +1015,9 @@
         },
         {
           "name": "core_program",
+          "docs": [
+            "MPL Core program."
+          ],
           "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
         },
         {
@@ -1246,6 +1261,9 @@
         },
         {
           "name": "core_program",
+          "docs": [
+            "MPL Core program."
+          ],
           "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
         },
         {
