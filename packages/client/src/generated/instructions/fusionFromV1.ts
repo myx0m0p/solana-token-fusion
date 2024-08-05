@@ -12,6 +12,7 @@ import {
   PublicKey,
   Signer,
   TransactionBuilder,
+  publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import {
@@ -54,11 +55,13 @@ export type FusionFromV1InstructionAccounts = {
   escrowAtaPda?: PublicKey | Pda;
   /** User ata account, will be initialized if needed */
   userAta?: PublicKey | Pda;
-  feeSolAccount?: PublicKey | Pda;
+  /** Protocol fee account. */
+  feeAccount?: PublicKey | Pda;
   /** Token program. */
   tokenProgram?: PublicKey | Pda;
   /** Associated Token program. */
   associatedTokenProgram?: PublicKey | Pda;
+  /** MPL Core program. */
   coreProgram?: PublicKey | Pda;
   /** System program. */
   systemProgram?: PublicKey | Pda;
@@ -140,10 +143,10 @@ export function fusionFromV1(
       isWritable: true as boolean,
       value: input.userAta ?? null,
     },
-    feeSolAccount: {
+    feeAccount: {
       index: 8,
       isWritable: true as boolean,
-      value: input.feeSolAccount ?? null,
+      value: input.feeAccount ?? null,
     },
     tokenProgram: {
       index: 9,
@@ -221,12 +224,10 @@ export function fusionFromV1(
       ),
     ]);
   }
-  if (!resolvedAccounts.feeSolAccount.value) {
-    resolvedAccounts.feeSolAccount.value = context.programs.getPublicKey(
-      'feeSolAccount',
-      'GjF4LqmEhV33riVyAwHwiEeAHx4XXFn2yMY3fmMigoP3'
+  if (!resolvedAccounts.feeAccount.value) {
+    resolvedAccounts.feeAccount.value = publicKey(
+      'CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG'
     );
-    resolvedAccounts.feeSolAccount.isWritable = false;
   }
   if (!resolvedAccounts.tokenProgram.value) {
     resolvedAccounts.tokenProgram.value = context.programs.getPublicKey(

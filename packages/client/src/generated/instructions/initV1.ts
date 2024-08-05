@@ -66,6 +66,7 @@ export type InitV1InstructionAccounts = {
   tokenProgram?: PublicKey | Pda;
   /** Associated Token program. */
   associatedTokenProgram?: PublicKey | Pda;
+  /** MPL Core program. */
   coreProgram?: PublicKey | Pda;
   /** System program. */
   systemProgram?: PublicKey | Pda;

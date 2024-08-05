@@ -56,6 +56,7 @@ export type DestroyV1InstructionAccounts = {
   tokenProgram?: PublicKey | Pda;
   /** SPL Associated Token program. */
   associatedTokenProgram?: PublicKey | Pda;
+  /** MPL Core program. */
   coreProgram?: PublicKey | Pda;
   /** System program. */
   systemProgram?: PublicKey | Pda;

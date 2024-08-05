@@ -12,6 +12,7 @@ import {
   PublicKey,
   Signer,
   TransactionBuilder,
+  publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import {
@@ -54,11 +55,13 @@ export type FusionIntoV1InstructionAccounts = {
   escrowAtaPda?: PublicKey | Pda;
   /** User ata account */
   userAta?: PublicKey | Pda;
-  feeSolAccount?: PublicKey | Pda;
+  /** Protocol fee account. */
+  feeAccount?: PublicKey | Pda;
   /** Token program. */
   tokenProgram?: PublicKey | Pda;
   /** Associated Token program. */
-  ataProgram?: PublicKey | Pda;
+  associatedTokenProgram?: PublicKey | Pda;
+  /** MPL Core program. */
   coreProgram?: PublicKey | Pda;
   /** System program. */
   systemProgram?: PublicKey | Pda;
@@ -140,20 +143,20 @@ export function fusionIntoV1(
       isWritable: true as boolean,
       value: input.userAta ?? null,
     },
-    feeSolAccount: {
+    feeAccount: {
       index: 8,
       isWritable: true as boolean,
-      value: input.feeSolAccount ?? null,
+      value: input.feeAccount ?? null,
     },
     tokenProgram: {
       index: 9,
       isWritable: false as boolean,
       value: input.tokenProgram ?? null,
     },
-    ataProgram: {
+    associatedTokenProgram: {
       index: 10,
       isWritable: false as boolean,
-      value: input.ataProgram ?? null,
+      value: input.associatedTokenProgram ?? null,
     },
     coreProgram: {
       index: 11,
@@ -221,12 +224,10 @@ export function fusionIntoV1(
       ),
     ]);
   }
-  if (!resolvedAccounts.feeSolAccount.value) {
-    resolvedAccounts.feeSolAccount.value = context.programs.getPublicKey(
-      'feeSolAccount',
-      'GjF4LqmEhV33riVyAwHwiEeAHx4XXFn2yMY3fmMigoP3'
+  if (!resolvedAccounts.feeAccount.value) {
+    resolvedAccounts.feeAccount.value = publicKey(
+      'CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG'
     );
-    resolvedAccounts.feeSolAccount.isWritable = false;
   }
   if (!resolvedAccounts.tokenProgram.value) {
     resolvedAccounts.tokenProgram.value = context.programs.getPublicKey(
@@ -235,12 +236,13 @@ export function fusionIntoV1(
     );
     resolvedAccounts.tokenProgram.isWritable = false;
   }
-  if (!resolvedAccounts.ataProgram.value) {
-    resolvedAccounts.ataProgram.value = context.programs.getPublicKey(
-      'ataProgram',
-      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
-    );
-    resolvedAccounts.ataProgram.isWritable = false;
+  if (!resolvedAccounts.associatedTokenProgram.value) {
+    resolvedAccounts.associatedTokenProgram.value =
+      context.programs.getPublicKey(
+        'associatedTokenProgram',
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
+      );
+    resolvedAccounts.associatedTokenProgram.isWritable = false;
   }
   if (!resolvedAccounts.coreProgram.value) {
     resolvedAccounts.coreProgram.value = context.programs.getPublicKey(

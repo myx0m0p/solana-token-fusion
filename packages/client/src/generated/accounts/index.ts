@@ -6,6 +6,4 @@
  * @see https://github.com/kinobi-so/kinobi
  */
 
-export * from './baseAssetV1';
-export * from './baseCollectionV1';
 export * from './fusionDataV1';
