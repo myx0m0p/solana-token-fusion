@@ -181,46 +181,50 @@ export function destroyV1(
   if (!resolvedAccounts.authority.value) {
     resolvedAccounts.authority.value = context.identity;
   }
-  if (!resolvedAccounts.escrowAtaPda.value) {
-    resolvedAccounts.escrowAtaPda.value = context.eddsa.findPda(programId, [
-      publicKeySerializer().serialize(
-        expectPublicKey(resolvedAccounts.authorityPda.value)
-      ),
-      bytes().serialize(
-        new Uint8Array([
-          6, 221, 246, 225, 215, 101, 161, 147, 217, 203, 225, 70, 206, 235,
-          121, 172, 28, 180, 133, 237, 95, 91, 55, 145, 58, 140, 245, 133, 126,
-          255, 0, 169,
-        ])
-      ),
-      publicKeySerializer().serialize(
-        expectPublicKey(resolvedAccounts.tokenMint.value)
-      ),
-    ]);
-  }
-  if (!resolvedAccounts.authorityAta.value) {
-    resolvedAccounts.authorityAta.value = context.eddsa.findPda(programId, [
-      publicKeySerializer().serialize(
-        expectPublicKey(resolvedAccounts.authority.value)
-      ),
-      bytes().serialize(
-        new Uint8Array([
-          6, 221, 246, 225, 215, 101, 161, 147, 217, 203, 225, 70, 206, 235,
-          121, 172, 28, 180, 133, 237, 95, 91, 55, 145, 58, 140, 245, 133, 126,
-          255, 0, 169,
-        ])
-      ),
-      publicKeySerializer().serialize(
-        expectPublicKey(resolvedAccounts.tokenMint.value)
-      ),
-    ]);
-  }
   if (!resolvedAccounts.tokenProgram.value) {
     resolvedAccounts.tokenProgram.value = context.programs.getPublicKey(
       'tokenProgram',
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
     );
     resolvedAccounts.tokenProgram.isWritable = false;
+  }
+  if (!resolvedAccounts.escrowAtaPda.value) {
+    resolvedAccounts.escrowAtaPda.value = context.eddsa.findPda(
+      context.programs.getPublicKey(
+        'associatedTokenProgram',
+        'associatedTokenProgram'
+      ),
+      [
+        publicKeySerializer().serialize(
+          expectPublicKey(resolvedAccounts.authorityPda.value)
+        ),
+        publicKeySerializer().serialize(
+          expectPublicKey(resolvedAccounts.tokenProgram.value)
+        ),
+        publicKeySerializer().serialize(
+          expectPublicKey(resolvedAccounts.tokenMint.value)
+        ),
+      ]
+    );
+  }
+  if (!resolvedAccounts.authorityAta.value) {
+    resolvedAccounts.authorityAta.value = context.eddsa.findPda(
+      context.programs.getPublicKey(
+        'associatedTokenProgram',
+        'associatedTokenProgram'
+      ),
+      [
+        publicKeySerializer().serialize(
+          expectPublicKey(resolvedAccounts.authority.value)
+        ),
+        publicKeySerializer().serialize(
+          expectPublicKey(resolvedAccounts.tokenProgram.value)
+        ),
+        publicKeySerializer().serialize(
+          expectPublicKey(resolvedAccounts.tokenMint.value)
+        ),
+      ]
+    );
   }
   if (!resolvedAccounts.associatedTokenProgram.value) {
     resolvedAccounts.associatedTokenProgram.value =

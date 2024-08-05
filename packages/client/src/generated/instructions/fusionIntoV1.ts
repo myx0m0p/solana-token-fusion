@@ -190,51 +190,55 @@ export function fusionIntoV1(
       ),
     ]);
   }
-  if (!resolvedAccounts.escrowAtaPda.value) {
-    resolvedAccounts.escrowAtaPda.value = context.eddsa.findPda(programId, [
-      publicKeySerializer().serialize(
-        expectPublicKey(resolvedAccounts.authorityPda.value)
-      ),
-      bytes().serialize(
-        new Uint8Array([
-          6, 221, 246, 225, 215, 101, 161, 147, 217, 203, 225, 70, 206, 235,
-          121, 172, 28, 180, 133, 237, 95, 91, 55, 145, 58, 140, 245, 133, 126,
-          255, 0, 169,
-        ])
-      ),
-      publicKeySerializer().serialize(
-        expectPublicKey(resolvedAccounts.tokenMint.value)
-      ),
-    ]);
-  }
-  if (!resolvedAccounts.userAta.value) {
-    resolvedAccounts.userAta.value = context.eddsa.findPda(programId, [
-      publicKeySerializer().serialize(
-        expectPublicKey(resolvedAccounts.user.value)
-      ),
-      bytes().serialize(
-        new Uint8Array([
-          6, 221, 246, 225, 215, 101, 161, 147, 217, 203, 225, 70, 206, 235,
-          121, 172, 28, 180, 133, 237, 95, 91, 55, 145, 58, 140, 245, 133, 126,
-          255, 0, 169,
-        ])
-      ),
-      publicKeySerializer().serialize(
-        expectPublicKey(resolvedAccounts.tokenMint.value)
-      ),
-    ]);
-  }
-  if (!resolvedAccounts.feeAccount.value) {
-    resolvedAccounts.feeAccount.value = publicKey(
-      'CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG'
-    );
-  }
   if (!resolvedAccounts.tokenProgram.value) {
     resolvedAccounts.tokenProgram.value = context.programs.getPublicKey(
       'tokenProgram',
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
     );
     resolvedAccounts.tokenProgram.isWritable = false;
+  }
+  if (!resolvedAccounts.escrowAtaPda.value) {
+    resolvedAccounts.escrowAtaPda.value = context.eddsa.findPda(
+      context.programs.getPublicKey(
+        'associatedTokenProgram',
+        'associatedTokenProgram'
+      ),
+      [
+        publicKeySerializer().serialize(
+          expectPublicKey(resolvedAccounts.authorityPda.value)
+        ),
+        publicKeySerializer().serialize(
+          expectPublicKey(resolvedAccounts.tokenProgram.value)
+        ),
+        publicKeySerializer().serialize(
+          expectPublicKey(resolvedAccounts.tokenMint.value)
+        ),
+      ]
+    );
+  }
+  if (!resolvedAccounts.userAta.value) {
+    resolvedAccounts.userAta.value = context.eddsa.findPda(
+      context.programs.getPublicKey(
+        'associatedTokenProgram',
+        'associatedTokenProgram'
+      ),
+      [
+        publicKeySerializer().serialize(
+          expectPublicKey(resolvedAccounts.user.value)
+        ),
+        publicKeySerializer().serialize(
+          expectPublicKey(resolvedAccounts.tokenProgram.value)
+        ),
+        publicKeySerializer().serialize(
+          expectPublicKey(resolvedAccounts.tokenMint.value)
+        ),
+      ]
+    );
+  }
+  if (!resolvedAccounts.feeAccount.value) {
+    resolvedAccounts.feeAccount.value = publicKey(
+      'CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG'
+    );
   }
   if (!resolvedAccounts.associatedTokenProgram.value) {
     resolvedAccounts.associatedTokenProgram.value =
