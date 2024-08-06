@@ -7,14 +7,11 @@ import {
   SolAmount,
   Umi,
   createSignerFromKeypair,
-  publicKey,
   signerIdentity,
   sol,
 } from '@metaplex-foundation/umi';
 import { ClusterType, getClusterSettings } from './cluster';
 import { loadOrGenerateKeypair } from './loadKey';
-
-export const METAPLEX_DEFAULT_RULESET = publicKey('eBJLFYPxJmMGKuFwpDWkzxZeUrad92kZRC5BJLpzyT9');
 
 const requestAirdrop = async (umi: Umi, input: { address: PublicKey; amount: SolAmount }) => {
   const bal = await umi.rpc.getBalance(input.address);
@@ -27,16 +24,12 @@ export const createUmi = async (cluster: ClusterType = 'localnet') => {
   const umi = await baseCreateUmi(clusterSettings.rpc, { commitment: clusterSettings.commitment });
 
   const deployer = createSignerFromKeypair(umi, loadOrGenerateKeypair('deployer.json', cluster));
-  const minter = createSignerFromKeypair(umi, loadOrGenerateKeypair('minter.json', cluster));
-  const delegate = createSignerFromKeypair(umi, loadOrGenerateKeypair('delegate.json', cluster));
+  const user = createSignerFromKeypair(umi, loadOrGenerateKeypair('user.json', cluster));
   const treasure = createSignerFromKeypair(umi, loadOrGenerateKeypair('treasure.json', cluster));
 
   const token = createSignerFromKeypair(umi, loadOrGenerateKeypair('token.json', cluster));
-  const collection = createSignerFromKeypair(
-    umi,
-    loadOrGenerateKeypair('collection.json', cluster)
-  );
-  const factory = createSignerFromKeypair(umi, loadOrGenerateKeypair('factory.json', cluster));
+  const collection = createSignerFromKeypair(umi, loadOrGenerateKeypair('collection.json', cluster));
+  const stfProgram = createSignerFromKeypair(umi, loadOrGenerateKeypair('stf_program.json', cluster));
 
   umi.use(signerIdentity(deployer));
   umi.use(mplTokenMetadata());
@@ -49,11 +42,7 @@ export const createUmi = async (cluster: ClusterType = 'localnet') => {
       amount: sol(clusterSettings.aidropAmount || 0.1),
     });
     await requestAirdrop(umi, {
-      address: minter.publicKey,
-      amount: sol(clusterSettings.aidropAmount || 0.1),
-    });
-    await requestAirdrop(umi, {
-      address: delegate.publicKey,
+      address: user.publicKey,
       amount: sol(clusterSettings.aidropAmount || 0.1),
     });
   }
@@ -61,12 +50,11 @@ export const createUmi = async (cluster: ClusterType = 'localnet') => {
   return {
     umi,
     deployer,
-    minter,
-    delegate,
+    user,
     treasure,
     token,
     collection,
-    factory,
+    stfProgram,
     clusterSettings,
   };
 };
