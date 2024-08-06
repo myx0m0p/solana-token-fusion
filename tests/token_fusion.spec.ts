@@ -1,83 +1,66 @@
 import { expect } from 'chai';
-import { PublicKey, Signer, Umi, some } from '@metaplex-foundation/umi';
+import { some } from '@metaplex-foundation/umi';
 
 import { fetchToken, findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
 
 import { explorerAddressLink, explorerTxLink } from '../src/utils/explorer';
 import { AppLogger } from '../src/utils/logger';
 
-import {
-  AssetAccounts,
-  CollectionAccounts,
-  TokenAccounts,
-  generateAsset,
-  generateCollection,
-  generateToken,
-} from './_setup';
+import { generateAsset, createCollection, createToken } from './_setup';
 import { createUmi } from '../src/utils/umi';
 
 import {
   AssetDataV1,
   fetchFusionDataV1,
-  findFusionAuthorityPda,
+  findEscrowAtaPda,
   findFusionDataPda,
+  fusionFromV1,
   fusionIntoV1,
   initV1,
   TokenDataV1,
-} from '../packages/client/dist/src';
-import { fetchAsset, fetchCollection } from '@metaplex-foundation/mpl-core';
+} from '../packages/client';
+import { fetchAsset, fetchCollection, safeFetchAssetV1 } from '@metaplex-foundation/mpl-core';
 
 // const AUTH_ERROR_MESSAGE = 'Error Number: 2001. Error Message: A has one constraint was violated.';
 
 const DEBUG = process.env.DEBUG === 'true' || false;
 
-interface TestContext {
-  umi: Umi;
-  deployer: Signer;
-  dataPda: PublicKey;
-  authorityPda: PublicKey;
-  collection: CollectionAccounts;
-  token: TokenAccounts;
-  escrowPda: PublicKey;
-  asset: AssetAccounts;
-}
+type TestContext = Awaited<Promise<PromiseLike<ReturnType<typeof setupContext>>>>;
 
-const setupContext = async (): Promise<TestContext> => {
-  const { umi, deployer } = await createUmi();
+const setupContext = async () => {
+  const { umi, deployer, user, token: tokenSigner, collection: collectionSigner } = await createUmi();
 
-  const [authorityPda] = findFusionAuthorityPda(umi);
   const [dataPda] = findFusionDataPda(umi);
 
-  const token = await generateToken(umi);
-  const collection = await generateCollection(umi);
-
-  const [escrowPda] = findAssociatedTokenPda(umi, {
-    mint: token.mint.publicKey,
-    owner: authorityPda,
-  });
-
+  const token = await createToken(umi, { mint: tokenSigner });
+  const collection = await createCollection(umi, { collection: collectionSigner });
   const asset = await generateAsset(umi);
-
-  // AppLogger.info('Deployer', { publicKey: umi.identity.publicKey.toString() });
-  // AppLogger.info('tokenMint', { tokenMint: token.mint.publicKey.toString() });
-  // AppLogger.info('collection', { collection: collection.collection.publicKey.toString() });
-  // AppLogger.info('escrowPda', { escrowPda: escrowPda.toString() });
-  // AppLogger.info('authorityPda', { authorityPda: authorityPda.toString() });
-  // AppLogger.info('dataPda', { dataPda: dataPda.toString() });
 
   return {
     umi,
     deployer,
+    user,
     dataPda,
-    authorityPda,
-    collection,
     token,
-    escrowPda,
+    collection,
     asset,
   };
 };
 
-describe('Solana Token Fusion', () => {
+const ASSET_DATA_V1: AssetDataV1 = {
+  maxSupply: some(3),
+  nextIndex: 1n,
+  namePrefix: 'STF #',
+  uriPrefix: 'https://stf.org/assets/',
+  uriSuffix: '.json',
+};
+
+const TOKEN_DATA_V1: TokenDataV1 = {
+  intoAmount: 100n * 10n ** 9n, // mint asset
+  fromAmount: 100n * 10n ** 9n, // burn asset
+};
+
+describe('Solana Token Fusion Protocol', () => {
   let context: TestContext;
 
   before(async () => {
@@ -85,33 +68,16 @@ describe('Solana Token Fusion', () => {
   });
 
   it('[Success] InitV1', async () => {
-    const { umi, dataPda, collection, token, escrowPda } = context;
+    const { umi, dataPda, token, collection } = context;
 
-    const expectedAssetData: AssetDataV1 = {
-      maxSupply: some(1000),
-      nextIndex: 1n,
-      namePrefix: 'STF #',
-      uriPrefix: 'https://stf.org/assets/',
-      uriSuffix: '.json',
-    };
-    const expectedTokenData: TokenDataV1 = {
-      fromAmount: 100n * 10n ** token.data.decimals,
-      intoAmount: 100n * 10n ** token.data.decimals,
-    };
+    // umi.identity = deployer
 
     const initResult = await initV1(umi, {
       tokenMint: token.mint.publicKey,
       collection: collection.collection.publicKey,
-      escrowAtaPda: escrowPda,
-      assetData: expectedAssetData,
-      tokenData: expectedTokenData,
-    })
-      // .mapInstructions((w) => {
-      //   console.log('Key', w.instruction.keys);
-      //   return w;
-      // })
-      // .sendAndConfirm(umi);
-      .sendAndConfirm(umi, { send: { skipPreflight: true } });
+      assetData: ASSET_DATA_V1,
+      tokenData: TOKEN_DATA_V1,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
     DEBUG && AppLogger.info('Init TX', explorerTxLink(initResult.signature));
 
@@ -119,8 +85,8 @@ describe('Solana Token Fusion', () => {
 
     DEBUG && AppLogger.info('Data Account', dataAccount);
 
-    expect(dataAccount.assetData).to.deep.equal(expectedAssetData);
-    expect(dataAccount.tokenData).to.deep.equal(expectedTokenData);
+    expect(dataAccount.assetData).to.deep.equal(ASSET_DATA_V1);
+    expect(dataAccount.tokenData).to.deep.equal(TOKEN_DATA_V1);
   });
 
   // it('[Error] Second Enchant', async () => {
@@ -174,15 +140,13 @@ describe('Solana Token Fusion', () => {
   // });
 
   it('[Success] Fusion Into', async () => {
-    const { umi, dataPda, collection, asset, token, escrowPda } = context;
+    const { umi, dataPda, token, collection, asset } = context;
 
     const result = await fusionIntoV1(umi, {
       user: umi.identity,
       asset: asset.asset,
       collection: collection.collection.publicKey,
       tokenMint: token.mint.publicKey,
-      escrowAtaPda: escrowPda,
-      userAta: token.ata,
     }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
     DEBUG && AppLogger.info('Fusion Into TX', explorerTxLink(result.signature));
@@ -197,9 +161,40 @@ describe('Solana Token Fusion', () => {
     DEBUG && AppLogger.info('Collection Data', collectionData);
 
     expect(dataAccount.assetData.nextIndex).to.equal(2n);
+
     // check escrow balance
-    const treasureAccount = await fetchToken(umi, escrowPda);
-    expect(treasureAccount.amount).to.equal(100000000000n);
+    const [escrowAta] = findEscrowAtaPda(umi, token.mint.publicKey);
+    const escrowData = await fetchToken(umi, escrowAta);
+    expect(escrowData.amount).to.equal(TOKEN_DATA_V1.intoAmount);
+  });
+
+  it('[Success] Fusion From', async () => {
+    const { umi, dataPda, token, collection, asset } = context;
+
+    const result = await fusionFromV1(umi, {
+      user: umi.identity,
+      asset: asset.asset.publicKey,
+      collection: collection.collection.publicKey,
+      tokenMint: token.mint.publicKey,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+
+    DEBUG && AppLogger.info('Fusion From TX', explorerTxLink(result.signature));
+
+    const dataAccount = await fetchFusionDataV1(umi, dataPda);
+    DEBUG && AppLogger.info('Data Account', dataAccount);
+
+    // const assetData = await safeFetchAssetV1(umi, asset.asset.publicKey);
+    DEBUG && AppLogger.info('Asset', asset.asset.publicKey);
+
+    const collectionData = await fetchCollection(umi, collection.collection.publicKey);
+    DEBUG && AppLogger.info('Collection Data', collectionData);
+
+    expect(dataAccount.assetData.nextIndex).to.equal(2n);
+
+    // check escrow balance
+    const [escrowAta] = findEscrowAtaPda(umi, token.mint.publicKey);
+    const escrowData = await fetchToken(umi, escrowAta);
+    expect(escrowData.amount).to.equal(0n);
   });
 
   // it('[Success] Set Pause', async () => {
