@@ -1,5 +1,6 @@
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
 import { Context, Pda, PublicKey } from '@metaplex-foundation/umi';
-import { string, publicKey as publicKeySerializer } from '@metaplex-foundation/umi/serializers';
+import { string } from '@metaplex-foundation/umi/serializers';
 
 import { getTokenFusionProgramId } from './generated';
 
@@ -16,19 +17,10 @@ export function findEscrowAtaPda(
   context: Pick<Context, 'eddsa' | 'programs'>,
   mint: PublicKey
 ): Pda {
-  const programId = context.programs.getPublicKey(
-    'associatedTokenProgram',
-    'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
-  );
-  const tokenProgram = context.programs.getPublicKey(
-    'tokenProgram',
-    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-  );
-  const authorityPda = findFusionAuthorityPda(context);
+  const [authorityPda] = findFusionAuthorityPda(context);
 
-  return context.eddsa.findPda(programId, [
-    publicKeySerializer().serialize(authorityPda),
-    publicKeySerializer().serialize(tokenProgram),
-    publicKeySerializer().serialize(mint),
-  ]);
+  return findAssociatedTokenPda(context, {
+    mint,
+    owner: authorityPda,
+  });
 }

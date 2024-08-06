@@ -11,10 +11,10 @@ import {
   setInstructionAccountDefaultValuesVisitor,
   publicKeyValueNode,
   pdaValueNode,
-  pdaNode,
   updateAccountsVisitor,
-  variablePdaSeedNode,
-  publicKeyTypeNode,
+  pdaLinkNode,
+  pdaSeedValueNode,
+  accountValueNode,
 } from 'kinobi';
 
 // shim for __dirname
@@ -28,6 +28,12 @@ const anchorIdl = JSON.parse(readFileSync(anchorIdlPath, 'utf-8'));
 // Parse it into a Kinobi IDL.
 const kinobi = createFromRoot(rootNodeFromAnchor(anchorIdl));
 
+const ataPdaDefault = (mint = 'mint', owner = 'owner') =>
+  pdaValueNode(pdaLinkNode('associatedToken', 'mplToolbox'), [
+    pdaSeedValueNode('mint', accountValueNode(mint)),
+    pdaSeedValueNode('owner', accountValueNode(owner)),
+  ]);
+
 // Fix feeAccount write access [bug in kinobi]
 // Fix associated token accounts programId [bug in kinobi]
 kinobi.update(
@@ -38,45 +44,15 @@ kinobi.update(
     },
     {
       account: 'escrowAtaPda',
-      defaultValue: pdaValueNode(
-        pdaNode({
-          name: 'escrowAtaPda',
-          programId: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-          seeds: [
-            variablePdaSeedNode('authorityPda', publicKeyTypeNode()),
-            variablePdaSeedNode('tokenProgram', publicKeyTypeNode()),
-            variablePdaSeedNode('tokenMint', publicKeyTypeNode()),
-          ],
-        })
-      ),
+      defaultValue: ataPdaDefault('tokenMint', 'authorityPda'),
     },
     {
       account: 'userAta',
-      defaultValue: pdaValueNode(
-        pdaNode({
-          name: 'userAta',
-          programId: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-          seeds: [
-            variablePdaSeedNode('user', publicKeyTypeNode()),
-            variablePdaSeedNode('tokenProgram', publicKeyTypeNode()),
-            variablePdaSeedNode('tokenMint', publicKeyTypeNode()),
-          ],
-        })
-      ),
+      defaultValue: ataPdaDefault('tokenMint', 'user'),
     },
     {
       account: 'authorityAta',
-      defaultValue: pdaValueNode(
-        pdaNode({
-          name: 'authorityAta',
-          programId: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-          seeds: [
-            variablePdaSeedNode('authority', publicKeyTypeNode()),
-            variablePdaSeedNode('tokenProgram', publicKeyTypeNode()),
-            variablePdaSeedNode('tokenMint', publicKeyTypeNode()),
-          ],
-        })
-      ),
+      defaultValue: ataPdaDefault('tokenMint', 'authority'),
     },
   ])
 );

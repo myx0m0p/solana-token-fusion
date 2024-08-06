@@ -15,6 +15,7 @@
   ],
   "license": "ISC",
   "devDependencies": {
+    "@metaplex-foundation/mpl-toolbox": "^0.9.4",
     "@metaplex-foundation/umi": "^0.9.2",
     "@types/node": "^20.14.14",
     "@typescript-eslint/eslint-plugin": "^8.0.0",

@@ -6,6 +6,7 @@
  * @see https://github.com/kinobi-so/kinobi
  */
 
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
 import {
   Context,
   Pda,
@@ -19,7 +20,6 @@ import {
   Serializer,
   bytes,
   mapSerializer,
-  publicKey as publicKeySerializer,
   struct,
 } from '@metaplex-foundation/umi/serializers';
 import {
@@ -182,55 +182,29 @@ export function fusionIntoV1(
       ),
     ]);
   }
+  if (!resolvedAccounts.escrowAtaPda.value) {
+    resolvedAccounts.escrowAtaPda.value = findAssociatedTokenPda(context, {
+      mint: expectPublicKey(resolvedAccounts.tokenMint.value),
+      owner: expectPublicKey(resolvedAccounts.authorityPda.value),
+    });
+  }
+  if (!resolvedAccounts.userAta.value) {
+    resolvedAccounts.userAta.value = findAssociatedTokenPda(context, {
+      mint: expectPublicKey(resolvedAccounts.tokenMint.value),
+      owner: expectPublicKey(resolvedAccounts.user.value),
+    });
+  }
+  if (!resolvedAccounts.feeAccount.value) {
+    resolvedAccounts.feeAccount.value = publicKey(
+      'CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG'
+    );
+  }
   if (!resolvedAccounts.tokenProgram.value) {
     resolvedAccounts.tokenProgram.value = context.programs.getPublicKey(
       'tokenProgram',
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
     );
     resolvedAccounts.tokenProgram.isWritable = false;
-  }
-  if (!resolvedAccounts.escrowAtaPda.value) {
-    resolvedAccounts.escrowAtaPda.value = context.eddsa.findPda(
-      context.programs.getPublicKey(
-        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
-      ),
-      [
-        publicKeySerializer().serialize(
-          expectPublicKey(resolvedAccounts.authorityPda.value)
-        ),
-        publicKeySerializer().serialize(
-          expectPublicKey(resolvedAccounts.tokenProgram.value)
-        ),
-        publicKeySerializer().serialize(
-          expectPublicKey(resolvedAccounts.tokenMint.value)
-        ),
-      ]
-    );
-  }
-  if (!resolvedAccounts.userAta.value) {
-    resolvedAccounts.userAta.value = context.eddsa.findPda(
-      context.programs.getPublicKey(
-        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
-      ),
-      [
-        publicKeySerializer().serialize(
-          expectPublicKey(resolvedAccounts.user.value)
-        ),
-        publicKeySerializer().serialize(
-          expectPublicKey(resolvedAccounts.tokenProgram.value)
-        ),
-        publicKeySerializer().serialize(
-          expectPublicKey(resolvedAccounts.tokenMint.value)
-        ),
-      ]
-    );
-  }
-  if (!resolvedAccounts.feeAccount.value) {
-    resolvedAccounts.feeAccount.value = publicKey(
-      'CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG'
-    );
   }
   if (!resolvedAccounts.associatedTokenProgram.value) {
     resolvedAccounts.associatedTokenProgram.value =

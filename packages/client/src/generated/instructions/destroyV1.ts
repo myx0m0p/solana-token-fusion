@@ -6,6 +6,7 @@
  * @see https://github.com/kinobi-so/kinobi
  */
 
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
 import {
   Context,
   Pda,
@@ -18,7 +19,6 @@ import {
   Serializer,
   bytes,
   mapSerializer,
-  publicKey as publicKeySerializer,
   struct,
 } from '@metaplex-foundation/umi/serializers';
 import {
@@ -181,50 +181,24 @@ export function destroyV1(
   if (!resolvedAccounts.authority.value) {
     resolvedAccounts.authority.value = context.identity;
   }
+  if (!resolvedAccounts.escrowAtaPda.value) {
+    resolvedAccounts.escrowAtaPda.value = findAssociatedTokenPda(context, {
+      mint: expectPublicKey(resolvedAccounts.tokenMint.value),
+      owner: expectPublicKey(resolvedAccounts.authorityPda.value),
+    });
+  }
+  if (!resolvedAccounts.authorityAta.value) {
+    resolvedAccounts.authorityAta.value = findAssociatedTokenPda(context, {
+      mint: expectPublicKey(resolvedAccounts.tokenMint.value),
+      owner: expectPublicKey(resolvedAccounts.authority.value),
+    });
+  }
   if (!resolvedAccounts.tokenProgram.value) {
     resolvedAccounts.tokenProgram.value = context.programs.getPublicKey(
       'tokenProgram',
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
     );
     resolvedAccounts.tokenProgram.isWritable = false;
-  }
-  if (!resolvedAccounts.escrowAtaPda.value) {
-    resolvedAccounts.escrowAtaPda.value = context.eddsa.findPda(
-      context.programs.getPublicKey(
-        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
-      ),
-      [
-        publicKeySerializer().serialize(
-          expectPublicKey(resolvedAccounts.authorityPda.value)
-        ),
-        publicKeySerializer().serialize(
-          expectPublicKey(resolvedAccounts.tokenProgram.value)
-        ),
-        publicKeySerializer().serialize(
-          expectPublicKey(resolvedAccounts.tokenMint.value)
-        ),
-      ]
-    );
-  }
-  if (!resolvedAccounts.authorityAta.value) {
-    resolvedAccounts.authorityAta.value = context.eddsa.findPda(
-      context.programs.getPublicKey(
-        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
-      ),
-      [
-        publicKeySerializer().serialize(
-          expectPublicKey(resolvedAccounts.authority.value)
-        ),
-        publicKeySerializer().serialize(
-          expectPublicKey(resolvedAccounts.tokenProgram.value)
-        ),
-        publicKeySerializer().serialize(
-          expectPublicKey(resolvedAccounts.tokenMint.value)
-        ),
-      ]
-    );
   }
   if (!resolvedAccounts.associatedTokenProgram.value) {
     resolvedAccounts.associatedTokenProgram.value =
