@@ -1,4 +1,4 @@
-import { createCollection } from '@metaplex-foundation/mpl-core';
+import { createCollection as createCollectionCore } from '@metaplex-foundation/mpl-core';
 import { createFungible, mintV1, TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
 import {
@@ -20,20 +20,44 @@ export const collectionData = (index?: string): CoreAsset => ({
   uri: `https://stf.org/collection${index ? `#${index}` : ''}.json`,
 });
 
-export type CollectionAccounts = {
-  collection: Signer;
-  authority: PublicKey;
+export const assetData = (index?: string): CoreAsset => ({
+  name: `STF Asset${index ? `#${index}` : ''}`,
+  uri: `https://stf.org/asset${index ? `#${index}` : ''}.json`,
+});
+
+type TokenData = {
+  name: string;
+  symbol: string;
+  uri: string;
+  decimals: bigint;
+  supply: bigint;
 };
 
-export const generateCollection = async (
+export const tokenData = (): TokenData => {
+  return {
+    name: 'STF Token',
+    symbol: 'STF',
+    uri: 'https://stf.org/token.json',
+    decimals: 9n,
+    supply: 1_000_000n,
+  };
+};
+
+export type CollectionAccounts = {
+  collection: Signer;
+  authority: Signer;
+  data: CoreAsset;
+};
+
+export const createCollection = async (
   umi: Umi,
   {
     collection = generateSigner(umi),
-    authority = umi.identity.publicKey,
-  }: Partial<CollectionAccounts> = {},
-  data = collectionData()
+    authority = umi.identity,
+    data = collectionData(),
+  }: Partial<CollectionAccounts> = {}
 ): Promise<CollectionAccounts> => {
-  await createCollection(umi, {
+  await createCollectionCore(umi, {
     collection,
     ...data,
     plugins: [
@@ -47,45 +71,39 @@ export const generateCollection = async (
   return {
     collection,
     authority,
+    data,
   };
 };
 
 export type AssetAccounts = {
   asset: Signer;
+  owner: Signer;
+  data: CoreAsset;
 };
 
 export const generateAsset = async (
   umi: Umi,
-  asset = generateSigner(umi)
+  { asset = generateSigner(umi), owner = umi.identity, data = assetData() }: Partial<AssetAccounts> = {}
 ): Promise<AssetAccounts> => {
   return {
     asset,
+    owner,
+    data,
   };
 };
-
-export const TOKEN_DATA = {
-  name: 'STF Token',
-  symbol: 'STF',
-  uri: 'https://stf.org/token.json',
-  decimals: 9n,
-  supply: 1_000_000n,
-};
-
-export type TokenData = typeof TOKEN_DATA;
 
 export type TokenAccounts = {
   mint: Signer;
   authority: Signer;
-  ata: PublicKey;
   data: TokenData;
+  authorityAta: PublicKey;
 };
 
-export const generateToken = async (
+export const createToken = async (
   umi: Umi,
-  data = TOKEN_DATA,
-  { mint = generateSigner(umi), authority = umi.identity }: Partial<TokenAccounts> = {}
+  { mint = generateSigner(umi), authority = umi.identity, data = tokenData() }: Partial<TokenAccounts> = {}
 ): Promise<TokenAccounts> => {
-  const [ata] = findAssociatedTokenPda(umi, {
+  const [authorityAta] = findAssociatedTokenPda(umi, {
     mint: mint.publicKey,
     owner: authority.publicKey,
   });
@@ -116,7 +134,7 @@ export const generateToken = async (
   return {
     mint,
     authority,
-    ata,
     data,
+    authorityAta,
   };
 };
