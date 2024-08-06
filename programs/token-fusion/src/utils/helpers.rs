@@ -54,6 +54,7 @@ pub fn approve_collection_authority_v1(
 pub fn revoke_collection_authority_v1(
     acc: CollectionPluginAuthorityV1Accounts,
     args: RevokeCollectionPluginAuthorityV1Args,
+    signer_seeds: [&[u8]; 2],
 ) -> Result<()> {
     RevokeCollectionPluginAuthorityV1CpiBuilder::new(&acc.core_program)
         .collection(&acc.collection.to_account_info())
@@ -62,7 +63,7 @@ pub fn revoke_collection_authority_v1(
         .system_program(&acc.system_program.to_account_info())
         .log_wrapper(acc.log_wrapper.as_ref())
         .plugin_type(args.plugin_type)
-        .invoke()
+        .invoke_signed(&[&signer_seeds])
         .map_err(|error| error.into())
 }
 

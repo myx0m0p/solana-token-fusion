@@ -404,8 +404,7 @@
         {
           "name": "authority_pda",
           "docs": [
-            "Authority pda.",
-            ""
+            "Authority pda."
           ],
           "pda": {
             "seeds": [
@@ -429,8 +428,7 @@
         {
           "name": "user",
           "docs": [
-            "Transaction and rent payer.",
-            "Asset owner"
+            "Asset owner, transaction and rent payer."
           ],
           "writable": true,
           "signer": true
@@ -438,7 +436,7 @@
         {
           "name": "asset",
           "docs": [
-            "Account of the Asset."
+            "Account of the asset."
           ],
           "writable": true
         },
@@ -551,7 +549,7 @@
         {
           "name": "user_ata",
           "docs": [
-            "User ata account, will be initialized if needed"
+            "User ata account, will be initialized if needed."
           ],
           "writable": true,
           "pda": {
@@ -753,8 +751,7 @@
         {
           "name": "authority_pda",
           "docs": [
-            "Authority pda.",
-            ""
+            "Authority pda."
           ],
           "pda": {
             "seeds": [
@@ -778,8 +775,7 @@
         {
           "name": "user",
           "docs": [
-            "Transaction and rent payer.",
-            "Asset owner"
+            "Asset owner, transaction and rent payer."
           ],
           "writable": true,
           "signer": true
@@ -902,7 +898,7 @@
         {
           "name": "user_ata",
           "docs": [
-            "User ata account"
+            "User ata account."
           ],
           "writable": true,
           "pda": {
@@ -1918,14 +1914,14 @@
           {
             "name": "into_amount",
             "docs": [
-              "Amount of tokens needed to burn to mint a NFT, i.e. 100"
+              "Send SPL -> mint Asset"
             ],
             "type": "u64"
           },
           {
             "name": "from_amount",
             "docs": [
-              "Amount of tokens received for burning a NFT, i.e. 90"
+              "Burn Asset -> receive SPL"
             ],
             "type": "u64"
           }

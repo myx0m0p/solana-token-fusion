@@ -10,16 +10,16 @@ import { Serializer, struct, u64 } from '@metaplex-foundation/umi/serializers';
 
 /** Token Data Struct */
 export type TokenDataV1 = {
-  /** Amount of tokens needed to burn to mint a NFT, i.e. 100 */
+  /** Send SPL -> mint Asset */
   intoAmount: bigint;
-  /** Amount of tokens received for burning a NFT, i.e. 90 */
+  /** Burn Asset -> receive SPL */
   fromAmount: bigint;
 };
 
 export type TokenDataV1Args = {
-  /** Amount of tokens needed to burn to mint a NFT, i.e. 100 */
+  /** Send SPL -> mint Asset */
   intoAmount: number | bigint;
-  /** Amount of tokens received for burning a NFT, i.e. 90 */
+  /** Burn Asset -> receive SPL */
   fromAmount: number | bigint;
 };
 

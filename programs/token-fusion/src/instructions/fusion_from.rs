@@ -164,13 +164,13 @@ pub(crate) fn process_burn(
             .map(|log_wrapper| log_wrapper.to_account_info()),
     };
 
-    msg!("Burn: {} asset", asset_metadata.name);
+    msg!("Asset: {} burned", asset_metadata.name);
 
     // (3) burning
     burn_asset_v1(accounts)
 }
 
-/// Fusion tokens from NFT.
+/// Fusion tokens from an asset.
 #[derive(Accounts)]
 pub struct FusionFromV1Ctx<'info> {
     /// Fusion data account.
@@ -178,17 +178,15 @@ pub struct FusionFromV1Ctx<'info> {
     fusion_data: Account<'info, FusionDataV1>,
 
     /// Authority pda.
-    ///
     /// CHECK: account checked in seeds constraint
     #[account(seeds = [AUTHORITY_SEED.as_bytes()], bump)]
     authority_pda: UncheckedAccount<'info>,
 
-    /// Transaction and rent payer.
-    /// Asset owner
+    /// Asset owner, transaction and rent payer.
     #[account(mut)]
     user: Signer<'info>,
 
-    /// Account of the Asset.
+    /// Account of the asset.
     #[account(
         mut,
         constraint = asset.owner == user.key(),
@@ -212,7 +210,7 @@ pub struct FusionFromV1Ctx<'info> {
     )]
     escrow_ata_pda: Account<'info, TokenAccount>,
 
-    /// User ata account, will be initialized if needed
+    /// User ata account, will be initialized if needed.
     #[account(
         init_if_needed,
         payer = user,
@@ -222,7 +220,7 @@ pub struct FusionFromV1Ctx<'info> {
     user_ata: Account<'info, TokenAccount>,
 
     /// Protocol fee account.
-    /// CHECK: We check against constant
+    /// CHECK: checked by account constraint
     #[account(
         mut,
         address = PROTOCOL_FEE_WALLET @ FusionError::InvalidProtocolFeeWallet

@@ -38,7 +38,7 @@ pub fn handler_destroy_v1(ctx: Context<DestroyV1Ctx>) -> Result<()> {
     let revoke_accounts = CollectionPluginAuthorityV1Accounts {
         collection: ctx.accounts.collection.to_account_info(),
         payer: ctx.accounts.authority.to_account_info(),
-        authority: Some(ctx.accounts.authority.to_account_info()),
+        authority: Some(ctx.accounts.authority_pda.to_account_info()),
         core_program: ctx.accounts.core_program.to_account_info(),
         system_program: ctx.accounts.system_program.to_account_info(),
         log_wrapper: ctx
@@ -52,7 +52,11 @@ pub fn handler_destroy_v1(ctx: Context<DestroyV1Ctx>) -> Result<()> {
         plugin_type: PluginType::UpdateDelegate,
     };
 
-    revoke_collection_authority_v1(revoke_accounts, revoke_args)
+    revoke_collection_authority_v1(
+        revoke_accounts,
+        revoke_args,
+        [AUTHORITY_SEED.as_bytes(), &[ctx.bumps.authority_pda]],
+    )
 }
 
 pub(crate) fn process_transfer(accounts: SplTokenAccounts, bump: u8) -> Result<()> {
@@ -62,7 +66,12 @@ pub(crate) fn process_transfer(accounts: SplTokenAccounts, bump: u8) -> Result<(
     // get current balance
     let transfer_amount: u64 = accounts.from.amount;
 
-    // transfer tokens from the escrow ata to the authority_token_ata account
+    // if no tokens to transfer, return
+    if transfer_amount == 0 {
+        return Ok(());
+    }
+
+    // transfer tokens from the escrow to the authority_ata account
     let cpi_ctx = CpiContext::new_with_signer(
         accounts.spl_token_program.to_account_info(),
         Transfer {
@@ -74,7 +83,7 @@ pub(crate) fn process_transfer(accounts: SplTokenAccounts, bump: u8) -> Result<(
     );
     anchor_spl::token::transfer(cpi_ctx, transfer_amount)?;
 
-    msg!("Transferred {} tokens", transfer_amount);
+    msg!("Transfer: {} SPL", transfer_amount);
 
     // close token account and withdraw lamport to the authority
     let cpi_ctx = CpiContext::new_with_signer(

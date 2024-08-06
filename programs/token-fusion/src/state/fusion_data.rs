@@ -21,15 +21,6 @@ pub struct FusionDataV1 {
 }
 
 impl FusionDataV1 {
-    // pub const SIZE: usize = 32                      // authority
-    //     + 32                                        // collection_mint
-    //     + 32                                        // token_mint
-    //     + 1 + 32                                    // rule_set
-    //     + 1                                         // paused
-    //     + AssetData::SIZE                           // AssetData size
-    //     + TokenData::SIZE                           // TokenData size
-    //     ;
-
     pub fn validate(&self) -> Result<()> {
         require!(self.paused == false, FusionError::FusionPaused);
         Ok(())

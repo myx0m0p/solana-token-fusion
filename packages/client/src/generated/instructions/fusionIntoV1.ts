@@ -33,17 +33,9 @@ import {
 export type FusionIntoV1InstructionAccounts = {
   /** Fusion data account. */
   fusionData?: PublicKey | Pda;
-  /**
-   * Authority pda.
-   *
-   */
-
+  /** Authority pda. */
   authorityPda?: PublicKey | Pda;
-  /**
-   * Transaction and rent payer.
-   * Asset owner
-   */
-
+  /** Asset owner, transaction and rent payer. */
   user: Signer;
   /** Account of the Asset. Will be initialized with the new asset. */
   asset: Signer;
@@ -53,7 +45,7 @@ export type FusionIntoV1InstructionAccounts = {
   tokenMint: PublicKey | Pda;
   /** Token escrow pda ata account. */
   escrowAtaPda?: PublicKey | Pda;
-  /** User ata account */
+  /** User ata account. */
   userAta?: PublicKey | Pda;
   /** Protocol fee account. */
   feeAccount?: PublicKey | Pda;

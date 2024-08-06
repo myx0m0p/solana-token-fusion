@@ -96,9 +96,12 @@ pub(crate) fn process_burn_and_transfer(
         return err!(FusionError::TokenKeyMismatch);
     }
 
-    // calc amounts
+    // get amounts
     let burn_amount = fusion.token_data.burn_amount();
-    let transfer_amount = fusion.token_data.into_amount;
+    let transfer_amount = fusion.token_data.transfer_amount();
+
+    // sanity check
+    assert_eq!(burn_amount + transfer_amount, fusion.token_data.into_amount);
 
     // (2) burn
     if burn_amount > 0 {
@@ -157,7 +160,7 @@ pub(crate) fn process_mint(
 
     // current collection minted assets should be less then max supply
     let collection_metadata = BaseCollectionV1::try_from(&accounts.collection.to_account_info())?;
-    if collection_metadata.current_size > fusion.asset_data.max_supply.unwrap_or(u32::MAX) {
+    if collection_metadata.current_size >= fusion.asset_data.max_supply.unwrap_or(u32::MAX) {
         return err!(FusionError::MaxSupplyReached);
     }
 
@@ -179,7 +182,7 @@ pub(crate) fn process_mint(
     // asset args
     let args = CreateV1Args::from(&fusion.asset_data);
 
-    msg!("Minting asset: {:?}", args);
+    msg!("Asset: {:?} minted", args);
 
     // increase next index
     fusion.asset_data.next_index = fusion
@@ -192,7 +195,7 @@ pub(crate) fn process_mint(
     create_asset_v1(accounts, args, [AUTHORITY_SEED.as_bytes(), &[bump]])
 }
 
-/// Fusion tokens into a NFT.
+/// Fusion tokens into an asset.
 #[derive(Accounts)]
 pub struct FusionIntoV1Ctx<'info> {
     /// Fusion data account.
@@ -200,13 +203,11 @@ pub struct FusionIntoV1Ctx<'info> {
     fusion_data: Account<'info, FusionDataV1>,
 
     /// Authority pda.
-    ///
     /// CHECK: account checked in seeds constraint
     #[account(seeds = [AUTHORITY_SEED.as_bytes()], bump)]
     authority_pda: UncheckedAccount<'info>,
 
-    /// Transaction and rent payer.
-    /// Asset owner
+    /// Asset owner, transaction and rent payer.
     #[account(mut)]
     user: Signer<'info>,
 
@@ -230,7 +231,7 @@ pub struct FusionIntoV1Ctx<'info> {
     )]
     escrow_ata_pda: Account<'info, TokenAccount>,
 
-    /// User ata account
+    /// User ata account.
     #[account(
         mut,
         associated_token::mint = token_mint,
@@ -239,7 +240,7 @@ pub struct FusionIntoV1Ctx<'info> {
     user_ata: Account<'info, TokenAccount>,
 
     /// Protocol fee account.
-    /// CHECK: We check against constant
+    /// CHECK: checked by account constraint
     #[account(
         mut,
         address = PROTOCOL_FEE_WALLET @ FusionError::InvalidProtocolFeeWallet

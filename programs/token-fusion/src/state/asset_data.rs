@@ -28,26 +28,6 @@ pub struct AssetDataV1 {
 }
 
 impl AssetDataV1 {
-    // pub const SIZE: usize =
-    //     4 + ASSET_SYMBOL_MAX                        // asset_symbol
-    //     + 8                                         // asset_next_index
-    //     + 4 + ASSET_NAME_PREFIX_MAX                 // asset_name_prefix
-    //     + 4 + ASSET_URI_PREFIX_MAX                  // asset_uri_prefix
-    //     + 4 + ASSET_URI_SUFFIX_MAX                  // asset_uri_suffix
-    //     + 2                                         // asset_seller_fee_basis_points
-    //     + 4 + MAX_CREATOR_LIMIT * MAX_CREATOR_LEN   // asset_creators
-    //     ;
-
-    // pub fn get_filled_data(&self) -> AssetDataFilled {
-    //     AssetDataFilled {
-    //         name: format!("{}{}", self.asset_name_prefix, self.asset_next_index),
-    //         uri: format!(
-    //             "{}{}{}",
-    //             self.asset_uri_prefix, self.asset_next_index, self.asset_uri_suffix
-    //         ),
-    //     }
-    // }
-
     pub fn validate(&self) -> Result<()> {
         require!(self.next_index > 0, FusionError::InvalidNextAssetIndex);
 
