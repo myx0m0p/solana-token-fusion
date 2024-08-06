@@ -13,7 +13,7 @@ pub mod utils;
 mod instructions;
 mod state;
 
-declare_id!("5KH8Y5eFJDjhqdQki5BEiomaCBEmkmAMALS6iBS4P4EV");
+declare_id!("STF3iH1vGcBEmqc7bqFmyq2cHbJq6vaQrD6EkKuH22M");
 
 #[program]
 pub mod token_fusion {

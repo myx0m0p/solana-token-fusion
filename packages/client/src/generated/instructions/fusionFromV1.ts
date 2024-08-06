@@ -94,7 +94,7 @@ export function fusionFromV1(
   // Program ID.
   const programId = context.programs.getPublicKey(
     'tokenFusion',
-    '5KH8Y5eFJDjhqdQki5BEiomaCBEmkmAMALS6iBS4P4EV'
+    'STF3iH1vGcBEmqc7bqFmyq2cHbJq6vaQrD6EkKuH22M'
   );
 
   // Accounts.
