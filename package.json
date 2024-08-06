@@ -11,7 +11,7 @@
   "devDependencies": {
     "@commander-js/extra-typings": "^12.1.0",
     "@kinobi-so/nodes-from-anchor": "^0.20.9",
-    "@kinobi-so/renderers-js-umi": "link:/Users/myx0m0p/Projects/Solana/kinobi/packages/renderers-js-umi",
+    "@kinobi-so/renderers-js-umi": "^0.21.1",
     "@metaplex-foundation/mpl-core": "^1.0.2",
     "@metaplex-foundation/mpl-token-metadata": "^3.2.1",
     "@metaplex-foundation/mpl-toolbox": "^0.9.4",
