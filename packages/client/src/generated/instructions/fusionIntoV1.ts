@@ -200,8 +200,8 @@ export function fusionIntoV1(
   if (!resolvedAccounts.escrowAtaPda.value) {
     resolvedAccounts.escrowAtaPda.value = context.eddsa.findPda(
       context.programs.getPublicKey(
-        'associatedTokenProgram',
-        'associatedTokenProgram'
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
       ),
       [
         publicKeySerializer().serialize(
@@ -219,8 +219,8 @@ export function fusionIntoV1(
   if (!resolvedAccounts.userAta.value) {
     resolvedAccounts.userAta.value = context.eddsa.findPda(
       context.programs.getPublicKey(
-        'associatedTokenProgram',
-        'associatedTokenProgram'
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
       ),
       [
         publicKeySerializer().serialize(

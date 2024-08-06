@@ -191,8 +191,8 @@ export function destroyV1(
   if (!resolvedAccounts.escrowAtaPda.value) {
     resolvedAccounts.escrowAtaPda.value = context.eddsa.findPda(
       context.programs.getPublicKey(
-        'associatedTokenProgram',
-        'associatedTokenProgram'
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
       ),
       [
         publicKeySerializer().serialize(
@@ -210,8 +210,8 @@ export function destroyV1(
   if (!resolvedAccounts.authorityAta.value) {
     resolvedAccounts.authorityAta.value = context.eddsa.findPda(
       context.programs.getPublicKey(
-        'associatedTokenProgram',
-        'associatedTokenProgram'
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
       ),
       [
         publicKeySerializer().serialize(

@@ -28,7 +28,8 @@ const anchorIdl = JSON.parse(readFileSync(anchorIdlPath, 'utf-8'));
 // Parse it into a Kinobi IDL.
 const kinobi = createFromRoot(rootNodeFromAnchor(anchorIdl));
 
-// Set the default value for the feeSolAccount account.
+// Fix feeAccount write access [bug in kinobi]
+// Fix associated token accounts programId [bug in kinobi]
 kinobi.update(
   setInstructionAccountDefaultValuesVisitor([
     {
@@ -40,7 +41,7 @@ kinobi.update(
       defaultValue: pdaValueNode(
         pdaNode({
           name: 'escrowAtaPda',
-          programId: 'associatedTokenProgram',
+          programId: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
           seeds: [
             variablePdaSeedNode('authorityPda', publicKeyTypeNode()),
             variablePdaSeedNode('tokenProgram', publicKeyTypeNode()),
@@ -54,7 +55,7 @@ kinobi.update(
       defaultValue: pdaValueNode(
         pdaNode({
           name: 'userAta',
-          programId: 'associatedTokenProgram',
+          programId: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
           seeds: [
             variablePdaSeedNode('user', publicKeyTypeNode()),
             variablePdaSeedNode('tokenProgram', publicKeyTypeNode()),
@@ -68,7 +69,7 @@ kinobi.update(
       defaultValue: pdaValueNode(
         pdaNode({
           name: 'authorityAta',
-          programId: 'associatedTokenProgram',
+          programId: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
           seeds: [
             variablePdaSeedNode('authority', publicKeyTypeNode()),
             variablePdaSeedNode('tokenProgram', publicKeyTypeNode()),
