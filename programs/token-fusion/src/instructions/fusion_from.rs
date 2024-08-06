@@ -63,15 +63,17 @@ pub fn handler_fusion_from_v1<'info>(
             .map(|log_wrapper| log_wrapper.to_account_info()),
     };
 
+    process_burn(fusion, &accounts)?;
+
+    process_transfer(fusion, &accounts, ctx.bumps.authority_pda)?;
+
     sol_transfer(
-        ctx.accounts.user.to_account_info(),
+        accounts.payer.to_account_info(),
         ctx.accounts.fee_account.to_account_info(),
         PROTOCOL_FEE,
     )?;
 
-    process_transfer(fusion, &accounts, ctx.bumps.authority_pda)?;
-
-    process_burn(fusion, &accounts)
+    Ok(())
 }
 
 /// Transfers tokens from the escrow to the user token account.
@@ -108,7 +110,7 @@ pub(crate) fn process_transfer(
     );
 
     anchor_spl::token::transfer(cpi_ctx, transfer_amount)?;
-    msg!("Transferred {} tokens", transfer_amount);
+    msg!("Transfer: {} SPL", transfer_amount);
     Ok(())
 }
 
@@ -162,7 +164,7 @@ pub(crate) fn process_burn(
             .map(|log_wrapper| log_wrapper.to_account_info()),
     };
 
-    msg!("Burning asset: {}", asset_metadata.name);
+    msg!("Burn: {} asset", asset_metadata.name);
 
     // (3) burning
     burn_asset_v1(accounts)
