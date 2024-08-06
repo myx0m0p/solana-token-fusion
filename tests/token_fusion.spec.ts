@@ -1,27 +1,33 @@
 import { expect } from 'chai';
-import { some } from '@metaplex-foundation/umi';
+import { generateSigner, some } from '@metaplex-foundation/umi';
 
-import { fetchToken, findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
+import { fetchToken, safeFetchToken } from '@metaplex-foundation/mpl-toolbox';
+import { fetchAsset, fetchCollection } from '@metaplex-foundation/mpl-core';
 
-import { explorerAddressLink, explorerTxLink } from '../src/utils/explorer';
+import { explorerTxLink } from '../src/utils/explorer';
 import { AppLogger } from '../src/utils/logger';
 
-import { generateAsset, createCollection, createToken } from './_setup';
 import { createUmi } from '../src/utils/umi';
 
 import {
   AssetDataV1,
+  destroyV1,
   fetchFusionDataV1,
   findEscrowAtaPda,
   findFusionDataPda,
   fusionFromV1,
   fusionIntoV1,
   initV1,
+  safeFetchFusionDataV1,
+  setAuthorityV1,
+  setPauseV1,
   TokenDataV1,
+  updateV1,
 } from '../packages/client';
-import { fetchAsset, fetchCollection, safeFetchAssetV1 } from '@metaplex-foundation/mpl-core';
 
-// const AUTH_ERROR_MESSAGE = 'Error Number: 2001. Error Message: A has one constraint was violated.';
+import { generateAsset, createCollection, createToken } from './_setup';
+
+const AUTH_ERROR_MESSAGE = 'Error Number: 2001. Error Message: A has one constraint was violated.';
 
 const DEBUG = process.env.DEBUG === 'true' || false;
 
@@ -60,6 +66,19 @@ const TOKEN_DATA_V1: TokenDataV1 = {
   fromAmount: 100n * 10n ** 9n, // burn asset
 };
 
+const ASSET_DATA_V2: AssetDataV1 = {
+  maxSupply: some(1),
+  nextIndex: 11n,
+  namePrefix: 'STF #',
+  uriPrefix: 'https://stf.org/assets/',
+  uriSuffix: '.json',
+};
+
+const TOKEN_DATA_V2: TokenDataV1 = {
+  intoAmount: 100n * 10n ** 9n, // mint asset
+  fromAmount: 50n * 10n ** 9n, // burn asset
+};
+
 describe('Solana Token Fusion Protocol', () => {
   let context: TestContext;
 
@@ -72,14 +91,14 @@ describe('Solana Token Fusion Protocol', () => {
 
     // umi.identity = deployer
 
-    const initResult = await initV1(umi, {
+    const res = await initV1(umi, {
       tokenMint: token.mint.publicKey,
       collection: collection.collection.publicKey,
       assetData: ASSET_DATA_V1,
       tokenData: TOKEN_DATA_V1,
     }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-    DEBUG && AppLogger.info('Init TX', explorerTxLink(initResult.signature));
+    DEBUG && AppLogger.info('Init TX', explorerTxLink(res.signature));
 
     const dataAccount = await fetchFusionDataV1(umi, dataPda);
 
@@ -89,67 +108,35 @@ describe('Solana Token Fusion Protocol', () => {
     expect(dataAccount.tokenData).to.deep.equal(TOKEN_DATA_V1);
   });
 
-  // it('[Error] Second Enchant', async () => {
-  //   const { umi, authorityPda, dataPda, collection, token, treasurePda } = setup;
+  it('[Error] InitV1 - Double init', async () => {
+    const { umi, token, collection } = context;
 
-  //   umi.payer = collection.authority;
+    // umi.identity = deployer
 
-  //   const expectedAssetData: AssetData = {
-  //     assetSymbol: 'SINNER',
-  //     assetNextIndex: 667n,
-  //     assetNamePrefix: 'Sinner #',
-  //     assetUriPrefix: 'https://meta.sindao.org/metadata/',
-  //     assetUriSuffix: '',
-  //     assetSellerFeeBasisPoints: 99,
-  //     assetCreators: [
-  //       {
-  //         address: collection.authority.publicKey,
-  //         verified: true,
-  //         percentageShare: 100,
-  //       },
-  //     ],
-  //   };
-  //   const expectedTokenData: TokenData = {
-  //     tokenFromAmount: 666n * 10n ** TOKEN_DATA.decimals,
-  //     tokenIntoAmount: 600n * 10n ** TOKEN_DATA.decimals,
-  //   };
+    const res = await initV1(umi, {
+      tokenMint: token.mint.publicKey,
+      collection: collection.collection.publicKey,
+      assetData: ASSET_DATA_V1,
+      tokenData: TOKEN_DATA_V1,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-  //   const tx = await enchant(umi, {
-  //     factory: dataPda,
-  //     authorityPda: authorityPda,
-  //     collectionMint: collection.mint.publicKey,
-  //     collectionMetadata: collection.metadata,
-  //     collectionMasterEdition: collection.masterEdition,
-  //     collectionDelegateRecord: collection.delegateRecord,
-  //     collectionUpdateAuthority: collection.authority,
-  //     ruleSet: MPL_DEFAULT_RULESET,
-  //     tokenMint: token.mint.publicKey,
-  //     tokenTreasure: treasurePda,
-  //     associatedTokenProgram: SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
-  //     authorizationRulesProgram: MPL_TOKEN_AUTH_RULES_PROGRAM_ID,
-  //     // TODO Find out which account to use for this param
-  //     authorizationRules: MPL_DEFAULT_RULESET,
-  //     assetData: expectedAssetData,
-  //     tokenData: expectedTokenData,
-  //   }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+    DEBUG && AppLogger.info('Second Init TX', explorerTxLink(res.signature));
 
-  //   DEBUG && logInfo('Second Enchant', explorerTxLink(tx.signature));
+    const receipt = await umi.rpc.getTransaction(res.signature);
+    expect(receipt?.meta.logs.some((l) => l.includes('already in use'))).eq(true);
+  });
 
-  //   const receipt = await umi.rpc.getTransaction(tx.signature);
-  //   expect(receipt?.meta.logs.some((l) => l.includes('already in use'))).eq(true);
-  // });
-
-  it('[Success] Fusion Into', async () => {
+  it('[Success] FusionIntoV1', async () => {
     const { umi, dataPda, token, collection, asset } = context;
 
-    const result = await fusionIntoV1(umi, {
+    const res = await fusionIntoV1(umi, {
       user: umi.identity,
       asset: asset.asset,
       collection: collection.collection.publicKey,
       tokenMint: token.mint.publicKey,
     }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-    DEBUG && AppLogger.info('Fusion Into TX', explorerTxLink(result.signature));
+    DEBUG && AppLogger.info('Fusion Into TX', explorerTxLink(res.signature));
 
     const dataAccount = await fetchFusionDataV1(umi, dataPda);
     DEBUG && AppLogger.info('Data Account', dataAccount);
@@ -168,17 +155,68 @@ describe('Solana Token Fusion Protocol', () => {
     expect(escrowData.amount).to.equal(TOKEN_DATA_V1.intoAmount);
   });
 
-  it('[Success] Fusion From', async () => {
-    const { umi, dataPda, token, collection, asset } = context;
+  it('[Success] SetPauseV1 - true', async () => {
+    const { umi, deployer, dataPda } = context;
 
-    const result = await fusionFromV1(umi, {
+    // umi.identity = deployer
+
+    const res = await setPauseV1(umi, {
+      authority: deployer,
+      paused: true,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+
+    DEBUG && AppLogger.info('Set Pause TX', explorerTxLink(res.signature));
+
+    const dataAccount = await fetchFusionDataV1(umi, dataPda);
+    expect(dataAccount.paused).to.eq(true);
+  });
+
+  it('[Error] FusionFromV1 - Fusion Paused', async () => {
+    const { umi, token, collection, asset } = context;
+
+    const res = await fusionFromV1(umi, {
       user: umi.identity,
       asset: asset.asset.publicKey,
       collection: collection.collection.publicKey,
       tokenMint: token.mint.publicKey,
     }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-    DEBUG && AppLogger.info('Fusion From TX', explorerTxLink(result.signature));
+    DEBUG && AppLogger.info('Fusion Paused TX', explorerTxLink(res.signature));
+
+    const receipt = await umi.rpc.getTransaction(res.signature);
+    expect(
+      receipt?.meta.logs.some((l) => l.includes('Error Number: 6023. Error Message: Fusion paused.'))
+    ).eq(true);
+  });
+
+  it('[Success] SetPauseV1 - false', async () => {
+    const { umi, deployer, dataPda } = context;
+
+    // umi.identity = deployer
+
+    const res = await setPauseV1(umi, {
+      fusionData: dataPda,
+      authority: deployer,
+      paused: false,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+
+    DEBUG && AppLogger.info('Set Unpause TX', explorerTxLink(res.signature));
+
+    const dataAccount = await fetchFusionDataV1(umi, dataPda);
+    expect(dataAccount.paused).to.eq(false);
+  });
+
+  it('[Success] FusionFromV1', async () => {
+    const { umi, dataPda, token, collection, asset } = context;
+
+    const res = await fusionFromV1(umi, {
+      user: umi.identity,
+      asset: asset.asset.publicKey,
+      collection: collection.collection.publicKey,
+      tokenMint: token.mint.publicKey,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+
+    DEBUG && AppLogger.info('Fusion From TX', explorerTxLink(res.signature));
 
     const dataAccount = await fetchFusionDataV1(umi, dataPda);
     DEBUG && AppLogger.info('Data Account', dataAccount);
@@ -197,280 +235,166 @@ describe('Solana Token Fusion Protocol', () => {
     expect(escrowData.amount).to.equal(0n);
   });
 
-  // it('[Success] Set Pause', async () => {
-  //   const { umi, deployer, dataPda } = setup;
+  it('[Success] SetAuthorityV1', async () => {
+    const { umi, deployer, user, dataPda } = context;
 
-  //   umi.payer = deployer;
+    // umi.identity = deployer
 
-  //   const updateResult = await setPause(umi, {
-  //     factory: dataPda,
-  //     authority: deployer,
-  //     paused: true,
-  //   }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+    const res = await setAuthorityV1(umi, {
+      authority: deployer,
+      newAuthority: user.publicKey,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-  //   DEBUG && logInfo('Set Pause', explorerTxLink(updateResult.signature));
+    DEBUG && AppLogger.info('Set Authority TX', explorerTxLink(res.signature));
 
-  //   const dataAccount = await fetchTransmuteFactory(umi, dataPda);
-  //   expect(dataAccount.paused).to.eq(true);
-  // });
+    const dataAccount = await fetchFusionDataV1(umi, dataPda);
+    expect(dataAccount.authority).to.deep.equal(user.publicKey);
+  });
 
-  // it('[Error] Transmute Paused', async () => {
-  //   const { umi, dataPda, authorityPda, collection, asset, token, treasurePda } = setup;
+  it('[Error] SetAuthorityV1 - authority constrains', async () => {
+    const { umi, deployer, user } = context;
 
-  //   umi.payer = asset.authority;
+    // umi.identity = deployer
 
-  //   const transmuteResult = await transmuteInto(umi, {
-  //     factory: dataPda,
-  //     authorityPda: authorityPda,
-  //     user: asset.authority,
-  //     assetMint: asset.mint.publicKey,
-  //     assetCollectionMetadata: collection.metadata,
-  //     assetMetadata: asset.metadata,
-  //     assetMasterEdition: asset.masterEdition,
-  //     assetToken: asset.token,
-  //     assetTokenRecord: asset.tokenRecord,
-  //     tokenMint: token.mint.publicKey,
-  //     tokenTreasure: treasurePda,
-  //     userTokenAta: token.owner_ata,
-  //     associatedTokenProgram: SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
-  //   }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+    const res = await setAuthorityV1(umi, {
+      authority: deployer,
+      newAuthority: user.publicKey,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-  //   DEBUG && logInfo('Transmute Paused', explorerTxLink(transmuteResult.signature));
+    const receipt = await umi.rpc.getTransaction(res.signature);
+    expect(receipt?.meta.logs.some((l) => l.includes(AUTH_ERROR_MESSAGE))).eq(true);
+  });
 
-  //   const receipt = await umi.rpc.getTransaction(transmuteResult.signature);
-  //   expect(
-  //     receipt?.meta.logs.some((l) =>
-  //       l.includes('Error Number: 6023. Error Message: Transmutations paused.')
-  //     )
-  //   ).eq(true);
-  // });
+  it('[Error] SetPauseV1 - authority constrains', async () => {
+    const { umi, deployer } = context;
 
-  // it('[Success] Set Unpause', async () => {
-  //   const { umi, deployer, dataPda } = setup;
+    // umi.identity = deployer
 
-  //   umi.payer = deployer;
+    const res = await setPauseV1(umi, {
+      authority: deployer,
+      paused: false,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-  //   const updateResult = await setPause(umi, {
-  //     factory: dataPda,
-  //     authority: deployer,
-  //     paused: false,
-  //   }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+    const receipt = await umi.rpc.getTransaction(res.signature);
+    expect(receipt?.meta.logs.some((l) => l.includes(AUTH_ERROR_MESSAGE))).eq(true);
+  });
 
-  //   DEBUG && logInfo('Set Unpause', explorerTxLink(updateResult.signature));
+  it('[Error] UpdateV1 - authority constrains', async () => {
+    const { umi, deployer } = context;
 
-  //   const dataAccount = await fetchTransmuteFactory(umi, dataPda);
-  //   expect(dataAccount.paused).to.eq(false);
-  // });
+    // umi.identity = deployer
 
-  // it('[Success] Transmute Into', async () => {
-  //   const { umi, dataPda, authorityPda, collection, asset, token, treasurePda } = setup;
+    const res = await updateV1(umi, {
+      authority: deployer,
+      assetData: ASSET_DATA_V1,
+      tokenData: TOKEN_DATA_V1,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-  //   umi.payer = asset.authority;
+    const receipt = await umi.rpc.getTransaction(res.signature);
+    expect(receipt?.meta.logs.some((l) => l.includes(AUTH_ERROR_MESSAGE))).eq(true);
+  });
 
-  //   const transmuteResult = await transmuteInto(umi, {
-  //     factory: dataPda,
-  //     authorityPda: authorityPda,
-  //     user: asset.authority,
-  //     assetMint: asset.mint.publicKey,
-  //     assetCollectionMetadata: collection.metadata,
-  //     assetMetadata: asset.metadata,
-  //     assetMasterEdition: asset.masterEdition,
-  //     assetToken: asset.token,
-  //     assetTokenRecord: asset.tokenRecord,
-  //     tokenMint: token.mint.publicKey,
-  //     tokenTreasure: treasurePda,
-  //     userTokenAta: token.owner_ata,
-  //     associatedTokenProgram: SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
-  //   }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+  it('[Error] DestroyV1 - authority constrains', async () => {
+    const { umi, deployer, token, collection } = context;
 
-  //   DEBUG && logInfo('Transmute Into', explorerTxLink(transmuteResult.signature));
-  //   // check factory token ata balance
-  //   const treasureAccount = await fetchToken(umi, treasurePda);
-  //   expect(treasureAccount.amount).to.equal(0n);
-  // });
+    // umi.identity = deployer
 
-  // it('[Success] Set Authority', async () => {
-  //   const { umi, deployer, delegate, dataPda } = setup;
+    const res = await destroyV1(umi, {
+      authority: deployer,
+      tokenMint: token.mint.publicKey,
+      collection: collection.collection.publicKey,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-  //   umi.payer = deployer;
+    const receipt = await umi.rpc.getTransaction(res.signature);
+    expect(receipt?.meta.logs.some((l) => l.includes(AUTH_ERROR_MESSAGE))).eq(true);
+  });
 
-  //   const updateResult = await setAuthority(umi, {
-  //     factory: dataPda,
-  //     authority: deployer,
-  //     newAuthority: delegate.publicKey,
-  //   }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+  it('[Success] UpdateV1', async () => {
+    const { umi, dataPda, user } = context;
 
-  //   DEBUG && logInfo('Set Authority', explorerTxLink(updateResult.signature));
+    umi.identity = user;
 
-  //   const dataAccount = await fetchTransmuteFactory(umi, dataPda);
-  //   expect(dataAccount.authority).to.deep.equal(delegate.publicKey);
-  // });
+    const res = await updateV1(umi, {
+      assetData: ASSET_DATA_V2,
+      tokenData: TOKEN_DATA_V2,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-  // it('[Error] Authority Constrains - `set_authority`', async () => {
-  //   const { umi, deployer, delegate, dataPda } = setup;
+    DEBUG && AppLogger.info('Update TX', explorerTxLink(res.signature));
 
-  //   umi.payer = deployer;
+    const dataAccount = await fetchFusionDataV1(umi, dataPda);
+    expect(dataAccount.assetData).to.deep.equal(ASSET_DATA_V2);
+    expect(dataAccount.tokenData).to.deep.equal(TOKEN_DATA_V2);
+  });
 
-  //   // check set authority
-  //   const tx = await setAuthority(umi, {
-  //     factory: dataPda,
-  //     authority: deployer,
-  //     newAuthority: delegate.publicKey,
-  //   }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+  it('[Success] FusionIntoV1 - minted asset data updated', async () => {
+    const { umi, dataPda, deployer, token, collection } = context;
 
-  //   const receipt = await umi.rpc.getTransaction(tx.signature);
-  //   expect(receipt?.meta.logs.some((l) => l.includes(AUTH_ERROR_MESSAGE))).eq(true);
-  // });
+    const asset = generateSigner(umi);
 
-  // it('[Error] Authority Constrains - `set_pause`', async () => {
-  //   const { umi, deployer, dataPda } = setup;
+    const res = await fusionIntoV1(umi, {
+      user: deployer,
+      asset: asset,
+      collection: collection.collection.publicKey,
+      tokenMint: token.mint.publicKey,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-  //   umi.payer = deployer;
+    DEBUG && AppLogger.info('Fusion Into TX#1', explorerTxLink(res.signature));
 
-  //   // check set pause
-  //   const tx = await setPause(umi, {
-  //     factory: dataPda,
-  //     authority: deployer,
-  //     paused: false,
-  //   }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+    const dataAccount = await fetchFusionDataV1(umi, dataPda);
+    DEBUG && AppLogger.info('Data Account', dataAccount);
 
-  //   const receipt = await umi.rpc.getTransaction(tx.signature);
-  //   expect(receipt?.meta.logs.some((l) => l.includes(AUTH_ERROR_MESSAGE))).eq(true);
-  // });
+    const assetData = await fetchAsset(umi, asset.publicKey);
+    DEBUG && AppLogger.info('Asset Data', assetData);
 
-  // it('[Error] Authority Constrains - `update`', async () => {
-  //   const { umi, deployer, dataPda, collection } = setup;
+    const collectionData = await fetchCollection(umi, collection.collection.publicKey);
+    DEBUG && AppLogger.info('Collection Data', collectionData);
 
-  //   umi.payer = deployer;
+    expect(assetData.name).to.equal('STF #11');
 
-  //   const expectedAssetData: AssetData = {
-  //     assetSymbol: 'SINNER',
-  //     assetNextIndex: 1024n,
-  //     assetNamePrefix: 'Sinnew #',
-  //     assetUriPrefix: 'https://meta.sindao.org/metadata/',
-  //     assetUriSuffix: '',
-  //     assetSellerFeeBasisPoints: 99,
-  //     assetCreators: [
-  //       {
-  //         address: collection.authority.publicKey,
-  //         verified: true,
-  //         percentageShare: 100,
-  //       },
-  //     ],
-  //   };
-  //   const expectedTokenData: TokenData = {
-  //     tokenFromAmount: 20n * 10n ** TOKEN_DATA.decimals,
-  //     tokenIntoAmount: 10n * 10n ** TOKEN_DATA.decimals,
-  //   };
+    // check escrow balance
+    const [escrowAta] = findEscrowAtaPda(umi, token.mint.publicKey);
+    const escrowData = await fetchToken(umi, escrowAta);
+    expect(escrowData.amount).to.equal(TOKEN_DATA_V2.fromAmount);
+  });
 
-  //   const tx = await update(umi, {
-  //     factory: dataPda,
-  //     authority: deployer,
-  //     assetData: expectedAssetData,
-  //     tokenData: expectedTokenData,
-  //   }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+  it('[Error] FusionIntoV1 - asset limit constrains', async () => {
+    const { umi, deployer, token, collection } = context;
 
-  //   const receipt = await umi.rpc.getTransaction(tx.signature);
-  //   expect(receipt?.meta.logs.some((l) => l.includes(AUTH_ERROR_MESSAGE))).eq(true);
-  // });
+    const asset = generateSigner(umi);
 
-  // it('[Error] Authority Constrains - `disenchant`', async () => {
-  //   const { umi, deployer, dataPda, token, authorityPda, treasurePda } = setup;
+    const res = await fusionIntoV1(umi, {
+      user: deployer,
+      asset: asset,
+      collection: collection.collection.publicKey,
+      tokenMint: token.mint.publicKey,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-  //   umi.payer = deployer;
+    DEBUG && AppLogger.info('Fusion Into TX#2', explorerTxLink(res.signature));
 
-  //   const [ata] = findAssociatedTokenPda(umi, {
-  //     mint: token.mint.publicKey,
-  //     owner: deployer.publicKey,
-  //   });
+    const receipt = await umi.rpc.getTransaction(res.signature);
+    expect(
+      receipt?.meta.logs.some((l) => l.includes('Error Number: 6025. Error Message: Max supply reached.'))
+    ).eq(true);
+  });
 
-  //   const tx = await disenchant(umi, {
-  //     factory: dataPda,
-  //     authorityPda: authorityPda,
-  //     authority: deployer,
-  //     tokenMint: token.mint.publicKey,
-  //     tokenTreasure: treasurePda,
-  //     authorityTokenAta: ata,
-  //     associatedTokenProgram: SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
-  //   }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+  it('[Success] DestroyV1', async () => {
+    const { umi, dataPda, user, token, collection } = context;
 
-  //   const receipt = await umi.rpc.getTransaction(tx.signature);
-  //   expect(receipt?.meta.logs.some((l) => l.includes(AUTH_ERROR_MESSAGE))).eq(true);
-  // });
+    umi.identity = user;
 
-  // it('[Success] Update', async () => {
-  //   const { umi, collection, delegate, dataPda } = setup;
+    const res = await destroyV1(umi, {
+      tokenMint: token.mint.publicKey,
+      collection: collection.collection.publicKey,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-  //   umi.payer = delegate;
+    DEBUG && AppLogger.info('Destroy TX', explorerTxLink(res.signature));
 
-  //   const expectedAssetData: AssetData = {
-  //     assetSymbol: 'SINNER',
-  //     assetNextIndex: 1024n,
-  //     assetNamePrefix: 'Sinnew #',
-  //     assetUriPrefix: 'https://meta.sindao.org/metadata/',
-  //     assetUriSuffix: '',
-  //     assetSellerFeeBasisPoints: 99,
-  //     assetCreators: [
-  //       {
-  //         address: collection.authority.publicKey,
-  //         verified: true,
-  //         percentageShare: 100,
-  //       },
-  //     ],
-  //   };
-  //   const expectedTokenData: TokenData = {
-  //     tokenFromAmount: 20n * 10n ** TOKEN_DATA.decimals,
-  //     tokenIntoAmount: 10n * 10n ** TOKEN_DATA.decimals,
-  //   };
+    const dataAccount = await safeFetchFusionDataV1(umi, dataPda);
+    expect(dataAccount).to.eq(null);
 
-  //   const updateResult = await update(umi, {
-  //     factory: dataPda,
-  //     authority: delegate,
-  //     assetData: expectedAssetData,
-  //     tokenData: expectedTokenData,
-  //   }).sendAndConfirm(umi);
-
-  //   DEBUG && logInfo('Update', explorerTxLink(updateResult.signature));
-
-  //   const dataAccount = await fetchTransmuteFactory(umi, dataPda);
-  //   expect(dataAccount.assetData).to.deep.equal(expectedAssetData);
-  //   expect(dataAccount.tokenData).to.deep.equal(expectedTokenData);
-  // });
-
-  // it('[Success] Disenchant', async () => {
-  //   const { umi, deployer, delegate, dataPda, authorityPda, token, treasurePda } = setup;
-
-  //   // switch back authority
-  //   umi.payer = delegate;
-  //   await setAuthority(umi, {
-  //     factory: dataPda,
-  //     authority: delegate,
-  //     newAuthority: deployer.publicKey,
-  //   }).sendAndConfirm(umi);
-
-  //   umi.payer = deployer;
-
-  //   const [ata] = findAssociatedTokenPda(umi, {
-  //     mint: token.mint.publicKey,
-  //     owner: deployer.publicKey,
-  //   });
-
-  //   const updateResult = await disenchant(umi, {
-  //     factory: dataPda,
-  //     authorityPda: authorityPda,
-  //     authority: deployer,
-  //     tokenMint: token.mint.publicKey,
-  //     tokenTreasure: treasurePda,
-  //     authorityTokenAta: ata,
-  //     associatedTokenProgram: SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
-  //   }).sendAndConfirm(umi, { send: { skipPreflight: true } });
-
-  //   DEBUG && logInfo('Disenchant', explorerTxLink(updateResult.signature));
-
-  //   const dataAccount = await safeFetchTransmuteFactory(umi, dataPda);
-  //   expect(dataAccount).to.eq(null);
-  //   // check factory token ata balance
-  //   const treasureAccount = await safeFetchToken(umi, treasurePda);
-  //   expect(treasureAccount).to.equal(null);
-  // });
+    // check escrow account
+    const [escrowAta] = findEscrowAtaPda(umi, token.mint.publicKey);
+    const escrowData = await safeFetchToken(umi, escrowAta);
+    expect(escrowData).to.equal(null);
+  });
 });
