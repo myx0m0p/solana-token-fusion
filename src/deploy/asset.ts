@@ -4,16 +4,10 @@ import { generateSigner, transactionBuilder } from '@metaplex-foundation/umi';
 
 import { explorerAddressLink, explorerTxLink } from '../utils/explorer';
 import { AppLogger } from '../utils/logger';
-import { ClusterType } from '../utils/cluster';
 import { createUmi } from '../utils/umi';
+import { AssetCliOptions } from '../types';
 
-//TODO Move this to cli params with defaults
-export const ASSET_DATA = {
-  name: 'STF Asset',
-  uri: 'https://sft.org/asset.json',
-};
-
-export const deployAsset = async (cluster: ClusterType = 'localnet') => {
+export const deployAsset = async ({ name, uri, cluster }: AssetCliOptions) => {
   const { umi, collection, clusterSettings } = await createUmi(cluster);
 
   AppLogger.info('Collection Mint', explorerAddressLink(collection.publicKey, { cluster }));
@@ -31,8 +25,8 @@ export const deployAsset = async (cluster: ClusterType = 'localnet') => {
     create(umi, {
       asset: assetSigner,
       collection: collection,
-      name: ASSET_DATA.name,
-      uri: ASSET_DATA.uri,
+      name,
+      uri,
     })
   );
 

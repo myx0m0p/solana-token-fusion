@@ -4,17 +4,10 @@ import { transactionBuilder } from '@metaplex-foundation/umi';
 
 import { explorerAddressLink, explorerTxLink } from '../utils/explorer';
 import { AppLogger } from '../utils/logger';
-import { ClusterType } from '../utils/cluster';
 import { createUmi } from '../utils/umi';
+import { CollectionCliOptions } from '../types';
 
-//TODO Move this to cli params with defaults
-export const COLLECTION_DATA = {
-  royalty: 500,
-  name: 'STF Collection',
-  uri: 'https://sft.org/collection.json',
-};
-
-export const deployCollection = async (cluster: ClusterType = 'localnet') => {
+export const deployCollection = async ({ name, uri, royalty, cluster }: CollectionCliOptions) => {
   const { umi, deployer, collection, clusterSettings } = await createUmi(cluster);
 
   AppLogger.info('Collection Mint', explorerAddressLink(collection.publicKey, { cluster }));
@@ -37,12 +30,16 @@ export const deployCollection = async (cluster: ClusterType = 'localnet') => {
   builder = builder.add(
     createCollection(umi, {
       collection,
-      name: COLLECTION_DATA.name,
-      uri: COLLECTION_DATA.uri,
+      name,
+      uri,
       plugins: [
         {
+          type: 'UpdateDelegate',
+          additionalDelegates: [],
+        },
+        {
           type: 'Royalties',
-          basisPoints: COLLECTION_DATA.royalty,
+          basisPoints: royalty,
           creators: [
             {
               address: deployer.publicKey,

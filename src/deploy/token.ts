@@ -4,20 +4,18 @@ import { AuthorityType, setAuthority, setComputeUnitPrice } from '@metaplex-foun
 
 import { explorerAddressLink, explorerTxLink } from '../utils/explorer';
 import { AppLogger } from '../utils/logger';
-import { ClusterType } from '../utils/cluster';
 import { createUmi } from '../utils/umi';
+import { TokenCliOptions } from '../types';
 
-//TODO Move this to cli params with defaults
-export const SPL_TOKEN_METADATA = {
-  name: 'SFT Token',
-  symbol: 'STF',
-  uri: 'https://sft.org/token.json',
-  decimals: 9n,
-  mint: true,
-  mintAmount: 1_000_000n,
-};
-
-export const deployToken = async (cluster: ClusterType = 'localnet') => {
+export const deployToken = async ({
+  cluster,
+  name,
+  symbol,
+  uri,
+  decimals,
+  mint,
+  supply,
+}: TokenCliOptions) => {
   const { umi, deployer, token, treasure, clusterSettings } = await createUmi(cluster);
 
   // local wallet
@@ -45,21 +43,21 @@ export const deployToken = async (cluster: ClusterType = 'localnet') => {
       mint: token,
       authority: deployer,
       updateAuthority: deployer,
-      name: SPL_TOKEN_METADATA.name,
-      symbol: SPL_TOKEN_METADATA.symbol,
-      uri: SPL_TOKEN_METADATA.uri,
+      name,
+      symbol,
+      uri,
       sellerFeeBasisPoints: percentAmount(0),
-      decimals: Number(SPL_TOKEN_METADATA.decimals),
+      decimals,
     })
   );
 
   // mint tokens
-  if (SPL_TOKEN_METADATA.mint) {
+  if (mint) {
     builder = builder.add(
       mintV1(umi, {
         mint: token.publicKey,
         authority: deployer,
-        amount: SPL_TOKEN_METADATA.mintAmount * 10n ** SPL_TOKEN_METADATA.decimals,
+        amount: BigInt(supply) * 10n ** BigInt(decimals),
         tokenOwner: tokenOwner,
         tokenStandard: TokenStandard.Fungible,
       })
