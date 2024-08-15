@@ -1,0 +1,94 @@
+@import '@/styles/vars/breakpoints';
+@import '@/styles/vars/colors';
+
+.root {
+  position: relative;
+  display: inline-block;
+}
+
+.header {
+  all: unset;
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 200px;
+  height: 60px;
+  padding: 22px 30px 20px;
+  border: 1px solid rgb(255 255 255 / 30%);
+  line-height: 1;
+  background-color: rgb(255 255 255 / 10%);
+  cursor: pointer;
+
+  &.isOpen {
+    border-color: #4d4d4d;
+    background-color: #4d4d4d;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    width: 140px;
+    height: 50px;
+    padding: 22px 15px 20px;
+  }
+
+  svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  &:hover {
+    color: $primary-color;
+
+    svg {
+      fill: $primary-color;
+    }
+  }
+}
+
+.title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 9999;
+  margin-top: 10px;
+  overflow: hidden;
+  background-color: #4d4d4d;
+  filter: drop-shadow(0 0 10px rgba(0 0 0 / 10%));
+}
+
+.content {
+  position: relative;
+  width: 100%;
+  height: 144px;
+
+  div:nth-child(3) > div {
+    width: 4px !important;
+    border-radius: 0 !important;
+    background-color: #fff !important;
+  }
+}
+
+.item {
+  &.isClickable {
+    cursor: pointer;
+  }
+}
+
+.icon {
+  height: auto !important;
+  margin-left: 7px !important;
+  font-size: 40px !important;
+}
+
+.verticalBar {
+  width: 4px !important;
+  border-radius: 0 !important;
+  background-color: #fff !important;
+}

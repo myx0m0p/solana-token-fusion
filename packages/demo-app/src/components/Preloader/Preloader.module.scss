@@ -1,0 +1,49 @@
+@import '@/styles/vars/colors';
+
+.preloader {
+  width: 100px;
+  height: 100px;
+
+  --rotation-animation-speed: 2s;
+  --rotation-animation-easing: linear;
+  --stroke-animation-speed: 1.5s;
+  --stroke-animation-easing: ease-in-out;
+  --stroke-width: 3px;
+  --stroke-start-dasharray: 1, 200;
+  --stroke-end-dasharray: 89, 200;
+}
+
+.icon {
+  animation: rotate var(--rotation-animation-speed) var(--rotation-animation-easing) infinite;
+}
+
+.path {
+  animation: animate-stroke var(--stroke-animation-speed) var(--stroke-animation-easing) infinite;
+  fill: none;
+  stroke: $primary-color;
+  stroke-width: var(--stroke-width);
+  stroke-linecap: round;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes animate-stroke {
+  0% {
+    stroke-dasharray: var(--stroke-start-dasharray);
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    stroke-dasharray: var(--stroke-end-dasharray);
+    stroke-dashoffset: -35;
+  }
+
+  100% {
+    stroke-dasharray: var(--stroke-end-dasharray);
+    stroke-dashoffset: -124;
+  }
+}

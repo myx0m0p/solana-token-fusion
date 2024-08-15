@@ -1,0 +1,54 @@
+@import 'react-toastify/dist/ReactToastify.min.css';
+@import 'overlayscrollbars/overlayscrollbars.css';
+@import 'animate.css/animate.min.css';
+
+@import './vars/breakpoints';
+@import './vars/colors';
+@import './fonts';
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  color: $basic-color;
+  font-size: 18px;
+  font-family: DePixel, sans-serif;
+  line-height: 1.44;
+  letter-spacing: -0.6px;
+  background-color: $on-basic-color;
+  -webkit-tap-highlight-color: transparent;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 16px;
+    line-height: 1.56;
+    letter-spacing: -0.2px;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+input,
+button {
+  font-family: DePixel, sans-serif;
+}
+
+/* stylelint-disable-next-line selector-no-vendor-prefix */
+*::-moz-selection {
+  color: $on-primary-color;
+  background-color: $primary-color;
+}
+
+*::selection {
+  color: $on-primary-color;
+  background-color: $primary-color;
+}
+
+.os-scrollbar-handle {
+  border-radius: 0 !important;
+  background: #fff !important;
+}

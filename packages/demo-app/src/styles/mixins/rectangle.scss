@@ -1,0 +1,7 @@
+@mixin rectangle($proportion: 100%) {
+  &::before {
+    display: block;
+    padding-top: $proportion;
+    content: '';
+  }
+}

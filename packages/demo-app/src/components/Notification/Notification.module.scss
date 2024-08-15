@@ -1,0 +1,39 @@
+@import '@/styles/vars/colors';
+
+$animation-speed: 0.5s;
+
+.popup {
+  display: flex;
+  align-items: center;
+  padding: 14px;
+  color: $basic-color;
+  font-size: 15px;
+  line-height: 20px;
+  letter-spacing: -0.2px;
+}
+
+.avatar {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.info {
+  margin-left: 14px;
+}
+
+.link {
+  display: block;
+  margin-top: 5px;
+  color: $primary-color;
+  font-size: 13px;
+  text-decoration: none;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+.icon {
+  width: 16px;
+  vertical-align: text-bottom;
+}

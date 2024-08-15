@@ -1,0 +1,313 @@
+@import '@/styles/vars/breakpoints';
+@import '@/styles/vars/colors';
+@import '@/styles/vars/common';
+@import '@/styles/mixins/container';
+
+$breakpoint1200: 1200px;
+$breakpoint1150: 1150px;
+$breakpoint1050: 1050px;
+
+.interface {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin: auto;
+  padding-top: 45px;
+  padding-bottom: 45px;
+
+  @media (max-width: $breakpoint1050) {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 450px;
+    padding-top: 0;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    max-width: 320px;
+    padding-bottom: 0;
+  }
+}
+
+.saleState {
+  margin-bottom: 15px;
+
+  @media (min-width: $breakpoint1050) {
+    position: relative;
+    top: -2px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    margin-top: 10px;
+  }
+}
+
+.label {
+  color: #b3b3b3;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 1.25;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 12px;
+  }
+}
+
+.timer {
+  color: $primary-color;
+  font-weight: bold;
+  font-size: 17px;
+  line-height: 1.2;
+  letter-spacing: 2px;
+
+  @media (max-width: $breakpoint1050) {
+    margin-bottom: 15px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 12px;
+  }
+}
+
+.title {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-weight: bold;
+  font-size: 36px;
+  font-style: normal;
+  line-height: 1.33;
+  letter-spacing: -0.4px;
+
+  @media (max-width: $breakpoint1150) {
+    font-size: 30px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    padding-right: 0;
+    font-size: 20px;
+    line-height: 1.17;
+    letter-spacing: 1px;
+  }
+}
+
+.description {
+  margin-bottom: 15px;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.43;
+  letter-spacing: 1px;
+
+  @media (max-width: $breakpoint1150) {
+    font-size: 19px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 17px;
+  }
+}
+
+.availableToMint {
+  font-weight: bold;
+  font-size: 18px;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+
+  @media (max-width: $breakpoint1050) {
+    margin-top: 25px;
+    margin-bottom: 45px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    margin-top: 12px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    line-height: 1;
+  }
+}
+
+.availableToMintLabel {
+  color: #b3b3b3;
+  font-size: 16px;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 13px;
+  }
+}
+
+.limits {
+  margin: 12px 0 0;
+  color: #b3b3b3;
+  font-weight: 400;
+  font-size: 16px;
+  letter-spacing: -0.6px;
+  text-transform: initial;
+
+  &.hide {
+    visibility: hidden;
+  }
+}
+
+.total_supply {
+  color: #b3b3b3;
+}
+
+.animationSide {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 468px;
+
+  @media (max-width: $breakpoint1050) {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+}
+
+.contentSide {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 50%;
+
+  @media (max-width: $breakpoint1050) {
+    width: 100%;
+  }
+}
+
+.amountRow {
+  display: flex;
+
+  @media (max-width: $breakpoint1050) {
+    flex-direction: column;
+  }
+}
+
+.totalRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  @media (max-width: $breakpoint1050) {
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    justify-content: space-between;
+  }
+}
+
+.total {
+  padding-top: 8px;
+  font-weight: bold;
+  font-size: 20px;
+  line-height: 1;
+
+  @media (max-width: $breakpoint1050) {
+    font-size: 17px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    padding-top: 4px;
+    font-size: 14px;
+  }
+}
+
+.totalCost {
+  font-weight: bold;
+  font-size: 18px;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+
+  @media (max-width: $breakpoint1050) {
+    margin-top: 25px;
+    margin-bottom: 45px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    margin-top: 12px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    line-height: 1;
+  }
+}
+
+.totalCostLabel {
+  color: #b3b3b3;
+  font-size: 16px;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 13px;
+  }
+}
+
+.controls {
+  display: flex;
+  width: 100%;
+}
+
+.buttonContainer {
+  width: 100%;
+}
+
+.freeMintBanner {
+  margin-bottom: 30px;
+  padding: 14px;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 2;
+  letter-spacing: 0.15px;
+  text-align: center;
+  background-image: url('/media/free-mint-banner.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  @media (max-width: $breakpoint1200) {
+    font-size: 12px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    margin-bottom: 15px;
+  }
+}
+
+.input {
+  width: 100%;
+}
+
+.dropdownMenu {
+  width: 200px;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 16px;
+
+  &:hover {
+    color: $primary-color;
+  }
+
+  span {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+.dropdownItemText {
+  padding-top: 5px;
+}

@@ -1,0 +1,98 @@
+@import '@/styles/vars/breakpoints';
+@import '@/styles/vars/colors';
+@import '@/styles/vars/common';
+@import '@/styles/mixins/container';
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 20px;
+  max-width: 420px;
+  height: 420px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #4d4d4d;
+  padding: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: #ffffff #4d4d4d;
+  scrollbar-gutter: stable;
+  @media (max-width: $breakpoint-md) {
+    max-width: 100%;
+  }
+}
+
+.assetContainer {
+  display: block;
+  border: 4px solid $basic-color;
+  width: 114px;
+  height: 114px;
+  flex: 0 0 114px;
+  overflow: hidden;
+  cursor: pointer;
+  &.selected {
+    border-color: $primary-color;
+  }
+  &:hover {
+    border-color: $primary-color;
+  }
+}
+.preloaderContainer {
+  width: 114px;
+  height: 114px;
+  display: block;
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.preloader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -25px;
+  width: 50px;
+  height: 50px;
+
+  --rotation-animation-speed: 2s;
+  --rotation-animation-easing: linear;
+  --stroke-animation-speed: 1.5s;
+  --stroke-animation-easing: ease-in-out;
+  --stroke-width: 3px;
+  --stroke-start-dasharray: 1, 200;
+  --stroke-end-dasharray: 89, 200;
+}
+
+.icon {
+  animation: rotate var(--rotation-animation-speed) var(--rotation-animation-easing) infinite;
+}
+
+.path {
+  animation: animate-stroke var(--stroke-animation-speed) var(--stroke-animation-easing) infinite;
+  fill: none;
+  stroke: $primary-color;
+  stroke-width: var(--stroke-width);
+  stroke-linecap: round;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes animate-stroke {
+  0% {
+    stroke-dasharray: var(--stroke-start-dasharray);
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    stroke-dasharray: var(--stroke-end-dasharray);
+    stroke-dashoffset: -35;
+  }
+
+  100% {
+    stroke-dasharray: var(--stroke-end-dasharray);
+    stroke-dashoffset: -124;
+  }
+}

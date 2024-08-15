@@ -1,0 +1,74 @@
+@import '../vars/breakpoints';
+
+$breakpoint1100: 1100px;
+$breakpoint900: 900px;
+$breakpoint500: 500px;
+
+@mixin h1 {
+  margin: 0;
+  font-weight: bold;
+  font-size: 72px;
+  line-height: 1.2;
+  letter-spacing: 1px;
+
+  @media (max-width: $breakpoint1100) {
+    font-size: 62px;
+  }
+
+  @media (max-width: $breakpoint900) {
+    font-size: 52px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 42px;
+  }
+
+  @media (max-width: $breakpoint500) {
+    font-size: 32px;
+  }
+}
+
+@mixin h2 {
+  margin: 0;
+  font-weight: bold;
+  font-size: 54px;
+  line-height: 1.2;
+  letter-spacing: 1px;
+
+  @media (max-width: $breakpoint900) {
+    font-size: 40px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 30px;
+  }
+
+  @media (max-width: $breakpoint500) {
+    font-size: 21px;
+  }
+}
+
+@mixin h3 {
+  margin: 0;
+  font-weight: bold;
+  font-size: 36px;
+  line-height: 1;
+
+  @media (max-width: $breakpoint1100) {
+    font-size: 30px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 25px;
+  }
+
+  @media (max-width: $breakpoint500) {
+    font-size: 23px;
+  }
+}
+
+@mixin h4 {
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: -0.6px;
+}

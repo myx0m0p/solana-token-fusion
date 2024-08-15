@@ -11,8 +11,8 @@
   "devDependencies": {
     "@commander-js/extra-typings": "^12.1.0",
     "@kinobi-so/nodes-from-anchor": "^0.20.9",
-    "@kinobi-so/renderers-js-umi": "^0.21.1",
-    "@metaplex-foundation/mpl-core": "^1.0.2",
+    "@kinobi-so/renderers-js-umi": "^0.21.2",
+    "@metaplex-foundation/mpl-core": "^1.1.1",
     "@metaplex-foundation/mpl-token-metadata": "^3.2.1",
     "@metaplex-foundation/mpl-toolbox": "^0.9.4",
     "@metaplex-foundation/umi": "^0.9.2",
@@ -38,5 +38,12 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
-  "packageManager": "pnpm@9.6.0"
+  "packageManager": "pnpm@9.7.1",
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "bs58": "6"
+      }
+    }
+  }
 }

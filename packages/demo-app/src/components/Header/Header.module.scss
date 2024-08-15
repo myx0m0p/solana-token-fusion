@@ -1,0 +1,99 @@
+@import '@/styles/mixins/container';
+@import '@/styles/vars/colors';
+@import '@/styles/vars/breakpoints';
+
+.header {
+  background-color: $on-basic-color;
+}
+
+.container {
+  @include container;
+
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 10px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  padding-top: 15px;
+  padding-bottom: 15px;
+
+  @media (max-width: $breakpoint-md) {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
+
+.logoIcon {
+  margin-right: 7px;
+}
+
+.connectButton {
+  display: flex;
+  justify-self: end;
+
+  &.isDisabled {
+    pointer-events: none;
+    touch-action: none;
+  }
+}
+
+.nav {
+  list-style-type: none;
+  margin: 0;
+  padding: 0 15px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-self: flex-end;
+
+  @media (max-width: $breakpoint-md) {
+    gap: 8px;
+  }
+}
+.navItem {
+  display: flex;
+}
+
+.link {
+  font-size: 15px;
+  font-weight: 700;
+  color: $basic-color;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+
+  &.active {
+    color: $primary-color;
+  }
+
+  &:hover {
+    color: $primary-color;
+  }
+}
+
+.connectButtonMobile {
+  display: none;
+}
+
+.logoImage {
+  padding-bottom: 5px;
+}
+
+@media screen and (max-width: $breakpoint-sm) {
+  .connectButton {
+    display: none;
+  }
+  .connectButtonMobile {
+    display: flex;
+  }
+  .logoImage {
+    display: none;
+  }
+  .link {
+    font-size: 12px;
+  }
+}

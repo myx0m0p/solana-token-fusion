@@ -1,0 +1,161 @@
+@import '@/styles/vars/breakpoints';
+@import '@/styles/vars/colors';
+@import '@/styles/vars/common';
+
+.numericInput {
+  display: flex;
+  gap: 16px;
+
+  @media (max-width: $breakpoint-md) {
+    gap: 5px;
+    justify-content: space-between;
+    width: 100%;
+  }
+}
+
+%button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  height: 56px;
+  border: 1px solid rgb(255 255 255 / 30%);
+  background-color: rgb(255 255 255 / 10%);
+
+  &.isDisabled {
+    opacity: 0.6;
+  }
+
+  &:not(.isDisabled) {
+    cursor: pointer;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    height: 50px;
+  }
+}
+
+%line {
+  display: inline-block;
+  width: 18px;
+  height: 3px;
+  background-color: #fff;
+}
+
+.decreaseButton,
+.increaseButton {
+  @extend %button;
+
+  width: 56px;
+  padding: 0 18px;
+}
+
+.decreaseButton {
+  &::before {
+    @extend %line;
+
+    content: '';
+  }
+
+  &:not(.isDisabled):hover {
+    &::before {
+      background-color: $primary-color;
+    }
+  }
+}
+
+.increaseButton {
+  position: relative;
+
+  &::before {
+    @extend %line;
+
+    content: '';
+  }
+
+  &::after {
+    @extend %line;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    content: '';
+  }
+
+  &:not(.isDisabled):hover {
+    &::before,
+    &::after {
+      background-color: $primary-color;
+    }
+  }
+}
+
+.maxButton {
+  @extend %button;
+
+  padding: 2px 30px 0;
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+
+  &:not(.isDisabled) {
+    &:hover {
+      color: $primary-color;
+    }
+  }
+
+  @media (max-width: $breakpoint-md) {
+    padding: 2px 15px 0;
+  }
+}
+
+.inputContainer {
+  @extend %button;
+
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+}
+
+.input {
+  width: 1ch;
+  margin: 0;
+  padding: 5px 0 0 5px;
+  border: 0;
+  border-radius: 0;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+  background-color: transparent;
+  outline: none;
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -moz-appearance: textfield;
+  appearance: none;
+
+  @media (min-width: $breakpoint-md) {
+    line-height: 1.5;
+    letter-spacing: -0.2px;
+  }
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    display: none;
+    margin: 0;
+    appearance: none;
+  }
+
+  &::placeholder {
+    font-size: 14px;
+    font-family: DePixel, sans-serif;
+    line-height: 1.1;
+    vertical-align: center;
+  }
+
+  &:focus-within,
+  &:hover {
+    color: $primary-color;
+  }
+}

@@ -1,0 +1,31 @@
+@import '@/styles/mixins/container';
+@import '@/styles/vars/breakpoints';
+
+$breakpoint500: 500px;
+
+.footer {
+  padding: 45px 0;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 30px 0;
+  }
+}
+
+.container {
+  @include container;
+
+  display: flex;
+  gap: 20px;
+
+  @media (max-width: $breakpoint500) {
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.copyright {
+  padding-top: 6px;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0.15px;
+}

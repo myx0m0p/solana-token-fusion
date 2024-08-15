@@ -1,0 +1,32 @@
+@use 'sass:map';
+
+$font-weights: (
+  'thin': 100,
+  'extra-light': 200,
+  'light': 300,
+  'regular': 400,
+  'medium': 500,
+  'semi-bold': 600,
+  'bold': 700,
+  'extra-bold': 800,
+  'black': 900,
+);
+
+@mixin font-face($family, $file-name, $weight: regular, $style: normal) {
+  $style-prefix: '_italic';
+
+  /* stylelint-disable-next-line scss/at-rule-conditional-no-parentheses */
+  @if ($style == normal) {
+    $style-prefix: '';
+  }
+
+  @font-face {
+    font-weight: map.get($font-weights, $weight);
+    font-family: $family;
+    font-style: $style;
+    src:
+      url('/fonts/#{$file-name}/#{$file-name}_#{$weight}#{$style-prefix}.woff2') format('woff2'),
+      url('/fonts/#{$file-name}/#{$file-name}_#{$weight}#{$style-prefix}.woff') format('woff');
+    font-display: swap;
+  }
+}
