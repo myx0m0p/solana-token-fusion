@@ -11,6 +11,12 @@ export default function Document() {
         <link rel='manifest' href='/favicons/site.webmanifest' />
         <link rel='shortcut icon' href='/favicons/favicon.ico' />
         <meta name='theme-color' content='#ffffff' />
+        <link rel='preconnect' href='https://fonts.googleapis.com' />
+        <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
+        <link
+          href='https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap'
+          rel='stylesheet'
+        />
       </Head>
       <body>
         <Main />

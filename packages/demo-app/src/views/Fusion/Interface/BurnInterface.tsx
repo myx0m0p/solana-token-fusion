@@ -112,14 +112,15 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
 
       <div className={S.contentSide}>
         <div>
-          <div className={S.title}>Token Fusion</div>
+          <div className={S.title}>Fusion From</div>
           <div className={S.description}>
-            Burn your assets to receive the{NO_BREAK_SPACE}equivalent amount of tokens.
+            Burn your non-fungible asset to receive {tokenAmount.toFormattedAmount()} {tokenAmount.symbol}{' '}
+            fungible tokens.
           </div>
         </div>
 
         <div className={S.availableToMint}>
-          <span className={S.availableToMintLabel}>Selected: </span>
+          <span className={S.availableToMintLabel}>Assset: </span>
           <span>{getAssetName(asset?.name)}</span>
         </div>
 

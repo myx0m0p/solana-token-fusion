@@ -4,7 +4,6 @@
 
 @import './vars/breakpoints';
 @import './vars/colors';
-@import './fonts';
 
 :root {
   color-scheme: dark;
@@ -13,7 +12,7 @@
 html {
   color: $basic-color;
   font-size: 18px;
-  font-family: DePixel, sans-serif;
+  font-family: 'Rethink Sans', sans-serif;
   line-height: 1.44;
   letter-spacing: -0.6px;
   background-color: $on-basic-color;
@@ -34,7 +33,7 @@ body {
 
 input,
 button {
-  font-family: DePixel, sans-serif;
+  font-family: 'Rethink Sans', sans-serif;
 }
 
 /* stylelint-disable-next-line selector-no-vendor-prefix */

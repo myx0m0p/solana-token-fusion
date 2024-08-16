@@ -105,14 +105,15 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
   return (
     <div className={S.interface}>
       <div className={S.animationSide}>
-        <Animation url='media/sins.mp4' />
+        <Animation url='media/splash.jpg' />
       </div>
 
       <div className={S.contentSide}>
         <div>
-          <div className={S.title}>The Transmuter</div>
+          <div className={S.title}>Fusion Into</div>
           <div className={S.description}>
-            Use vicious $SIN tokens to mint a unique Sinner. You have a chance to mint a 1/1 Sinner.
+            Combine your {tokenAmount.toFormattedAmount()} {tokenAmount.symbol} fungible tokens into a single
+            unique non-fungible asset.
           </div>
         </div>
 

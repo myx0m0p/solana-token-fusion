@@ -25,7 +25,7 @@ const Component: React.FC<Props> = ({ size = 'lg' }) => {
         borderRadius: 0,
         border: '2px solid #e9cc86',
         backgroundColor: 'black',
-        fontFamily: 'DePixel,sans-serif',
+        fontFamily: 'Rethink Sans,sans-serif',
       }}
     />
   );
