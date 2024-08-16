@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { memo, useState } from 'react';
-import { DigitalAsset } from '@metaplex-foundation/mpl-token-metadata';
+import { AssetV1 } from '@metaplex-foundation/mpl-core';
 import Image from 'next/image';
 
 import cn from 'classnames';
@@ -12,9 +12,9 @@ import S from './AssetSelector.module.scss';
 const REFETCH_INTERVAL = 5000;
 
 type Props = {
-  asset: DigitalAsset;
+  asset: AssetV1;
   selected?: boolean;
-  onSelect?: (asset: DigitalAsset) => void;
+  onSelect?: (asset: AssetV1) => void;
 };
 
 const Component: React.FC<Props> = ({ asset, selected, onSelect }) => {
@@ -22,7 +22,7 @@ const Component: React.FC<Props> = ({ asset, selected, onSelect }) => {
 
   const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     setTimeout(() => {
-      (e.target as HTMLImageElement).src = assetImageUri(asset.metadata.uri);
+      (e.target as HTMLImageElement).src = assetImageUri(asset.uri);
     }, REFETCH_INTERVAL);
   };
 
@@ -41,11 +41,11 @@ const Component: React.FC<Props> = ({ asset, selected, onSelect }) => {
         </div>
       )}
       <Image
-        src={assetImageUri(asset.metadata.uri)}
+        src={assetImageUri(asset.uri)}
         width={114}
         height={114}
-        alt={asset.metadata.name}
-        title={asset.metadata.name}
+        alt={asset.name}
+        title={asset.name}
         onLoad={() => setLoaded(true)}
         onError={handleError}
       />

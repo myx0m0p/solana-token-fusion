@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { memo } from 'react';
 
 import S from './Animation.module.scss';
@@ -5,7 +6,8 @@ import type { Props } from './Animation.types';
 
 const Component: React.FC<Props> = ({ url }) => (
   <div className={S.animation}>
-    <video
+    <img src={url} className={S.video} alt='cover' height='468' width='468' />
+    {/* <video
       src={url}
       className={S.video}
       muted
@@ -15,7 +17,7 @@ const Component: React.FC<Props> = ({ url }) => (
       height='468'
       width='468'
       preload='auto'
-    />
+    /> */}
   </div>
 );
 

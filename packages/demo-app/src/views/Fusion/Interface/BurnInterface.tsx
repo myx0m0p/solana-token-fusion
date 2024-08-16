@@ -17,7 +17,7 @@ import { FusionDataV1 } from '@stf/token-fusion';
 import { TokenAmount } from '@/utils/tokenAmount';
 
 import S from './Interface.module.scss';
-import { DigitalAsset } from '@metaplex-foundation/mpl-token-metadata';
+import { AssetV1 } from '@metaplex-foundation/mpl-core';
 import { AssetSelector } from './AssetSelector';
 import { getAssetName } from '@/utils/getAssetName';
 import { fusionFrom } from '@/rpc/fusion';
@@ -28,7 +28,7 @@ type Props = {
 };
 const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
   const [fusing, setFusing] = useState(false);
-  const [asset, setAsset] = useState<DigitalAsset>();
+  const [asset, setAsset] = useState<AssetV1>();
 
   const umi = useUmi();
 
@@ -120,7 +120,7 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
 
         <div className={S.availableToMint}>
           <span className={S.availableToMintLabel}>Selected: </span>
-          <span>{getAssetName(asset?.metadata.name)}</span>
+          <span>{getAssetName(asset?.name)}</span>
         </div>
 
         <div className={S.amountRow}>{NO_BREAK_SPACE}</div>

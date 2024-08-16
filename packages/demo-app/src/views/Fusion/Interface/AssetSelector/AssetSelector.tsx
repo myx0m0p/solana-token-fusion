@@ -1,18 +1,18 @@
 import { memo } from 'react';
-import { DigitalAsset } from '@metaplex-foundation/mpl-token-metadata';
+import { AssetV1 } from '@metaplex-foundation/mpl-core';
 
 import S from './AssetSelector.module.scss';
 import { Asset } from './Asset';
 
 type Props = {
-  assets?: DigitalAsset[];
-  selected?: DigitalAsset;
-  onSelect?: (digitalAsset: DigitalAsset) => void;
+  assets?: AssetV1[];
+  selected?: AssetV1;
+  onSelect?: (digitalAsset: AssetV1) => void;
 };
 
 const Component: React.FC<Props> = ({ assets, selected, onSelect }) => {
   if (!assets || assets.length === 0)
-    return <div className={S.container}>You got no Sinners in your wallet. Think about it.</div>;
+    return <div className={S.container}>You got no assets in your wallet. Go and mint one.</div>;
 
   return (
     <div className={S.container}>
