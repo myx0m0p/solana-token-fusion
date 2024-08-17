@@ -7,10 +7,15 @@ import { collectionAddress, fetchAssetsByOwner } from '@metaplex-foundation/mpl-
 import { fromWeb3JsPublicKey } from '@metaplex-foundation/umi-web3js-adapters';
 
 import { useUmi } from '@/providers/useUmi';
-import { TOKEN_ID, COLLECTION_ID } from '@/config';
 import { TokenAmount } from '@/utils/tokenAmount';
+import { FusionDataV1 } from '@stf/token-fusion';
 
-export const useAccountData = (publicKey: PublicKey | null) => {
+type Options = {
+  publicKey: PublicKey | null;
+  data: FusionDataV1 | null;
+};
+
+export const useAccountData = ({ publicKey, data }: Options) => {
   const umi = useUmi();
   return useQuery({
     enabled: !!publicKey,
@@ -21,8 +26,12 @@ export const useAccountData = (publicKey: PublicKey | null) => {
       }
       const userPublicKey = fromWeb3JsPublicKey(publicKey);
 
+      if (!data) {
+        throw new Error('Invalid data');
+      }
+
       const [userTokenAccount] = findAssociatedTokenPda(umi, {
-        mint: TOKEN_ID,
+        mint: data.tokenMint,
         owner: userPublicKey,
       });
       const userAccount = await umi.rpc.getAccount(userPublicKey);
@@ -34,7 +43,7 @@ export const useAccountData = (publicKey: PublicKey | null) => {
         balance: tokenAccount ? new TokenAmount(tokenAccount.amount) : new TokenAmount(0n),
         assets: sortedAssets.filter((asset) => {
           const assetCollection = collectionAddress(asset);
-          return assetCollection && assetCollection === COLLECTION_ID;
+          return assetCollection && assetCollection === data.collection;
         }),
       };
     },

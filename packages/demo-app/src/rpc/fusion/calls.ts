@@ -1,27 +1,35 @@
 import { PublicKey, Umi, generateSigner, transactionBuilder } from '@metaplex-foundation/umi';
 import { setComputeUnitPrice } from '@metaplex-foundation/mpl-toolbox';
 
-import { fusionIntoV1, fusionFromV1 } from '@stf/token-fusion';
-import { COLLECTION_ID, TOKEN_ID, ClusterSettings } from '@/config';
+import { fusionIntoV1, fusionFromV1, FusionDataV1 } from '@stf/token-fusion';
+import { ClusterSettings } from '@/config';
+
+type IntoOpt = {
+  data: FusionDataV1;
+};
+
+type FromOpt = IntoOpt & {
+  asset: PublicKey;
+};
 
 // Spl Token -> Asset
-export const fusionInto = (umi: Umi) => {
+export const fusionInto = (umi: Umi, { data }: IntoOpt) => {
   const asset = generateSigner(umi);
 
   const { priority, commitment } = ClusterSettings;
 
-  const tb = transactionBuilder();
+  let tb = transactionBuilder();
 
   if (priority) {
-    tb.add(setComputeUnitPrice(umi, { microLamports: priority }));
+    tb = tb.add(setComputeUnitPrice(umi, { microLamports: priority }));
   }
 
-  tb.add(
+  tb = tb.add(
     fusionIntoV1(umi, {
       user: umi.identity,
       asset: asset,
-      tokenMint: TOKEN_ID,
-      collection: COLLECTION_ID,
+      tokenMint: data.tokenMint,
+      collection: data.collection,
     })
   );
 
@@ -29,21 +37,21 @@ export const fusionInto = (umi: Umi) => {
 };
 
 // Asset -> Spl Token
-export const fusionFrom = (umi: Umi, asset: PublicKey) => {
+export const fusionFrom = (umi: Umi, { data, asset }: FromOpt) => {
   const { priority, commitment } = ClusterSettings;
 
-  const tb = transactionBuilder();
+  let tb = transactionBuilder();
 
   if (priority) {
-    tb.add(setComputeUnitPrice(umi, { microLamports: priority }));
+    tb = tb.add(setComputeUnitPrice(umi, { microLamports: priority }));
   }
 
-  tb.add(
+  tb = tb.add(
     fusionFromV1(umi, {
       user: umi.identity,
       asset: asset,
-      tokenMint: TOKEN_ID,
-      collection: COLLECTION_ID,
+      tokenMint: data.tokenMint,
+      collection: data.collection,
     })
   );
 

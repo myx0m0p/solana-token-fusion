@@ -23,7 +23,7 @@ const Component: React.FC<Props> = ({ size = 'lg' }) => {
         fontSize,
         lineHeight: '1.25',
         borderRadius: 0,
-        border: '2px solid #e9cc86',
+        border: '2px solid #eaaa00',
         backgroundColor: 'black',
         fontFamily: 'Rethink Sans,sans-serif',
       }}

@@ -108,6 +108,12 @@ $breakpoint1050: 1050px;
   }
 }
 
+.actionWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .availableToMint {
   font-weight: bold;
   font-size: 18px;

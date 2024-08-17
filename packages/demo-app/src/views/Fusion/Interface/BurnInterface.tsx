@@ -6,8 +6,6 @@ import { base58 } from '@metaplex-foundation/umi/serializers';
 import { Notification } from '@/components/Notification';
 import { Button } from '@/components/Button';
 
-import { NO_BREAK_SPACE } from '@/config';
-
 import { useAccountData } from '@/rpc/user';
 import { useUmi } from '@/providers/useUmi';
 
@@ -34,7 +32,7 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
 
   const { connected, publicKey } = useWallet();
 
-  const { data: accountData, refetch: refetchAccountData } = useAccountData(publicKey);
+  const { data: accountData, refetch: refetchAccountData } = useAccountData({ publicKey, data: fusionData });
 
   const tokenAmount = useMemo(() => {
     return new TokenAmount(fusionData.tokenData.fromAmount);
@@ -75,7 +73,7 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
 
     try {
       // executing fusion_from instruction
-      const res = await fusionFrom(umi, asset.publicKey);
+      const res = await fusionFrom(umi, { data: fusionData, asset: asset.publicKey });
       const [mintHash] = base58.deserialize(res.signature);
       Notification.emit({
         message: 'Successfully fused your Asset',
@@ -119,32 +117,32 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
           </div>
         </div>
 
-        <div className={S.availableToMint}>
-          <span className={S.availableToMintLabel}>Assset: </span>
-          <span>{getAssetName(asset?.name)}</span>
-        </div>
+        <div className={S.actionWrapper}>
+          <div className={S.availableToMint}>
+            <span className={S.availableToMintLabel}>Assset: </span>
+            <span>{getAssetName(asset?.name)}</span>
+          </div>
 
-        <div className={S.amountRow}>{NO_BREAK_SPACE}</div>
+          <div className={S.totalCost}>
+            <span className={S.totalCostLabel}>Receive: </span>
+            <span>
+              {tokenAmount.toFormattedAmount()} {tokenAmount.symbol}
+            </span>
+          </div>
 
-        <div className={S.totalCost}>
-          <span className={S.totalCostLabel}>Receive: </span>
-          <span>
-            {tokenAmount.toFormattedAmount()} {tokenAmount.symbol}
-          </span>
-        </div>
-
-        <div className={S.buttonContainer}>
-          <Button
-            className={S.button}
-            type='button'
-            size='wideBig'
-            onClick={() => {
-              void handleFusion();
-            }}
-            isDisabled={buttonDisabled}
-          >
-            <span>{buttonText}</span>
-          </Button>
+          <div className={S.buttonContainer}>
+            <Button
+              className={S.button}
+              type='button'
+              size='wideBig'
+              onClick={() => {
+                void handleFusion();
+              }}
+              isDisabled={buttonDisabled}
+            >
+              <span>{buttonText}</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
