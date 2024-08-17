@@ -10,8 +10,9 @@ import {
   signerIdentity,
   sol,
 } from '@metaplex-foundation/umi';
-import { ClusterType, getClusterSettings } from './cluster';
+import { getClusterSettings } from './cluster';
 import { loadOrGenerateKeypair } from './loadKey';
+import { ClusterType } from '../types';
 
 const requestAirdrop = async (umi: Umi, input: { address: PublicKey; amount: SolAmount }) => {
   const bal = await umi.rpc.getBalance(input.address);
