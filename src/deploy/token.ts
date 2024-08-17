@@ -19,7 +19,7 @@ export const deployToken = async ({
   const { umi, deployer, token, treasure, clusterSettings } = await createUmi(cluster);
 
   // local wallet
-  const tokenOwner = cluster === 'localnet' ? deployer.publicKey : treasure.publicKey;
+  const tokenOwner = cluster === 'mainnet' ? treasure.publicKey : deployer.publicKey;
 
   AppLogger.info('Token Mint', explorerAddressLink(token.publicKey, { cluster }));
 

@@ -2,7 +2,7 @@ import 'dotenv/config';
 
 import { Command } from '@commander-js/extra-typings';
 
-import { ClusterType } from './utils/cluster';
+import { ClusterType } from './types';
 import { deployCollection } from './deploy/collection';
 import { deployToken } from './deploy/token';
 import { deployAsset } from './deploy/asset';

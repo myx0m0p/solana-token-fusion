@@ -1,6 +1,5 @@
 import { Commitment } from '@metaplex-foundation/umi';
-
-export type ClusterType = 'localnet' | 'devnet' | 'mainnet';
+import { ClusterType } from '../types';
 
 type ClusterSettings = {
   rpc: string;

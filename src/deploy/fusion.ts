@@ -21,12 +21,12 @@ const ASSET_DATA_V1: AssetDataV1 = {
   maxSupply: some(100),
   nextIndex: 1n,
   namePrefix: 'STF #',
-  uriPrefix: 'https://stf.org/assets/',
-  uriSuffix: '.json',
+  uriPrefix: 'https://meta.femininebrother.org/metadata/',
+  uriSuffix: '',
 };
 
 const TOKEN_DATA_V1: TokenDataV1 = {
-  intoAmount: 100n * 10n ** 9n, // mint asset
+  intoAmount: 150n * 10n ** 9n, // mint asset
   fromAmount: 100n * 10n ** 9n, // burn asset
 };
 

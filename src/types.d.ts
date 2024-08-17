@@ -1,3 +1,5 @@
+export type ClusterType = 'localnet' | 'devnet' | 'mainnet';
+
 export type BaseCliOptions = {
   cluster: ClusterType;
 };
