@@ -1,22 +1,24 @@
 import { memo, useMemo, useState } from 'react';
+import { QueryObserverResult } from '@tanstack/react-query';
 
 import { useWallet } from '@solana/wallet-adapter-react';
 import { base58 } from '@metaplex-foundation/umi/serializers';
+import { unwrapOption } from '@metaplex-foundation/umi';
+
+import { FusionDataV1 } from '@stf/token-fusion';
 
 import { Notification } from '@/components/Notification';
 import { Button } from '@/components/Button';
 
-import { useAccountData } from '@/rpc/user';
 import { useUmi } from '@/providers/useUmi';
+import { fusionInto, useCollectionData } from '@/rpc/fusion';
+import { useAccountData } from '@/rpc/user';
+import { TokenAmount } from '@/utils/tokenAmount';
+import { getErrorMessage } from '@/utils/getErrorMessage';
 
 import { Animation } from './Animation';
-import { getErrorMessage } from '@/utils/getErrorMessage';
-import { QueryObserverResult } from '@tanstack/react-query';
-import { FusionDataV1 } from '@stf/token-fusion';
-import { TokenAmount } from '@/utils/tokenAmount';
 
 import S from './Interface.module.scss';
-import { fusionInto } from '@/rpc/fusion';
 
 type Props = {
   fusionData: FusionDataV1;
@@ -30,10 +32,19 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
   const { connected, publicKey } = useWallet();
 
   const { data: accountData, refetch: refetchAccountData } = useAccountData({ publicKey, data: fusionData });
+  const { data: collectionData, refetch: refetchCollectionData } = useCollectionData(fusionData.collection);
 
   const tokenAmount = useMemo(() => {
     return new TokenAmount(fusionData.tokenData.intoAmount);
   }, [fusionData]);
+
+  const isMintLimit = useMemo(() => {
+    if (!collectionData) return false;
+    return (
+      collectionData.currentSize >=
+      unwrapOption(fusionData.assetData.maxSupply, () => Number.POSITIVE_INFINITY)
+    );
+  }, [fusionData, collectionData]);
 
   const isInsufficientFunds = useMemo(() => {
     if (
@@ -47,27 +58,32 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
 
   const buttonText = useMemo(() => {
     if (!fusionData) return 'Internal Error';
+    if (!collectionData) return 'Internal Error';
     if (!connected) return 'Connect Wallet';
     if (isInsufficientFunds) return 'Insufficient balance';
+    if (isMintLimit) return 'Mint limit';
 
     if (fusing) return 'Fusing...';
 
     return 'Mint new Asset';
-  }, [fusionData, connected, isInsufficientFunds, fusing]);
+  }, [fusionData, collectionData, connected, isInsufficientFunds, isMintLimit, fusing]);
 
   const buttonDisabled = useMemo(() => {
     // data checks
     if (!fusionData) return true;
+    if (!collectionData) return true;
     // account checks
     if (!connected || isInsufficientFunds) return true;
+    // mint limit check
+    if (isMintLimit) return true;
     // status checks
     if (fusing) return true;
     // not disabled otherwise
     return false;
-  }, [fusionData, connected, isInsufficientFunds, fusing]);
+  }, [fusionData, collectionData, connected, isInsufficientFunds, isMintLimit, fusing]);
 
   const handleFusion = async () => {
-    if (!fusionData || isInsufficientFunds) return;
+    if (!fusionData || !collectionData || isInsufficientFunds) return;
 
     setFusing(true);
 
@@ -98,6 +114,7 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
   const refetch = () => {
     void refetchFusionData();
     void refetchAccountData();
+    void refetchCollectionData();
   };
 
   return (

@@ -1,7 +1,6 @@
 import { memo, useMemo } from 'react';
 
 import { Preloader } from '@/components/Preloader';
-import { useUmi } from '@/providers/useUmi';
 import { useFusionData } from '@/rpc/fusion';
 import { Op } from '@/types';
 
@@ -13,8 +12,7 @@ type Props = {
   op: Op;
 };
 const Component: React.FC<Props> = ({ op }) => {
-  const umi = useUmi();
-  const { data, refetch } = useFusionData(umi);
+  const { data, refetch } = useFusionData();
 
   const isDataLoaded = useMemo(() => {
     return data;
