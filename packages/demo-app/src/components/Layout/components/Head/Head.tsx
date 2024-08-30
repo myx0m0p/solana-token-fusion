@@ -16,7 +16,7 @@ const Component: React.FC = () => {
             'Token Fusion Protocol is a decentralized protocol that allows users fuse spl tokens into asset and vice versa.',
           images: [
             {
-              url: `${APP_URL}/media/logo.jpg?123`,
+              url: `${APP_URL}/media/splash.jpg`,
               width: 600,
               height: 600,
               alt: 'TokenFusion',

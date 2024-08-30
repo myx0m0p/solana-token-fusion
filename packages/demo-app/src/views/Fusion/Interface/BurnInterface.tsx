@@ -77,8 +77,9 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
       const [mintHash] = base58.deserialize(res.signature);
       Notification.emit({
         message: 'Successfully fused your Asset',
-        txHash: mintHash,
         type: 'success',
+        linkType: 'tx',
+        linkDest: mintHash,
       });
 
       setFusing(false);

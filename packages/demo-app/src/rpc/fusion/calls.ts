@@ -33,7 +33,7 @@ export const fusionInto = (umi: Umi, { data }: IntoOpt) => {
     })
   );
 
-  return tb.sendAndConfirm(umi, { confirm: { commitment } });
+  return { asset, tx: tb.sendAndConfirm(umi, { confirm: { commitment } }) };
 };
 
 // Asset -> Spl Token

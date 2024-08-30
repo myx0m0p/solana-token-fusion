@@ -8,16 +8,18 @@ import { Icon } from '@/components/Icon';
 import S from './Notification.module.scss';
 import type { Props } from './Notification.types';
 
-export const Notification = ({ message, txHash }: Props) => {
+export const Notification = ({ message, linkType, linkDest }: Props) => {
   const txURL = useMemo(() => {
-    return ClusterExplorer.tx(txHash).link;
-  }, [txHash]);
+    return linkType === 'address'
+      ? ClusterExplorer.address(linkDest).link
+      : ClusterExplorer.tx(linkDest).link;
+  }, [linkType, linkDest]);
 
   return (
     <div className={S.popup}>
       <div className={S.info}>
         {message}
-        {txHash && (
+        {linkDest && (
           <a href={txURL} target='_blank' rel='noreferrer noopener' className={S.link}>
             View in Explorer <Icon className={S.icon} kind='external-link' />
           </a>

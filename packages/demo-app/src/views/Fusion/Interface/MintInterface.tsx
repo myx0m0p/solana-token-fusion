@@ -2,7 +2,6 @@ import { memo, useMemo, useState } from 'react';
 import { QueryObserverResult } from '@tanstack/react-query';
 
 import { useWallet } from '@solana/wallet-adapter-react';
-import { base58 } from '@metaplex-foundation/umi/serializers';
 import { unwrapOption } from '@metaplex-foundation/umi';
 
 import { FusionDataV1 } from '@stf/token-fusion';
@@ -89,12 +88,13 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
 
     try {
       // executing fusion_into instruction
-      const res = await fusionInto(umi, { data: fusionData });
-      const [mintHash] = base58.deserialize(res.signature);
+      const { asset, tx } = fusionInto(umi, { data: fusionData });
+      await tx;
       Notification.emit({
         message: 'Successfully fused your Tokens',
-        txHash: mintHash,
         type: 'success',
+        linkType: 'address',
+        linkDest: asset.publicKey,
       });
 
       setFusing(false);
