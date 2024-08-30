@@ -1,6 +1,6 @@
 import { PublicKey } from '@metaplex-foundation/umi';
 import bs58 from 'bs58';
-import { ClusterType } from './cluster';
+import { ClusterType } from '../types';
 
 export enum Explorer {
   Solana = 'https://explorer.solana.com',
