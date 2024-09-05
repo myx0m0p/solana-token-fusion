@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { generateSigner, some } from '@metaplex-foundation/umi';
+import { generateSigner, none, publicKey, some } from '@metaplex-foundation/umi';
 
 import { fetchToken, safeFetchToken } from '@metaplex-foundation/mpl-toolbox';
 import { fetchAsset, fetchCollection } from '@metaplex-foundation/mpl-core';
@@ -21,11 +21,11 @@ import {
   safeFetchFusionDataV1,
   setAuthorityV1,
   setPauseV1,
-  TokenDataV1,
+  FeeDataV1,
   updateV1,
 } from '../packages/client';
 
-import { generateAsset, createCollection, createToken } from './_setup';
+import { generateAsset, createCollection, createToken, createAta } from './_setup';
 
 const AUTH_ERROR_MESSAGE = 'Error Number: 2001. Error Message: A has one constraint was violated.';
 
@@ -34,13 +34,29 @@ const DEBUG = process.env.DEBUG === 'true' || false;
 type TestContext = Awaited<Promise<PromiseLike<ReturnType<typeof setupContext>>>>;
 
 const setupContext = async () => {
-  const { umi, deployer, user, token: tokenSigner, collection: collectionSigner } = await createUmi();
+  const {
+    umi,
+    deployer,
+    user,
+    token: tokenSigner,
+    collection: collectionSigner,
+    treasure,
+  } = await createUmi();
 
   const [dataPda] = findFusionDataPda(umi);
 
   const token = await createToken(umi, { mint: tokenSigner });
   const collection = await createCollection(umi, { collection: collectionSigner });
   const asset = await generateAsset(umi);
+
+  const feeRecipient = treasure.publicKey;
+  const feeRecipientAta = await createAta(umi, {
+    mint: token.mint.publicKey,
+    owner: feeRecipient,
+    payer: umi.identity,
+  });
+
+  // create ata account onchain
 
   return {
     umi,
@@ -50,6 +66,8 @@ const setupContext = async () => {
     token,
     collection,
     asset,
+    feeRecipient,
+    feeRecipientAta,
   };
 };
 
@@ -61,9 +79,12 @@ const ASSET_DATA_V1: AssetDataV1 = {
   uriSuffix: '.json',
 };
 
-const TOKEN_DATA_V1: TokenDataV1 = {
-  intoAmount: 100n * 10n ** 9n, // mint asset
-  fromAmount: 100n * 10n ** 9n, // burn asset
+const FEE_DATA_V1: FeeDataV1 = {
+  escrowAmount: 100n * 10n ** 9n, // escrow
+  feeAmount: 20n * 10n ** 9n, // fee
+  burnAmount: 30n * 10n ** 9n, // burn
+  solFeeAmount: 10n ** 8n, // 0.1 sol fee
+  feeRecipient: some(publicKey('CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG')),
 };
 
 const ASSET_DATA_V2: AssetDataV1 = {
@@ -74,9 +95,12 @@ const ASSET_DATA_V2: AssetDataV1 = {
   uriSuffix: '.json',
 };
 
-const TOKEN_DATA_V2: TokenDataV1 = {
-  intoAmount: 100n * 10n ** 9n, // mint asset
-  fromAmount: 50n * 10n ** 9n, // burn asset
+const FEE_DATA_V2: FeeDataV1 = {
+  escrowAmount: 100n * 10n ** 9n, // escrow
+  feeAmount: 0n, // fee
+  burnAmount: 0n, // burn
+  solFeeAmount: 0n, // 0 sol fee
+  feeRecipient: none(),
 };
 
 describe('Solana Token Fusion Protocol', () => {
@@ -95,7 +119,7 @@ describe('Solana Token Fusion Protocol', () => {
       tokenMint: token.mint.publicKey,
       collection: collection.collection.publicKey,
       assetData: ASSET_DATA_V1,
-      tokenData: TOKEN_DATA_V1,
+      feeData: FEE_DATA_V1,
     }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
     DEBUG && AppLogger.info('Init TX', explorerTxLink(res.signature));
@@ -105,7 +129,7 @@ describe('Solana Token Fusion Protocol', () => {
     DEBUG && AppLogger.info('Data Account', dataAccount);
 
     expect(dataAccount.assetData).to.deep.equal(ASSET_DATA_V1);
-    expect(dataAccount.tokenData).to.deep.equal(TOKEN_DATA_V1);
+    expect(dataAccount.feeData).to.deep.equal(FEE_DATA_V1);
   });
 
   it('[Error] InitV1 - Double init', async () => {
@@ -117,7 +141,7 @@ describe('Solana Token Fusion Protocol', () => {
       tokenMint: token.mint.publicKey,
       collection: collection.collection.publicKey,
       assetData: ASSET_DATA_V1,
-      tokenData: TOKEN_DATA_V1,
+      feeData: FEE_DATA_V1,
     }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
     DEBUG && AppLogger.info('Second Init TX', explorerTxLink(res.signature));
@@ -127,13 +151,15 @@ describe('Solana Token Fusion Protocol', () => {
   });
 
   it('[Success] FusionIntoV1', async () => {
-    const { umi, dataPda, token, collection, asset } = context;
+    const { umi, dataPda, token, collection, asset, feeRecipient, feeRecipientAta } = context;
 
     const res = await fusionIntoV1(umi, {
       user: umi.identity,
       asset: asset.asset,
       collection: collection.collection.publicKey,
       tokenMint: token.mint.publicKey,
+      feeRecipient,
+      feeRecipientAta,
     }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
     DEBUG && AppLogger.info('Fusion Into TX', explorerTxLink(res.signature));
@@ -152,7 +178,7 @@ describe('Solana Token Fusion Protocol', () => {
     // check escrow balance
     const [escrowAta] = findEscrowAtaPda(umi, token.mint.publicKey);
     const escrowData = await fetchToken(umi, escrowAta);
-    expect(escrowData.amount).to.equal(TOKEN_DATA_V1.intoAmount);
+    expect(escrowData.amount).to.equal(FEE_DATA_V1.escrowAmount);
   });
 
   it('[Success] SetPauseV1 - true', async () => {
@@ -287,7 +313,7 @@ describe('Solana Token Fusion Protocol', () => {
     const res = await updateV1(umi, {
       authority: deployer,
       assetData: ASSET_DATA_V1,
-      tokenData: TOKEN_DATA_V1,
+      feeData: FEE_DATA_V1,
     }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
     const receipt = await umi.rpc.getTransaction(res.signature);
@@ -316,18 +342,18 @@ describe('Solana Token Fusion Protocol', () => {
 
     const res = await updateV1(umi, {
       assetData: ASSET_DATA_V2,
-      tokenData: TOKEN_DATA_V2,
+      feeData: FEE_DATA_V2,
     }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
     DEBUG && AppLogger.info('Update TX', explorerTxLink(res.signature));
 
     const dataAccount = await fetchFusionDataV1(umi, dataPda);
     expect(dataAccount.assetData).to.deep.equal(ASSET_DATA_V2);
-    expect(dataAccount.tokenData).to.deep.equal(TOKEN_DATA_V2);
+    expect(dataAccount.feeData).to.deep.equal(FEE_DATA_V2);
   });
 
   it('[Success] FusionIntoV1 - minted asset data updated', async () => {
-    const { umi, dataPda, deployer, token, collection } = context;
+    const { umi, dataPda, deployer, token, collection, feeRecipient, feeRecipientAta } = context;
 
     const asset = generateSigner(umi);
 
@@ -336,6 +362,8 @@ describe('Solana Token Fusion Protocol', () => {
       asset: asset,
       collection: collection.collection.publicKey,
       tokenMint: token.mint.publicKey,
+      feeRecipient,
+      feeRecipientAta,
     }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
     DEBUG && AppLogger.info('Fusion Into TX#1', explorerTxLink(res.signature));
@@ -354,11 +382,11 @@ describe('Solana Token Fusion Protocol', () => {
     // check escrow balance
     const [escrowAta] = findEscrowAtaPda(umi, token.mint.publicKey);
     const escrowData = await fetchToken(umi, escrowAta);
-    expect(escrowData.amount).to.equal(TOKEN_DATA_V2.fromAmount);
+    expect(escrowData.amount).to.equal(FEE_DATA_V2.escrowAmount);
   });
 
   it('[Error] FusionIntoV1 - asset limit constrains', async () => {
-    const { umi, deployer, token, collection } = context;
+    const { umi, deployer, token, collection, feeRecipient, feeRecipientAta } = context;
 
     const asset = generateSigner(umi);
 
@@ -367,13 +395,15 @@ describe('Solana Token Fusion Protocol', () => {
       asset: asset,
       collection: collection.collection.publicKey,
       tokenMint: token.mint.publicKey,
+      feeRecipient,
+      feeRecipientAta,
     }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
     DEBUG && AppLogger.info('Fusion Into TX#2', explorerTxLink(res.signature));
 
     const receipt = await umi.rpc.getTransaction(res.signature);
     expect(
-      receipt?.meta.logs.some((l) => l.includes('Error Number: 6025. Error Message: Max supply reached.'))
+      receipt?.meta.logs.some((l) => l.includes('Error Number: 6027. Error Message: Max supply reached.'))
     ).eq(true);
   });
 

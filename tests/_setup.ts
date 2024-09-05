@@ -1,6 +1,6 @@
 import { createCollection as createCollectionCore } from '@metaplex-foundation/mpl-core';
 import { createFungible, mintV1, TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
-import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
+import { createAssociatedToken, findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
 import {
   PublicKey,
   Signer,
@@ -137,4 +137,30 @@ export const createToken = async (
     data,
     authorityAta,
   };
+};
+
+export type AtaAccounts = {
+  mint: PublicKey;
+  owner: PublicKey;
+  payer: Signer;
+};
+
+export const createAta = async (umi: Umi, { mint, owner, payer }: AtaAccounts): Promise<PublicKey> => {
+  const [authorityAta] = findAssociatedTokenPda(umi, {
+    mint,
+    owner,
+  });
+
+  // create token mint
+  let builder = transactionBuilder().add([
+    createAssociatedToken(umi, {
+      payer,
+      owner,
+      mint,
+    }),
+  ]);
+
+  await builder.sendAndConfirm(umi);
+
+  return authorityAta;
 };
