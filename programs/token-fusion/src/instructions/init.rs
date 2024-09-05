@@ -15,17 +15,17 @@ use crate::{
         approve_collection_authority_v1, ApproveCollectionPluginAuthorityV1Args,
         CollectionPluginAuthorityV1Accounts,
     },
-    AssetDataV1, FusionDataV1, TokenDataV1,
+    AssetDataV1, FeeDataV1, FusionDataV1,
 };
 
 pub fn handler_init_v1(
     ctx: Context<InitV1Ctx>,
     asset_data: AssetDataV1,
-    token_data: TokenDataV1,
+    fee_data: FeeDataV1,
 ) -> Result<()> {
     // validation
     asset_data.validate()?;
-    token_data.validate()?;
+    fee_data.validate()?;
     // accounts
     ctx.accounts.fusion_data.authority = ctx.accounts.authority.key();
     ctx.accounts.fusion_data.token_mint = ctx.accounts.token_mint.key();
@@ -33,7 +33,7 @@ pub fn handler_init_v1(
 
     // data
     ctx.accounts.fusion_data.asset_data = asset_data;
-    ctx.accounts.fusion_data.token_data = token_data;
+    ctx.accounts.fusion_data.fee_data = fee_data;
 
     // approves the metadata delegate so the program can verify minted NFTs
     let approve_accounts = CollectionPluginAuthorityV1Accounts {

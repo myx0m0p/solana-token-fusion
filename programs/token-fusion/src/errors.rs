@@ -77,8 +77,17 @@ pub enum FusionError {
     #[msg("Invalid token amounts")]
     InvalidTokenAmounts,
 
+    #[msg("Invalid fee amounts")]
+    InvalidFeeAmounts,
+
+    #[msg("Invalid fee recipient")]
+    InvalidFeeRecipient,
+
     #[msg("Max supply reached")]
     MaxSupplyReached,
+
+    #[msg("Invalid fee wallet")]
+    InvalidFeeWallet,
 
     #[msg("Invalid protocol fee wallet")]
     InvalidProtocolFeeWallet,

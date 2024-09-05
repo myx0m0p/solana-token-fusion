@@ -1,18 +1,18 @@
 use anchor_lang::prelude::*;
 
-use crate::{constants::DATA_SEED, AssetDataV1, FusionDataV1, TokenDataV1};
+use crate::{constants::DATA_SEED, AssetDataV1, FeeDataV1, FusionDataV1};
 
 pub fn handler_update_v1(
     ctx: Context<UpdateV1Ctx>,
     asset_data: AssetDataV1,
-    token_data: TokenDataV1,
+    fee_data: FeeDataV1,
 ) -> Result<()> {
     // validation
     asset_data.validate()?;
-    token_data.validate()?;
+    fee_data.validate()?;
 
     ctx.accounts.fusion_data.asset_data = asset_data;
-    ctx.accounts.fusion_data.token_data = token_data;
+    ctx.accounts.fusion_data.fee_data = fee_data;
 
     Ok(())
 }

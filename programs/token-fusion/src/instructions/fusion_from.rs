@@ -95,22 +95,24 @@ pub(crate) fn process_transfer(
         return err!(FusionError::TokenKeyMismatch);
     }
 
-    // calc amounts
-    let transfer_amount = fusion.token_data.from_amount;
+    // get transfer amount
+    let transfer_amount = fusion.fee_data.escrow_amount;
 
     // (2) transfer
-    let cpi_ctx = CpiContext::new_with_signer(
-        accounts.token_program.to_account_info(),
-        Transfer {
-            from: accounts.from.to_account_info(),
-            to: accounts.to.to_account_info(),
-            authority: accounts.authority_pda.to_account_info(),
-        },
-        signer_seeds,
-    );
+    if transfer_amount > 0 {
+        let cpi_ctx = CpiContext::new_with_signer(
+            accounts.token_program.to_account_info(),
+            Transfer {
+                from: accounts.from.to_account_info(),
+                to: accounts.to.to_account_info(),
+                authority: accounts.authority_pda.to_account_info(),
+            },
+            signer_seeds,
+        );
 
-    anchor_spl::token::transfer(cpi_ctx, transfer_amount)?;
-    msg!("Transfer: {} SPL", transfer_amount);
+        anchor_spl::token::transfer(cpi_ctx, transfer_amount)?;
+        msg!("Escrow: {} SPL", transfer_amount);
+    }
     Ok(())
 }
 

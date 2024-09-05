@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
-    associated_token::AssociatedToken,
+    associated_token::{get_associated_token_address_with_program_id, AssociatedToken},
     token::{Burn, Mint, Token, TokenAccount, Transfer},
 };
 
@@ -9,7 +9,10 @@ use mpl_core::{accounts::BaseCollectionV1, ID as CORE_PROGRAM_ID};
 use crate::{
     constants::{AUTHORITY_SEED, DATA_SEED, PROTOCOL_FEE, PROTOCOL_FEE_WALLET},
     errors::FusionError,
-    utils::{cmp_pubkeys, create_asset_v1, sol_transfer, AssetV1Accounts, CreateV1Args},
+    utils::{
+        cmp_pubkeys, cmp_pubkeys_opt, create_asset_v1, get_pubkey_opt_from_account_info,
+        sol_transfer, AssetV1Accounts, CreateV1Args,
+    },
     AssetDataV1, FusionDataV1,
 };
 
@@ -21,6 +24,10 @@ pub(crate) struct FusionIntoAccountsV1<'info> {
     pub token_mint: AccountInfo<'info>,
     pub from: AccountInfo<'info>,
     pub to: AccountInfo<'info>,
+    // fee related accounts
+    pub fee_from: AccountInfo<'info>,
+    pub fee_recipient: Option<AccountInfo<'info>>,
+    pub fee_recipient_ata: Option<AccountInfo<'info>>,
     // asset related accounts
     pub asset: AccountInfo<'info>,
     pub collection: AccountInfo<'info>,
@@ -54,6 +61,18 @@ pub fn handler_fusion_into_v1<'info>(
         token_mint: ctx.accounts.token_mint.to_account_info(),
         from: ctx.accounts.user_ata.to_account_info(),
         to: ctx.accounts.escrow_ata_pda.to_account_info(),
+        // fee related accounts
+        fee_from: ctx.accounts.user_ata.to_account_info(),
+        fee_recipient: ctx
+            .accounts
+            .fee_recipient
+            .as_ref()
+            .map(|spl_fee_dest| spl_fee_dest.to_account_info()),
+        fee_recipient_ata: ctx
+            .accounts
+            .fee_recipient_ata
+            .as_ref()
+            .map(|sol_fee_dest| sol_fee_dest.to_account_info()),
         // asset related accounts
         asset: ctx.accounts.asset.to_account_info(),
         collection: ctx.accounts.collection.to_account_info(),
@@ -68,7 +87,7 @@ pub fn handler_fusion_into_v1<'info>(
             .map(|log_wrapper| log_wrapper.to_account_info()),
     };
 
-    process_burn_and_transfer(fusion, &accounts)?;
+    process_fee_and_transfer(fusion, &accounts)?;
 
     process_mint(fusion, &accounts, ctx.bumps.authority_pda)?;
 
@@ -81,12 +100,12 @@ pub fn handler_fusion_into_v1<'info>(
     Ok(())
 }
 
-/// Transfers tokens to the escrow and burn some of them.
-pub(crate) fn process_burn_and_transfer(
+/// Transfers tokens to the escrow and take fees according to the fee data.
+pub(crate) fn process_fee_and_transfer(
     fusion: &mut Account<'_, FusionDataV1>,
     accounts: &FusionIntoAccountsV1,
 ) -> Result<()> {
-    // (1) sanity checks
+    // (0) sanity checks
 
     // is not paused
     fusion.validate()?;
@@ -96,14 +115,74 @@ pub(crate) fn process_burn_and_transfer(
         return err!(FusionError::TokenKeyMismatch);
     }
 
-    // get amounts
-    let burn_amount = fusion.token_data.burn_amount();
-    let transfer_amount = fusion.token_data.transfer_amount();
+    // short references
+    let fee_amount = fusion.fee_data.fee_amount;
+    let sol_fee_amount = fusion.fee_data.sol_fee_amount;
+    let burn_amount = fusion.fee_data.burn_amount;
+    let escrow_amount = fusion.fee_data.escrow_amount;
 
-    // sanity check
-    assert_eq!(burn_amount + transfer_amount, fusion.token_data.into_amount);
+    let is_fee_charged = fusion.fee_data.is_fee_charged();
+    let fee_recipient_opt = fusion.fee_data.fee_recipient.as_ref();
 
-    // (2) burn
+    // Check that we have correct fee recipient accounts
+    if is_fee_charged {
+        require!(
+            cmp_pubkeys_opt(
+                get_pubkey_opt_from_account_info(&accounts.fee_recipient),
+                fee_recipient_opt
+            ),
+            FusionError::InvalidFeeRecipient
+        );
+        // if there is spl fee, check that fee recipient ata is correct
+        if fee_amount > 0 {
+            if let Some(fee_recipient) = fee_recipient_opt {
+                let fee_recipient_ata = get_associated_token_address_with_program_id(
+                    fee_recipient,
+                    &accounts.token_mint.key(),
+                    &accounts.token_program.key(),
+                );
+                require!(
+                    cmp_pubkeys_opt(
+                        get_pubkey_opt_from_account_info(&accounts.fee_recipient_ata),
+                        Some(&fee_recipient_ata)
+                    ),
+                    FusionError::InvalidFeeRecipient
+                );
+            } else {
+                return Err(FusionError::InvalidFeeRecipient.into());
+            }
+        }
+    }
+
+    // (1) if there is sol fee and account is set, transfer sol to the recipient
+    if sol_fee_amount > 0 {
+        if let Some(fee_recipient) = &accounts.fee_recipient {
+            sol_transfer(
+                accounts.payer.to_account_info(),
+                fee_recipient.to_account_info(),
+                sol_fee_amount,
+            )?;
+        }
+    }
+
+    // (2) If fee amount is set, transfer spl to fee recipient ata
+    if fee_amount > 0 {
+        if let Some(fee_recipient_ata) = &accounts.fee_recipient_ata {
+            let cpi_ctx = CpiContext::new(
+                accounts.token_program.to_account_info(),
+                Transfer {
+                    from: accounts.fee_from.to_account_info(),
+                    to: fee_recipient_ata.to_account_info(),
+                    authority: accounts.payer.to_account_info(),
+                },
+            );
+
+            anchor_spl::token::transfer(cpi_ctx, fee_amount)?;
+            msg!("Fee: {} SPL", fee_amount);
+        }
+    }
+
+    // (3) If burn amount is set, burn the amount
     if burn_amount > 0 {
         let cpi_ctx = CpiContext::new(
             accounts.token_program.to_account_info(),
@@ -118,18 +197,22 @@ pub(crate) fn process_burn_and_transfer(
         msg!("Burn: {} SPL", burn_amount);
     }
 
-    // (3) transfer
-    let cpi_ctx = CpiContext::new(
-        accounts.token_program.to_account_info(),
-        Transfer {
-            from: accounts.from.to_account_info(),
-            to: accounts.to.to_account_info(),
-            authority: accounts.payer.to_account_info(),
-        },
-    );
+    // (4) Transfer the rest to the escrow if there is any
 
-    anchor_spl::token::transfer(cpi_ctx, transfer_amount)?;
-    msg!("Transfer: {} SPL", transfer_amount);
+    if escrow_amount > 0 {
+        let cpi_ctx = CpiContext::new(
+            accounts.token_program.to_account_info(),
+            Transfer {
+                from: accounts.from.to_account_info(),
+                to: accounts.to.to_account_info(),
+                authority: accounts.payer.to_account_info(),
+            },
+        );
+
+        anchor_spl::token::transfer(cpi_ctx, escrow_amount)?;
+        msg!("Escrow: {} SPL", escrow_amount);
+    }
+
     Ok(())
 }
 
@@ -238,6 +321,16 @@ pub struct FusionIntoV1Ctx<'info> {
         associated_token::authority = user
     )]
     user_ata: Account<'info, TokenAccount>,
+
+    /// Fee recipient account, optional.
+    /// CHECK: checked in the fee cpis
+    #[account(mut)]
+    fee_recipient: Option<UncheckedAccount<'info>>,
+
+    /// Fee recipient ata account, optional.
+    /// CHECK: checked in the fee cpis
+    #[account(mut)]
+    fee_recipient_ata: Option<UncheckedAccount<'info>>,
 
     /// Protocol fee account.
     /// CHECK: checked by account constraint

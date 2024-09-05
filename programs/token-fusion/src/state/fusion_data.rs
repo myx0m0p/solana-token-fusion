@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{AssetDataV1, FusionError, TokenDataV1};
+use crate::{AssetDataV1, FeeDataV1, FusionError};
 
 /// Fusion Data Account
 #[account]
@@ -17,7 +17,7 @@ pub struct FusionDataV1 {
     /// Asset specific data
     pub asset_data: AssetDataV1,
     /// Token specific data
-    pub token_data: TokenDataV1,
+    pub fee_data: FeeDataV1,
 }
 
 impl FusionDataV1 {

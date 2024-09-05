@@ -17,6 +17,22 @@ pub fn cmp_pubkeys(a: &Pubkey, b: &Pubkey) -> bool {
     sol_memcmp(a.as_ref(), b.as_ref(), PUBKEY_BYTES) == 0
 }
 
+pub fn cmp_pubkeys_opt(a: Option<&Pubkey>, b: Option<&Pubkey>) -> bool {
+    if let (Some(a), Some(b)) = (a, b) {
+        cmp_pubkeys(a, b)
+    } else {
+        false
+    }
+}
+
+pub fn get_pubkey_opt_from_account_info<'a>(acc: &Option<AccountInfo<'a>>) -> Option<&'a Pubkey> {
+    if let Some(acc) = acc {
+        Some(acc.key)
+    } else {
+        None
+    }
+}
+
 pub struct CollectionPluginAuthorityV1Accounts<'info> {
     pub collection: AccountInfo<'info>,
     pub payer: AccountInfo<'info>,

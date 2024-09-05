@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-token_fusion = "STF3iH1vGcBEmqc7bqFmyq2cHbJq6vaQrD6EkKuH22M"
+token_fusion = "STFyNpLRuUnxko7TPNqNR1g1EapVj4AnXkAFy2TGbj3"
 
 [registry]
 url = "https://api.apr.dev"

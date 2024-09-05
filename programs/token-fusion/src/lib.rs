@@ -13,7 +13,7 @@ pub mod utils;
 mod instructions;
 mod state;
 
-declare_id!("STF3iH1vGcBEmqc7bqFmyq2cHbJq6vaQrD6EkKuH22M");
+declare_id!("STFyNpLRuUnxko7TPNqNR1g1EapVj4AnXkAFy2TGbj3");
 
 #[program]
 pub mod token_fusion {
@@ -39,9 +39,9 @@ pub mod token_fusion {
     pub fn init_v1(
         ctx: Context<InitV1Ctx>,
         asset_data: AssetDataV1,
-        token_data: TokenDataV1,
+        fee_data: FeeDataV1,
     ) -> Result<()> {
-        instructions::handler_init_v1(ctx, asset_data, token_data)
+        instructions::handler_init_v1(ctx, asset_data, fee_data)
     }
 
     /// Fusion tokens into Asset.
@@ -59,12 +59,14 @@ pub mod token_fusion {
     ///   5. `[]` Token mint
     ///   6. `[]` Escrow ata with authority_pda as authority
     ///   7. `[]` User ata with user as authority
-    ///   8. `[]` Fee sol account
-    ///   9. `[]` Token program
-    ///   10.`[]` Associated Token program
-    ///   11.`[]` Core program
-    ///   12.`[]` System program
-    ///   13.`[optional]` SPL Noop program
+    ///   8. `[optional]` Fee recipient account
+    ///   9. `[optional]` Fee recipient ata
+    ///   10. `[]` Fee sol account
+    ///   11. `[]` Token program
+    ///   12.`[]` Associated Token program
+    ///   13.`[]` Core program
+    ///   14.`[]` System program
+    ///   15.`[optional]` SPL Noop program
     pub fn fusion_into_v1<'info>(
         ctx: Context<'_, '_, '_, 'info, FusionIntoV1Ctx<'info>>,
     ) -> Result<()> {
@@ -117,9 +119,9 @@ pub mod token_fusion {
     pub fn update_v1(
         ctx: Context<UpdateV1Ctx>,
         asset_data: AssetDataV1,
-        token_data: TokenDataV1,
+        fee_data: FeeDataV1,
     ) -> Result<()> {
-        instructions::handler_update_v1(ctx, asset_data, token_data)
+        instructions::handler_update_v1(ctx, asset_data, fee_data)
     }
 
     /// Destroy the fusion data account and withdraw all the funds.
