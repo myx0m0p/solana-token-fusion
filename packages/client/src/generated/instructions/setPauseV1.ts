@@ -77,7 +77,7 @@ export function setPauseV1(
   // Program ID.
   const programId = context.programs.getPublicKey(
     'tokenFusion',
-    'STF3iH1vGcBEmqc7bqFmyq2cHbJq6vaQrD6EkKuH22M'
+    'STFyNpLRuUnxko7TPNqNR1g1EapVj4AnXkAFy2TGbj3'
   );
 
   // Accounts.

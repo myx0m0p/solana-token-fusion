@@ -30,10 +30,10 @@ import {
 import {
   AssetDataV1,
   AssetDataV1Args,
-  TokenDataV1,
-  TokenDataV1Args,
+  FeeDataV1,
+  FeeDataV1Args,
   getAssetDataV1Serializer,
-  getTokenDataV1Serializer,
+  getFeeDataV1Serializer,
 } from '../types';
 
 // Accounts.
@@ -78,12 +78,12 @@ export type InitV1InstructionAccounts = {
 export type InitV1InstructionData = {
   discriminator: Uint8Array;
   assetData: AssetDataV1;
-  tokenData: TokenDataV1;
+  feeData: FeeDataV1;
 };
 
 export type InitV1InstructionDataArgs = {
   assetData: AssetDataV1Args;
-  tokenData: TokenDataV1Args;
+  feeData: FeeDataV1Args;
 };
 
 export function getInitV1InstructionDataSerializer(): Serializer<
@@ -95,7 +95,7 @@ export function getInitV1InstructionDataSerializer(): Serializer<
       [
         ['discriminator', bytes({ size: 8 })],
         ['assetData', getAssetDataV1Serializer()],
-        ['tokenData', getTokenDataV1Serializer()],
+        ['feeData', getFeeDataV1Serializer()],
       ],
       { description: 'InitV1InstructionData' }
     ),
@@ -117,7 +117,7 @@ export function initV1(
   // Program ID.
   const programId = context.programs.getPublicKey(
     'tokenFusion',
-    'STF3iH1vGcBEmqc7bqFmyq2cHbJq6vaQrD6EkKuH22M'
+    'STFyNpLRuUnxko7TPNqNR1g1EapVj4AnXkAFy2TGbj3'
   );
 
   // Accounts.

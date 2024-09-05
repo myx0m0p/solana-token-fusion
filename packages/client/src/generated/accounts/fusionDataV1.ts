@@ -30,10 +30,10 @@ import {
 import {
   AssetDataV1,
   AssetDataV1Args,
-  TokenDataV1,
-  TokenDataV1Args,
+  FeeDataV1,
+  FeeDataV1Args,
   getAssetDataV1Serializer,
-  getTokenDataV1Serializer,
+  getFeeDataV1Serializer,
 } from '../types';
 
 export type FusionDataV1 = Account<FusionDataV1AccountData>;
@@ -51,7 +51,7 @@ export type FusionDataV1AccountData = {
   /** Asset specific data */
   assetData: AssetDataV1;
   /** Token specific data */
-  tokenData: TokenDataV1;
+  feeData: FeeDataV1;
 };
 
 export type FusionDataV1AccountDataArgs = {
@@ -66,7 +66,7 @@ export type FusionDataV1AccountDataArgs = {
   /** Asset specific data */
   assetData: AssetDataV1Args;
   /** Token specific data */
-  tokenData: TokenDataV1Args;
+  feeData: FeeDataV1Args;
 };
 
 export function getFusionDataV1AccountDataSerializer(): Serializer<
@@ -86,7 +86,7 @@ export function getFusionDataV1AccountDataSerializer(): Serializer<
         ['tokenMint', publicKeySerializer()],
         ['paused', bool()],
         ['assetData', getAssetDataV1Serializer()],
-        ['tokenData', getTokenDataV1Serializer()],
+        ['feeData', getFeeDataV1Serializer()],
       ],
       { description: 'FusionDataV1AccountData' }
     ),
@@ -160,7 +160,7 @@ export function getFusionDataV1GpaBuilder(
 ) {
   const programId = context.programs.getPublicKey(
     'tokenFusion',
-    'STF3iH1vGcBEmqc7bqFmyq2cHbJq6vaQrD6EkKuH22M'
+    'STFyNpLRuUnxko7TPNqNR1g1EapVj4AnXkAFy2TGbj3'
   );
   return gpaBuilder(context, programId)
     .registerFields<{
@@ -170,7 +170,7 @@ export function getFusionDataV1GpaBuilder(
       tokenMint: PublicKey;
       paused: boolean;
       assetData: AssetDataV1Args;
-      tokenData: TokenDataV1Args;
+      feeData: FeeDataV1Args;
     }>({
       discriminator: [0, bytes({ size: 8 })],
       authority: [8, publicKeySerializer()],
@@ -178,7 +178,7 @@ export function getFusionDataV1GpaBuilder(
       tokenMint: [72, publicKeySerializer()],
       paused: [104, bool()],
       assetData: [105, getAssetDataV1Serializer()],
-      tokenData: [null, getTokenDataV1Serializer()],
+      feeData: [null, getFeeDataV1Serializer()],
     })
     .deserializeUsing<FusionDataV1>((account) =>
       deserializeFusionDataV1(account)

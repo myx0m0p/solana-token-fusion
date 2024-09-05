@@ -47,6 +47,10 @@ export type FusionIntoV1InstructionAccounts = {
   escrowAtaPda?: PublicKey | Pda;
   /** User ata account. */
   userAta?: PublicKey | Pda;
+  /** Fee recipient account, optional. */
+  feeRecipient?: PublicKey | Pda;
+  /** Fee recipient ata account, optional. */
+  feeRecipientAta?: PublicKey | Pda;
   /** Protocol fee account. */
   feeAccount?: PublicKey | Pda;
   /** Token program. */
@@ -94,7 +98,7 @@ export function fusionIntoV1(
   // Program ID.
   const programId = context.programs.getPublicKey(
     'tokenFusion',
-    'STF3iH1vGcBEmqc7bqFmyq2cHbJq6vaQrD6EkKuH22M'
+    'STFyNpLRuUnxko7TPNqNR1g1EapVj4AnXkAFy2TGbj3'
   );
 
   // Accounts.
@@ -135,33 +139,43 @@ export function fusionIntoV1(
       isWritable: true as boolean,
       value: input.userAta ?? null,
     },
-    feeAccount: {
+    feeRecipient: {
       index: 8,
+      isWritable: true as boolean,
+      value: input.feeRecipient ?? null,
+    },
+    feeRecipientAta: {
+      index: 9,
+      isWritable: true as boolean,
+      value: input.feeRecipientAta ?? null,
+    },
+    feeAccount: {
+      index: 10,
       isWritable: true as boolean,
       value: input.feeAccount ?? null,
     },
     tokenProgram: {
-      index: 9,
+      index: 11,
       isWritable: false as boolean,
       value: input.tokenProgram ?? null,
     },
     associatedTokenProgram: {
-      index: 10,
+      index: 12,
       isWritable: false as boolean,
       value: input.associatedTokenProgram ?? null,
     },
     coreProgram: {
-      index: 11,
+      index: 13,
       isWritable: false as boolean,
       value: input.coreProgram ?? null,
     },
     systemProgram: {
-      index: 12,
+      index: 14,
       isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
     logWrapper: {
-      index: 13,
+      index: 15,
       isWritable: false as boolean,
       value: input.logWrapper ?? null,
     },

@@ -356,30 +356,69 @@ export class InvalidTokenAmountsError extends ProgramError {
 codeToErrorMap.set(0x1788, InvalidTokenAmountsError);
 nameToErrorMap.set('InvalidTokenAmounts', InvalidTokenAmountsError);
 
+/** InvalidFeeAmounts: Invalid fee amounts */
+export class InvalidFeeAmountsError extends ProgramError {
+  override readonly name: string = 'InvalidFeeAmounts';
+
+  readonly code: number = 0x1789; // 6025
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid fee amounts', program, cause);
+  }
+}
+codeToErrorMap.set(0x1789, InvalidFeeAmountsError);
+nameToErrorMap.set('InvalidFeeAmounts', InvalidFeeAmountsError);
+
+/** InvalidFeeRecipient: Invalid fee recipient */
+export class InvalidFeeRecipientError extends ProgramError {
+  override readonly name: string = 'InvalidFeeRecipient';
+
+  readonly code: number = 0x178a; // 6026
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid fee recipient', program, cause);
+  }
+}
+codeToErrorMap.set(0x178a, InvalidFeeRecipientError);
+nameToErrorMap.set('InvalidFeeRecipient', InvalidFeeRecipientError);
+
 /** MaxSupplyReached: Max supply reached */
 export class MaxSupplyReachedError extends ProgramError {
   override readonly name: string = 'MaxSupplyReached';
 
-  readonly code: number = 0x1789; // 6025
+  readonly code: number = 0x178b; // 6027
 
   constructor(program: Program, cause?: Error) {
     super('Max supply reached', program, cause);
   }
 }
-codeToErrorMap.set(0x1789, MaxSupplyReachedError);
+codeToErrorMap.set(0x178b, MaxSupplyReachedError);
 nameToErrorMap.set('MaxSupplyReached', MaxSupplyReachedError);
+
+/** InvalidFeeWallet: Invalid fee wallet */
+export class InvalidFeeWalletError extends ProgramError {
+  override readonly name: string = 'InvalidFeeWallet';
+
+  readonly code: number = 0x178c; // 6028
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid fee wallet', program, cause);
+  }
+}
+codeToErrorMap.set(0x178c, InvalidFeeWalletError);
+nameToErrorMap.set('InvalidFeeWallet', InvalidFeeWalletError);
 
 /** InvalidProtocolFeeWallet: Invalid protocol fee wallet */
 export class InvalidProtocolFeeWalletError extends ProgramError {
   override readonly name: string = 'InvalidProtocolFeeWallet';
 
-  readonly code: number = 0x178a; // 6026
+  readonly code: number = 0x178d; // 6029
 
   constructor(program: Program, cause?: Error) {
     super('Invalid protocol fee wallet', program, cause);
   }
 }
-codeToErrorMap.set(0x178a, InvalidProtocolFeeWalletError);
+codeToErrorMap.set(0x178d, InvalidProtocolFeeWalletError);
 nameToErrorMap.set('InvalidProtocolFeeWallet', InvalidProtocolFeeWalletError);
 
 /**

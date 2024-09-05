@@ -7,6 +7,6 @@
  */
 
 export * from './assetDataV1';
+export * from './feeDataV1';
 export * from './key';
-export * from './tokenDataV1';
 export * from './updateAuthority';

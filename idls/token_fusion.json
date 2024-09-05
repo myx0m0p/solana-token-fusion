@@ -1,5 +1,5 @@
 {
-  "address": "STF3iH1vGcBEmqc7bqFmyq2cHbJq6vaQrD6EkKuH22M",
+  "address": "STFyNpLRuUnxko7TPNqNR1g1EapVj4AnXkAFy2TGbj3",
   "metadata": {
     "name": "token_fusion",
     "version": "0.1.0",
@@ -703,12 +703,14 @@
         "5. `[]` Token mint",
         "6. `[]` Escrow ata with authority_pda as authority",
         "7. `[]` User ata with user as authority",
-        "8. `[]` Fee sol account",
-        "9. `[]` Token program",
-        "10.`[]` Associated Token program",
-        "11.`[]` Core program",
-        "12.`[]` System program",
-        "13.`[optional]` SPL Noop program"
+        "8. `[optional]` Fee recipient account",
+        "9. `[optional]` Fee recipient ata",
+        "10. `[]` Fee sol account",
+        "11. `[]` Token program",
+        "12.`[]` Associated Token program",
+        "13.`[]` Core program",
+        "14.`[]` System program",
+        "15.`[optional]` SPL Noop program"
       ],
       "discriminator": [
         33,
@@ -987,6 +989,22 @@
               ]
             }
           }
+        },
+        {
+          "name": "fee_recipient",
+          "docs": [
+            "Fee recipient account, optional."
+          ],
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "fee_recipient_ata",
+          "docs": [
+            "Fee recipient ata account, optional."
+          ],
+          "writable": true,
+          "optional": true
         },
         {
           "name": "fee_account",
@@ -1288,10 +1306,10 @@
           }
         },
         {
-          "name": "token_data",
+          "name": "fee_data",
           "type": {
             "defined": {
-              "name": "TokenDataV1"
+              "name": "FeeDataV1"
             }
           }
         }
@@ -1501,10 +1519,10 @@
           }
         },
         {
-          "name": "token_data",
+          "name": "fee_data",
           "type": {
             "defined": {
-              "name": "TokenDataV1"
+              "name": "FeeDataV1"
             }
           }
         }
@@ -1680,11 +1698,26 @@
     },
     {
       "code": 6025,
+      "name": "InvalidFeeAmounts",
+      "msg": "Invalid fee amounts"
+    },
+    {
+      "code": 6026,
+      "name": "InvalidFeeRecipient",
+      "msg": "Invalid fee recipient"
+    },
+    {
+      "code": 6027,
       "name": "MaxSupplyReached",
       "msg": "Max supply reached"
     },
     {
-      "code": 6026,
+      "code": 6028,
+      "name": "InvalidFeeWallet",
+      "msg": "Invalid fee wallet"
+    },
+    {
+      "code": 6029,
       "name": "InvalidProtocolFeeWallet",
       "msg": "Invalid protocol fee wallet"
     }
@@ -1817,6 +1850,54 @@
       }
     },
     {
+      "name": "FeeDataV1",
+      "docs": [
+        "Fee Data Struct"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "escrow_amount",
+            "docs": [
+              "How many spl tokens can be recovered from the asset"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "fee_amount",
+            "docs": [
+              "SPL fee, when fusing SPL into asset, take this SPL amount from user"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "burn_amount",
+            "docs": [
+              "SPL fee burned, when fusing SPL into asset, burn this SPL amount"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "sol_fee_amount",
+            "docs": [
+              "SOL fee, when fusing SPL into asset, take this SOL amount from user"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "fee_recipient",
+            "docs": [
+              "SPL/SOL fee recipient address"
+            ],
+            "type": {
+              "option": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "FusionDataV1",
       "docs": [
         "Fusion Data Account"
@@ -1864,13 +1945,13 @@
             }
           },
           {
-            "name": "token_data",
+            "name": "fee_data",
             "docs": [
               "Token specific data"
             ],
             "type": {
               "defined": {
-                "name": "TokenDataV1"
+                "name": "FeeDataV1"
               }
             }
           }
@@ -1899,31 +1980,6 @@
           },
           {
             "name": "CollectionV1"
-          }
-        ]
-      }
-    },
-    {
-      "name": "TokenDataV1",
-      "docs": [
-        "Token Data Struct"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "into_amount",
-            "docs": [
-              "Send SPL -> mint Asset"
-            ],
-            "type": "u64"
-          },
-          {
-            "name": "from_amount",
-            "docs": [
-              "Burn Asset -> receive SPL"
-            ],
-            "type": "u64"
           }
         ]
       }

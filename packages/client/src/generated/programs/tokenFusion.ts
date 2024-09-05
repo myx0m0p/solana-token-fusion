@@ -18,7 +18,7 @@ import {
 } from '../errors';
 
 export const TOKEN_FUSION_PROGRAM_ID =
-  'STF3iH1vGcBEmqc7bqFmyq2cHbJq6vaQrD6EkKuH22M' as PublicKey<'STF3iH1vGcBEmqc7bqFmyq2cHbJq6vaQrD6EkKuH22M'>;
+  'STFyNpLRuUnxko7TPNqNR1g1EapVj4AnXkAFy2TGbj3' as PublicKey<'STFyNpLRuUnxko7TPNqNR1g1EapVj4AnXkAFy2TGbj3'>;
 
 export function createTokenFusionProgram(): Program {
   return {
