@@ -34,7 +34,9 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
   const { data: collectionData, refetch: refetchCollectionData } = useCollectionData(fusionData.collection);
 
   const tokenAmount = useMemo(() => {
-    return new TokenAmount(fusionData.tokenData.intoAmount);
+    return new TokenAmount(
+      fusionData.feeData.escrowAmount + fusionData.feeData.feeAmount + fusionData.feeData.burnAmount
+    );
   }, [fusionData]);
 
   const isMintLimit = useMemo(() => {

@@ -1,5 +1,5 @@
-import { some, transactionBuilder } from '@metaplex-foundation/umi';
-import { setComputeUnitPrice } from '@metaplex-foundation/mpl-toolbox';
+import { publicKey, some, transactionBuilder, unwrapOption } from '@metaplex-foundation/umi';
+import { createAssociatedToken, setComputeUnitPrice } from '@metaplex-foundation/mpl-toolbox';
 
 import { explorerAddressLink, explorerTxLink } from '../utils/explorer';
 import { AppLogger } from '../utils/logger';
@@ -13,7 +13,7 @@ import {
   findEscrowAtaPda,
   findFusionDataPda,
   initV1,
-  TokenDataV1,
+  FeeDataV1,
 } from '../../packages/client/dist/src';
 
 //TODO Move to cli options with defaults
@@ -25,9 +25,12 @@ const ASSET_DATA_V1: AssetDataV1 = {
   uriSuffix: '',
 };
 
-const TOKEN_DATA_V1: TokenDataV1 = {
-  intoAmount: 150n * 10n ** 9n, // mint asset
-  fromAmount: 100n * 10n ** 9n, // burn asset
+const FEE_DATA_V1: FeeDataV1 = {
+  escrowAmount: 100n * 10n ** 9n, // escrow
+  feeAmount: 20n * 10n ** 9n, // fee
+  burnAmount: 30n * 10n ** 9n, // burn
+  solFeeAmount: 1337n * 10n ** 4n, // 0.01337 sol fee
+  feeRecipient: some(publicKey('CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG')),
 };
 
 export const initFusion = async ({ cluster }: FusionCliOptions) => {
@@ -63,9 +66,20 @@ export const initFusion = async ({ cluster }: FusionCliOptions) => {
       tokenMint: tokenMint.publicKey,
       collection: collectionMint.publicKey,
       assetData: ASSET_DATA_V1,
-      tokenData: TOKEN_DATA_V1,
+      feeData: FEE_DATA_V1,
     })
   );
+
+  // create fee recipient ATA
+  const feeRecipient = unwrapOption(FEE_DATA_V1.feeRecipient);
+  if (feeRecipient !== null) {
+    builder = builder.add([
+      createAssociatedToken(umi, {
+        owner: feeRecipient,
+        mint: tokenMint.publicKey,
+      }),
+    ]);
+  }
 
   const builderResult = await builder.sendAndConfirm(umi);
   AppLogger.info('Init Fusion Tx', explorerTxLink(builderResult.signature, { cluster }));

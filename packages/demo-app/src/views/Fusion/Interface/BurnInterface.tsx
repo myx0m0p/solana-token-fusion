@@ -35,7 +35,7 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
   const { data: accountData, refetch: refetchAccountData } = useAccountData({ publicKey, data: fusionData });
 
   const tokenAmount = useMemo(() => {
-    return new TokenAmount(fusionData.tokenData.fromAmount);
+    return new TokenAmount(fusionData.feeData.escrowAmount);
   }, [fusionData]);
 
   const isInsufficientFunds = useMemo(() => {
