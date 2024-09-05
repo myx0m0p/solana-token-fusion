@@ -1,3 +1,6 @@
+import { PublicKey } from '@metaplex-foundation/umi';
+import { AssetDataV1, FeeDataV1 } from '../packages/client/dist/src';
+
 export type ClusterType = 'localnet' | 'devnet' | 'mainnet';
 
 export type BaseCliOptions = {
@@ -24,4 +27,9 @@ export type AssetCliOptions = BaseCliOptions & {
   uri: string;
 };
 
-export type FusionCliOptions = BaseCliOptions;
+export type FusionCliOptions = BaseCliOptions & {
+  assetData: AssetDataV1;
+  feeData: FeeDataV1;
+  tokenMint?: PublicKey;
+  collectionMint?: PublicKey;
+};

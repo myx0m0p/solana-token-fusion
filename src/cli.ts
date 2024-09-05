@@ -1,6 +1,9 @@
 import 'dotenv/config';
 
 import { Command } from '@commander-js/extra-typings';
+import { none, publicKey, some } from '@metaplex-foundation/umi';
+
+import { AssetDataV1, FeeDataV1 } from '../packages/client/dist/src';
 
 import { ClusterType } from './types';
 import { deployCollection } from './deploy/collection';
@@ -69,6 +72,24 @@ const fusion = program.command('fusion');
 fusion
   .command('init')
   .description('Init Token Fusion Program')
+  // token
+  .option('--mint <string>', 'Token mint', '3i3gxS3ND3CYL8YfwrmzHdBWok5e3zyXBQpDEeonWc4T')
+  .option('--decimals <number>', 'Token decimals', parseInt, 9)
+  // collection
+  .option('--collection <string>', 'Collection mint', '9m19NPoBRuLkBqSyguRv7UPG1j3PCJcmHWMUuNB6Gvd')
+  // asset
+  .option('--supply <number>', 'Asset supply', parseInt, 100)
+  .option('--index <number>', 'Next index', parseInt, 1)
+  .option('--prefix <string>', 'Asset prefix', 'STF #')
+  .option('--uri-prefix <string>', 'Asset uri prefix', 'https://meta.femininebrother.org/metadata/')
+  .option('--uri-suffix <string>', 'Asset uri suffix', '')
+  // fee
+  .option('--escrow <number>', 'Escrow amount', parseInt, 100)
+  .option('--fee <number>', 'Fee amount', parseInt, 0)
+  .option('--burn <number>', 'Burn amount', parseInt, 0)
+  .option('--sol <number>', 'Sol fee amount', parseInt, 0)
+  .option('--fee-recipient <string>', 'Fee recipient')
+
   .option(
     '-c, --cluster <string>',
     'Solana cluster name to deploy: `localnet`, `devnet`, `mainnet`',
@@ -76,7 +97,29 @@ fusion
     'localnet'
   )
   .action(async (options) => {
-    await initFusion(options);
+    const assetData: AssetDataV1 = {
+      maxSupply: some(options.supply),
+      nextIndex: BigInt(options.index),
+      namePrefix: options.prefix,
+      uriPrefix: options.uriPrefix,
+      uriSuffix: options.uriSuffix,
+    };
+
+    const feeData: FeeDataV1 = {
+      escrowAmount: BigInt(options.escrow) * 10n ** BigInt(options.decimals), // escrow
+      feeAmount: BigInt(options.fee) * 10n ** BigInt(options.decimals), // fee
+      burnAmount: BigInt(options.burn) * 10n ** BigInt(options.decimals), // burn
+      solFeeAmount: BigInt(options.sol) * 10n ** 9n, // sol fee
+      feeRecipient: options.feeRecipient ? some(publicKey(options.feeRecipient)) : none(), // fee recipient
+    };
+
+    await initFusion({
+      cluster: options.cluster,
+      assetData,
+      feeData,
+      tokenMint: publicKey(options.mint),
+      collectionMint: publicKey(options.collection),
+    });
   });
 
 program
@@ -122,6 +165,20 @@ program
     if (options.fusion) {
       await initFusion({
         cluster: options.cluster,
+        assetData: {
+          maxSupply: some(100),
+          nextIndex: 1n,
+          namePrefix: 'STF #',
+          uriPrefix: 'https://meta.femininebrother.org/metadata/',
+          uriSuffix: '',
+        },
+        feeData: {
+          escrowAmount: 100n * 10n ** 9n, // escrow
+          feeAmount: 20n * 10n ** 9n, // fee
+          burnAmount: 30n * 10n ** 9n, // burn
+          solFeeAmount: 1337n * 10n ** 4n, // 0.01337 sol fee
+          feeRecipient: some(publicKey('CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG')),
+        },
       });
     }
   });
