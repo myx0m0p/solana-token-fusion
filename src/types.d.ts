@@ -33,3 +33,12 @@ export type FusionCliOptions = BaseCliOptions & {
   tokenMint?: PublicKey;
   collectionMint?: PublicKey;
 };
+
+export type FusionDataUpdateCliOptions = BaseCliOptions & {
+  updateAssetData: Partial<AssetDataV1>;
+  updateFeeData: Partial<FeeDataV1>;
+};
+
+export type FusionPauseCliOptions = BaseCliOptions & {
+  pause: boolean;
+};

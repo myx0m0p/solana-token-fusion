@@ -9,7 +9,7 @@ import { ClusterType } from './types';
 import { deployCollection } from './deploy/collection';
 import { deployToken } from './deploy/token';
 import { deployAsset } from './deploy/asset';
-import { initFusion } from './deploy/fusion';
+import { initFusion, setPauseFusion, showFusionData, updateFusionData } from './deploy/fusion';
 
 const program = new Command();
 
@@ -73,10 +73,10 @@ fusion
   .command('init')
   .description('Init Token Fusion Program')
   // token
-  .option('--mint <string>', 'Token mint', '3i3gxS3ND3CYL8YfwrmzHdBWok5e3zyXBQpDEeonWc4T')
+  .option('--mint <string>', 'Token mint')
   .option('--decimals <number>', 'Token decimals', parseInt, 9)
   // collection
-  .option('--collection <string>', 'Collection mint', '9m19NPoBRuLkBqSyguRv7UPG1j3PCJcmHWMUuNB6Gvd')
+  .option('--collection <string>', 'Collection mint')
   // asset
   .option('--supply <number>', 'Asset supply', parseInt, 100)
   .option('--index <number>', 'Next index', parseInt, 1)
@@ -117,8 +117,88 @@ fusion
       cluster: options.cluster,
       assetData,
       feeData,
-      tokenMint: publicKey(options.mint),
-      collectionMint: publicKey(options.collection),
+      tokenMint: options.mint ? publicKey(options.mint) : undefined,
+      collectionMint: options.collection ? publicKey(options.collection) : undefined,
+    });
+  });
+
+fusion
+  .command('update')
+  .description('Update Token Fusion Program')
+  // token
+  .option('--decimals <number>', 'Token decimals', parseInt, 9)
+  // asset
+  .option('--supply <number>', 'Asset supply', parseInt)
+  .option('--index <number>', 'Next index', parseInt)
+  .option('--prefix <string>', 'Asset prefix')
+  .option('--uri-prefix <string>', 'Asset uri prefix')
+  .option('--uri-suffix <string>', 'Asset uri suffix')
+  // fee
+  .option('--escrow <number>', 'Escrow amount', parseInt)
+  .option('--fee <number>', 'Fee amount', parseInt)
+  .option('--burn <number>', 'Burn amount', parseInt)
+  .option('--sol <number>', 'Sol fee amount', parseInt)
+  .option('--fee-recipient <string>', 'Fee recipient')
+
+  .option(
+    '-c, --cluster <string>',
+    'Solana cluster name to deploy: `localnet`, `devnet`, `mainnet`',
+    (value) => value as ClusterType,
+    'localnet'
+  )
+  .action(async (options) => {
+    const assetData: Partial<AssetDataV1> = {
+      maxSupply: options.supply ? some(options.supply) : undefined,
+      nextIndex: options.index ? BigInt(options.index) : undefined,
+      namePrefix: options.prefix,
+      uriPrefix: options.uriPrefix,
+      uriSuffix: options.uriSuffix,
+    };
+
+    const feeData: Partial<FeeDataV1> = {
+      escrowAmount: options.escrow ? BigInt(options.escrow) * 10n ** BigInt(options.decimals) : undefined, // escrow
+      feeAmount: options.fee ? BigInt(options.fee) * 10n ** BigInt(options.decimals) : undefined, // fee
+      burnAmount: options.burn ? BigInt(options.burn) * 10n ** BigInt(options.decimals) : undefined, // burn
+      solFeeAmount: options.sol ? BigInt(options.sol) * 10n ** 9n : undefined, // sol fee
+      feeRecipient: options.feeRecipient ? some(publicKey(options.feeRecipient)) : undefined, // fee recipient
+    };
+
+    await updateFusionData({
+      cluster: options.cluster,
+      updateAssetData: assetData,
+      updateFeeData: feeData,
+    });
+  });
+
+fusion
+  .command('pause')
+  .description('Pause/Unpause Token Fusion Program')
+  .option('--pause <boolean>', 'Status', (value) => value === 'true', false)
+  .option(
+    '-c, --cluster <string>',
+    'Solana cluster name to deploy: `localnet`, `devnet`, `mainnet`',
+    (value) => value as ClusterType,
+    'localnet'
+  )
+  .action(async (options) => {
+    await setPauseFusion({
+      cluster: options.cluster,
+      pause: options.pause,
+    });
+  });
+
+fusion
+  .command('show')
+  .description('Show Fusion Data')
+  .option(
+    '-c, --cluster <string>',
+    'Solana cluster name to deploy: `localnet`, `devnet`, `mainnet`',
+    (value) => value as ClusterType,
+    'localnet'
+  )
+  .action(async (options) => {
+    await showFusionData({
+      cluster: options.cluster,
     });
   });
 
