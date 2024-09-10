@@ -157,9 +157,11 @@ fusion
 
     const feeData: Partial<FeeDataV1> = {
       escrowAmount: options.escrow ? BigInt(options.escrow) * 10n ** BigInt(options.decimals) : undefined, // escrow
-      feeAmount: options.fee ? BigInt(options.fee) * 10n ** BigInt(options.decimals) : undefined, // fee
-      burnAmount: options.burn ? BigInt(options.burn) * 10n ** BigInt(options.decimals) : undefined, // burn
-      solFeeAmount: options.sol ? BigInt(options.sol) * 10n ** 9n : undefined, // sol fee
+      feeAmount:
+        options.fee !== undefined ? BigInt(options.fee) * 10n ** BigInt(options.decimals) : undefined, // fee
+      burnAmount:
+        options.burn !== undefined ? BigInt(options.burn) * 10n ** BigInt(options.decimals) : undefined, // burn
+      solFeeAmount: options.sol !== undefined ? BigInt(options.sol) * 10n ** 9n : undefined, // sol fee
       feeRecipient: options.feeRecipient ? some(publicKey(options.feeRecipient)) : undefined, // fee recipient
     };
 
