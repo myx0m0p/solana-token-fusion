@@ -10,6 +10,9 @@ import {
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 
+import bs58 from 'bs58';
+import crypto from 'crypto';
+
 type CoreAsset = {
   name: string;
   uri: string;
@@ -163,4 +166,14 @@ export const createAta = async (umi: Umi, { mint, owner, payer }: AtaAccounts): 
   await builder.sendAndConfirm(umi);
 
   return authorityAta;
+};
+
+export const getAssetURI = (index: number, collection: PublicKey, secret: PublicKey): string => {
+  const shasum = crypto.createHash('sha256');
+  shasum.update(collection.toString());
+  shasum.update(index.toString());
+  shasum.update(secret.toString());
+  const res = bs58.encode(shasum.digest());
+
+  return `https://stf.org/metadata/${index}/${res.slice(0, 8)}`;
 };

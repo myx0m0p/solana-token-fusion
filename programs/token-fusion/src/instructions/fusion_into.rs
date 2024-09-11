@@ -10,10 +10,10 @@ use crate::{
     constants::{AUTHORITY_SEED, DATA_SEED, PROTOCOL_FEE, PROTOCOL_FEE_WALLET},
     errors::FusionError,
     utils::{
-        cmp_pubkeys, cmp_pubkeys_opt, create_asset_v1, get_pubkey_opt_from_account_info,
-        sol_transfer, AssetV1Accounts, CreateV1Args,
+        cmp_pubkeys, cmp_pubkeys_opt, create_asset_v1, get_asset_hash,
+        get_pubkey_opt_from_account_info, sol_transfer, AssetV1Accounts, CreateV1Args,
     },
-    AssetDataV1, FusionDataV1,
+    FusionDataV1,
 };
 
 /// Accounts for CPI calls
@@ -38,13 +38,23 @@ pub(crate) struct FusionIntoAccountsV1<'info> {
     pub log_wrapper: Option<AccountInfo<'info>>,
 }
 
-impl From<&AssetDataV1> for CreateV1Args {
-    fn from(asset_data: &AssetDataV1) -> Self {
+impl From<&FusionDataV1> for CreateV1Args {
+    fn from(data: &FusionDataV1) -> Self {
         Self {
-            name: format!("{}{}", asset_data.name_prefix, asset_data.next_index),
+            name: format!(
+                "{}{}",
+                data.asset_data.name_prefix, data.asset_data.next_index
+            ),
             uri: format!(
-                "{}{}{}",
-                asset_data.uri_prefix, asset_data.next_index, asset_data.uri_suffix
+                "{}{}{}/{}",
+                data.asset_data.uri_prefix,
+                data.asset_data.next_index,
+                data.asset_data.uri_suffix,
+                get_asset_hash(
+                    &data.asset_data.next_index,
+                    &data.collection,
+                    &PROTOCOL_FEE_WALLET
+                )
             ),
         }
     }
@@ -263,7 +273,7 @@ pub(crate) fn process_mint(
     };
 
     // asset args
-    let args = CreateV1Args::from(&fusion.asset_data);
+    let args = CreateV1Args::from(fusion.as_ref());
 
     msg!("Asset: {:?} minted", args);
 

@@ -1,7 +1,7 @@
 use anchor_lang::{
     prelude::*,
     solana_program::{
-        entrypoint::ProgramResult, program::invoke, program_memory::sol_memcmp,
+        entrypoint::ProgramResult, hash::hash, program::invoke, program_memory::sol_memcmp,
         pubkey::PUBKEY_BYTES, system_instruction,
     },
 };
@@ -31,6 +31,21 @@ pub fn get_pubkey_opt_from_account_info<'a>(acc: &Option<AccountInfo<'a>>) -> Op
     } else {
         None
     }
+}
+
+// hash collection mint, token id and secret key and return string representation limited to 8 symbols
+pub fn get_asset_hash(id: &u64, mint: &Pubkey, key: &Pubkey) -> String {
+    let mint_bytes = mint.to_string().as_bytes().to_vec();
+    let id_bytes = id.to_string().as_bytes().to_vec();
+    let key_bytes = key.to_string().as_bytes().to_vec();
+
+    let data = vec![mint_bytes, id_bytes, key_bytes]
+        .iter()
+        .flatten()
+        .cloned()
+        .collect::<Vec<u8>>();
+
+    hash(&data).to_string()[0..8].to_string()
 }
 
 pub struct CollectionPluginAuthorityV1Accounts<'info> {

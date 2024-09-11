@@ -25,7 +25,7 @@ import {
   updateV1,
 } from '../packages/client';
 
-import { generateAsset, createCollection, createToken, createAta } from './_setup';
+import { generateAsset, createCollection, createToken, createAta, getAssetURI } from './_setup';
 
 const AUTH_ERROR_MESSAGE = 'Error Number: 2001. Error Message: A has one constraint was violated.';
 
@@ -75,8 +75,8 @@ const ASSET_DATA_V1: AssetDataV1 = {
   maxSupply: some(3),
   nextIndex: 1n,
   namePrefix: 'STF #',
-  uriPrefix: 'https://stf.org/assets/',
-  uriSuffix: '.json',
+  uriPrefix: 'https://stf.org/metadata/',
+  uriSuffix: '',
 };
 
 const FEE_DATA_V1: FeeDataV1 = {
@@ -91,8 +91,8 @@ const ASSET_DATA_V2: AssetDataV1 = {
   maxSupply: some(1),
   nextIndex: 11n,
   namePrefix: 'STF #',
-  uriPrefix: 'https://stf.org/assets/',
-  uriSuffix: '.json',
+  uriPrefix: 'https://stf.org/metadata/',
+  uriSuffix: '',
 };
 
 const FEE_DATA_V2: FeeDataV1 = {
@@ -168,12 +168,19 @@ describe('Solana Token Fusion Protocol', () => {
     DEBUG && AppLogger.info('Data Account', dataAccount);
 
     const assetData = await fetchAsset(umi, asset.asset.publicKey);
+    const assetURI = getAssetURI(
+      Number(dataAccount.assetData.nextIndex - 1n),
+      collection.collection.publicKey,
+      publicKey('CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG')
+    );
     DEBUG && AppLogger.info('Asset Data', assetData);
+    DEBUG && AppLogger.info('Asset URI', assetURI);
 
     const collectionData = await fetchCollection(umi, collection.collection.publicKey);
     DEBUG && AppLogger.info('Collection Data', collectionData);
 
     expect(dataAccount.assetData.nextIndex).to.equal(2n);
+    expect(assetData.uri).to.equal(assetURI);
 
     // check escrow balance
     const [escrowAta] = findEscrowAtaPda(umi, token.mint.publicKey);
