@@ -19,6 +19,7 @@ import { AssetV1 } from '@metaplex-foundation/mpl-core';
 import { AssetSelector } from './AssetSelector';
 import { getAssetName } from '@/utils/getAssetName';
 import { fusionFrom } from '@/rpc/fusion';
+import { shootAsset } from '@/rpc/webhook';
 
 type Props = {
   fusionData: FusionDataV1;
@@ -81,6 +82,8 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
         linkType: 'tx',
         linkDest: mintHash,
       });
+
+      void shootAsset(asset.name.split('#')[1]);
 
       setFusing(false);
       setAsset(undefined);
