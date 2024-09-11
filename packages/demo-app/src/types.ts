@@ -9,3 +9,14 @@ export type AccountData = {
 };
 
 export type Op = 'burn' | 'mint';
+
+export type AssetMetadata = {
+  name: string;
+  description: string;
+  external_url: string;
+  image: string;
+  attributes: { trait_type: string; value: string }[];
+  properties: {
+    files: { uri: string; type: string }[];
+  };
+};
