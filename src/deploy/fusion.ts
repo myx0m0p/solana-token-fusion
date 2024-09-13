@@ -19,6 +19,7 @@ import {
 import {
   fetchFusionDataV1,
   findEscrowAtaPda,
+  findFusionAuthorityPda,
   findFusionDataPda,
   initV1,
   setPauseV1,
@@ -217,6 +218,9 @@ export const showFusionData = async ({ cluster }: BaseCliOptions) => {
     AppLogger.error('Fusion is not initialized.');
     return;
   }
+
+  const [authorityPda] = findFusionAuthorityPda(umi);
+  AppLogger.info('Authority PDA', explorerAddressLink(authorityPda, { cluster }));
 
   const dataAccount = await fetchFusionDataV1(umi, dataPda);
   AppLogger.info('Fusion Data', dataAccount);

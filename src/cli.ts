@@ -6,7 +6,7 @@ import { none, publicKey, some } from '@metaplex-foundation/umi';
 import { AssetDataV1, FeeDataV1 } from '../packages/client/dist/src';
 
 import { ClusterType } from './types';
-import { deployCollection } from './deploy/collection';
+import { deployCollection, showCollection } from './deploy/collection';
 import { deployToken } from './deploy/token';
 import { deployAsset } from './deploy/asset';
 import { initFusion, setPauseFusion, showFusionData, updateFusionData } from './deploy/fusion';
@@ -50,6 +50,18 @@ collection
   )
   .action(async (options) => {
     await deployCollection(options);
+  });
+collection
+  .command('show')
+  .description('Show Collection')
+  .option(
+    '-c, --cluster <string>',
+    'Solana cluster name to deploy: `localnet`, `devnet`, `mainnet`',
+    (value) => value as ClusterType,
+    'localnet'
+  )
+  .action(async (options) => {
+    await showCollection(options);
   });
 
 const asset = program.command('asset');

@@ -5,7 +5,7 @@ import { transactionBuilder } from '@metaplex-foundation/umi';
 import { explorerAddressLink, explorerTxLink } from '../utils/explorer';
 import { AppLogger } from '../utils/logger';
 import { createUmi } from '../utils/umi';
-import { CollectionCliOptions } from '../types';
+import { BaseCliOptions, CollectionCliOptions } from '../types';
 
 export const deployCollection = async ({ name, uri, royalty, cluster }: CollectionCliOptions) => {
   const { umi, deployer, collection, clusterSettings } = await createUmi(cluster);
@@ -60,4 +60,22 @@ export const deployCollection = async ({ name, uri, royalty, cluster }: Collecti
   AppLogger.info('Collection Data', collectionData);
 
   AppLogger.info('Done');
+};
+
+export const showCollection = async ({ cluster }: BaseCliOptions) => {
+  const { umi, collection } = await createUmi(cluster);
+
+  AppLogger.info('Collection', explorerAddressLink(collection.publicKey, { cluster }));
+
+  const accountExists = await umi.rpc.accountExists(collection.publicKey);
+
+  if (!accountExists) {
+    AppLogger.error('Collection is not initialized.');
+    return;
+  }
+
+  const data = await fetchCollection(umi, collection.publicKey);
+  AppLogger.info('Colleection', data);
+
+  AppLogger.info('Done.');
 };
