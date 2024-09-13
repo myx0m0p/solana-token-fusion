@@ -23,6 +23,8 @@ import {
   setPauseV1,
   FeeDataV1,
   updateV1,
+  redelegateV1,
+  findFusionAuthorityPda,
 } from '../packages/client';
 
 import { generateAsset, createCollection, createToken, createAta, getAssetURI, splTransfer } from './_setup';
@@ -268,6 +270,23 @@ describe('Solana Token Fusion Protocol', () => {
     const [escrowAta] = findEscrowAtaPda(umi, token.mint.publicKey);
     const escrowData = await fetchToken(umi, escrowAta);
     expect(escrowData.amount).to.equal(0n);
+  });
+
+  it('[Success] RedelegateV1', async () => {
+    const { umi, collection } = context;
+
+    const [authorityPda] = findFusionAuthorityPda(umi);
+
+    const res = await redelegateV1(umi, {
+      collection: collection.collection.publicKey,
+    }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+
+    DEBUG && AppLogger.info('Redelegate TX', explorerTxLink(res.signature));
+
+    const collectionData = await fetchCollection(umi, collection.collection.publicKey);
+    DEBUG && AppLogger.info('Collection Data', collectionData);
+
+    expect(collectionData.updateDelegate?.additionalDelegates).contains(authorityPda);
   });
 
   it('[Success] SetAuthorityV1', async () => {

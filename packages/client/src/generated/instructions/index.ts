@@ -10,6 +10,7 @@ export * from './destroyV1';
 export * from './fusionFromV1';
 export * from './fusionIntoV1';
 export * from './initV1';
+export * from './redelegateV1';
 export * from './setAuthorityV1';
 export * from './setPauseV1';
 export * from './updateV1';

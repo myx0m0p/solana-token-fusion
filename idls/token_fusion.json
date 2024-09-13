@@ -1316,6 +1316,126 @@
       ]
     },
     {
+      "name": "redelegate_v1",
+      "docs": [
+        "Revoke the authority_pda from the collection delegate and",
+        "re-approve the authority PDA as the new authority.",
+        "",
+        "# Accounts",
+        "",
+        "0. `[writable]` fusion data account (seeds `[b\"fusion_data\"]`)",
+        "1. `[writable]` Authority PDA (seeds `[b\"authority\"]`)",
+        "2. `[signer]` authority",
+        "3. `[writable]` Collection account",
+        "4. `[]` Core program",
+        "5.`[]` System program",
+        "6.`[]` SPL Noop program"
+      ],
+      "discriminator": [
+        190,
+        200,
+        48,
+        48,
+        124,
+        158,
+        83,
+        110
+      ],
+      "accounts": [
+        {
+          "name": "fusion_data",
+          "docs": [
+            "Fusion data account."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  117,
+                  115,
+                  105,
+                  111,
+                  110,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority_pda",
+          "docs": [
+            "Authority PDA account."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Authority and payer of the transaction."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "fusion_data"
+          ]
+        },
+        {
+          "name": "collection",
+          "docs": [
+            "Collection account"
+          ],
+          "writable": true
+        },
+        {
+          "name": "core_program",
+          "docs": [
+            "MPL Core program."
+          ],
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "System program."
+          ],
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "log_wrapper",
+          "docs": [
+            "The SPL Noop program."
+          ],
+          "optional": true
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "set_authority_v1",
       "docs": [
         "Set the new authority of the program.",
