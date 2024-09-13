@@ -1,6 +1,11 @@
-import { createCollection as createCollectionCore } from '@metaplex-foundation/mpl-core';
+import { createCollection as createCollectionCore, ruleSet } from '@metaplex-foundation/mpl-core';
 import { createFungible, mintV1, TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
-import { createAssociatedToken, findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
+import {
+  createAssociatedToken,
+  createTokenIfMissing,
+  findAssociatedTokenPda,
+  transferTokens,
+} from '@metaplex-foundation/mpl-toolbox';
 import {
   PublicKey,
   Signer,
@@ -65,8 +70,15 @@ export const createCollection = async (
     ...data,
     plugins: [
       {
-        type: 'UpdateDelegate',
-        additionalDelegates: [],
+        type: 'Royalties',
+        basisPoints: 500,
+        creators: [
+          {
+            address: authority.publicKey,
+            percentage: 100,
+          },
+        ],
+        ruleSet: ruleSet('None'), // Compatibility rule set
       },
     ],
   }).sendAndConfirm(umi);
@@ -146,6 +158,28 @@ export type AtaAccounts = {
   mint: PublicKey;
   owner: PublicKey;
   payer: Signer;
+};
+
+export const splTransfer = async (
+  umi: Umi,
+  from: PublicKey,
+  to: PublicKey,
+  mint: PublicKey,
+  amount: bigint
+): Promise<void> => {
+  const [source] = findAssociatedTokenPda(umi, { owner: from, mint });
+  const [destination] = findAssociatedTokenPda(umi, { owner: to, mint });
+  let builder = transactionBuilder()
+    .add(createTokenIfMissing(umi, { mint, owner: to }))
+    .add(
+      transferTokens(umi, {
+        source,
+        destination,
+        amount,
+      })
+    );
+
+  await builder.sendAndConfirm(umi);
 };
 
 export const createAta = async (umi: Umi, { mint, owner, payer }: AtaAccounts): Promise<PublicKey> => {

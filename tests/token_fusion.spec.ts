@@ -25,7 +25,7 @@ import {
   updateV1,
 } from '../packages/client';
 
-import { generateAsset, createCollection, createToken, createAta, getAssetURI } from './_setup';
+import { generateAsset, createCollection, createToken, createAta, getAssetURI, splTransfer } from './_setup';
 
 const AUTH_ERROR_MESSAGE = 'Error Number: 2001. Error Message: A has one constraint was violated.';
 
@@ -50,13 +50,15 @@ const setupContext = async () => {
   const asset = await generateAsset(umi);
 
   const feeRecipient = treasure.publicKey;
+  // create ata account onchain
   const feeRecipientAta = await createAta(umi, {
     mint: token.mint.publicKey,
     owner: feeRecipient,
     payer: umi.identity,
   });
 
-  // create ata account onchain
+  // fund user token account
+  await splTransfer(umi, deployer.publicKey, user.publicKey, tokenSigner.publicKey, 10_000n * 10n ** 9n);
 
   return {
     umi,
@@ -360,12 +362,14 @@ describe('Solana Token Fusion Protocol', () => {
   });
 
   it('[Success] FusionIntoV1 - minted asset data updated', async () => {
-    const { umi, dataPda, deployer, token, collection, feeRecipient, feeRecipientAta } = context;
+    const { umi, dataPda, token, collection, feeRecipient, feeRecipientAta, user } = context;
 
     const asset = generateSigner(umi);
 
+    umi.identity = user;
+
     const res = await fusionIntoV1(umi, {
-      user: deployer,
+      user,
       asset: asset,
       collection: collection.collection.publicKey,
       tokenMint: token.mint.publicKey,
@@ -396,6 +400,8 @@ describe('Solana Token Fusion Protocol', () => {
     const { umi, deployer, token, collection, feeRecipient, feeRecipientAta } = context;
 
     const asset = generateSigner(umi);
+
+    umi.identity = deployer;
 
     const res = await fusionIntoV1(umi, {
       user: deployer,
