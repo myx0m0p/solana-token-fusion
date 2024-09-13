@@ -1,6 +1,13 @@
-import { createCollection, fetchCollection, ruleSet } from '@metaplex-foundation/mpl-core';
+import {
+  createCollection,
+  fetchCollection,
+  removeCollectionPlugin,
+  ruleSet,
+  updateCollection as updateCollectionCore,
+  updateCollectionPlugin,
+} from '@metaplex-foundation/mpl-core';
 import { setComputeUnitPrice } from '@metaplex-foundation/mpl-toolbox';
-import { transactionBuilder } from '@metaplex-foundation/umi';
+import { publicKey, transactionBuilder } from '@metaplex-foundation/umi';
 
 import { explorerAddressLink, explorerTxLink } from '../utils/explorer';
 import { AppLogger } from '../utils/logger';
@@ -75,7 +82,73 @@ export const showCollection = async ({ cluster }: BaseCliOptions) => {
   }
 
   const data = await fetchCollection(umi, collection.publicKey);
-  AppLogger.info('Colleection', data);
+  AppLogger.info('Collection', data);
+
+  AppLogger.info('Done.');
+};
+
+export const updateCollection = async ({ name, uri, royalty, cluster }: CollectionCliOptions) => {
+  const { umi, collection, clusterSettings, treasure } = await createUmi(cluster);
+
+  const retardioRoyalty = publicKey('9YFb2dUiRL9LqRMiJcNrCpob5F9htCgFwqV1hmHvKqfB');
+
+  AppLogger.info('Collection', explorerAddressLink(collection.publicKey, { cluster }));
+
+  const accountExists = await umi.rpc.accountExists(collection.publicKey);
+
+  if (!accountExists) {
+    AppLogger.error('Collection is not initialized.');
+    return;
+  }
+
+  let builder = transactionBuilder();
+
+  // add priority
+  if (clusterSettings.priority) {
+    builder = builder.add(setComputeUnitPrice(umi, { microLamports: clusterSettings.priority }));
+  }
+
+  // update collection
+  builder = builder.add(
+    updateCollectionCore(umi, {
+      collection: collection.publicKey,
+      name,
+      uri,
+    })
+  );
+
+  // update royalties
+  builder = builder.add(
+    updateCollectionPlugin(umi, {
+      collection: collection.publicKey,
+      plugin: {
+        type: 'Royalties',
+        basisPoints: royalty,
+        creators: [
+          { address: treasure.publicKey, percentage: 50 },
+          { address: retardioRoyalty, percentage: 50 },
+        ],
+        ruleSet: ruleSet('None'),
+      },
+    })
+  );
+
+  // remove updateDelegate plugin
+  builder = builder.add(
+    removeCollectionPlugin(umi, {
+      collection: collection.publicKey,
+      plugin: {
+        type: 'UpdateDelegate',
+      },
+    })
+  );
+
+  const builderResult = await builder.sendAndConfirm(umi);
+
+  AppLogger.info('Create Collection Tx', explorerTxLink(builderResult.signature, { cluster }));
+
+  const data = await fetchCollection(umi, collection.publicKey);
+  AppLogger.info('Collection', data);
 
   AppLogger.info('Done.');
 };

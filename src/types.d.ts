@@ -42,3 +42,7 @@ export type FusionDataUpdateCliOptions = BaseCliOptions & {
 export type FusionPauseCliOptions = BaseCliOptions & {
   pause: boolean;
 };
+
+export type FusionRedelegateCliOptions = BaseCliOptions & {
+  collectionMint?: PublicKey;
+};

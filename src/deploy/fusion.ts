@@ -14,6 +14,7 @@ import {
   FusionCliOptions,
   FusionDataUpdateCliOptions,
   FusionPauseCliOptions,
+  FusionRedelegateCliOptions,
 } from '../types';
 
 import {
@@ -22,9 +23,11 @@ import {
   findFusionAuthorityPda,
   findFusionDataPda,
   initV1,
+  redelegateV1,
   setPauseV1,
   updateV1,
 } from '../../packages/client/dist/src';
+import { fetchCollection } from '@metaplex-foundation/mpl-core';
 
 export const initFusion = async ({
   cluster,
@@ -224,6 +227,45 @@ export const showFusionData = async ({ cluster }: BaseCliOptions) => {
 
   const dataAccount = await fetchFusionDataV1(umi, dataPda);
   AppLogger.info('Fusion Data', dataAccount);
+
+  AppLogger.info('Done.');
+};
+
+export const redelegate = async ({ cluster, collectionMint }: FusionRedelegateCliOptions) => {
+  const { umi, clusterSettings, stfProgram, collection } = await createUmi(cluster);
+
+  AppLogger.info('Token Fusion Program', explorerAddressLink(stfProgram.publicKey, { cluster }));
+
+  const [dataPda] = findFusionDataPda(umi);
+
+  const accountExists = await umi.rpc.accountExists(dataPda);
+
+  if (!accountExists) {
+    AppLogger.error('Fusion is not initialized.');
+    return;
+  }
+
+  let builder = transactionBuilder();
+
+  // add priority
+  if (clusterSettings.priority) {
+    builder = builder.add(setComputeUnitPrice(umi, { microLamports: clusterSettings.priority }));
+  }
+
+  builder = builder.add(
+    redelegateV1(umi, {
+      collection: collectionMint || collection.publicKey,
+    })
+  );
+
+  const builderResult = await builder.sendAndConfirm(umi);
+  AppLogger.info('redelegate Tx', explorerTxLink(builderResult.signature, { cluster }));
+
+  const dataAccount = await fetchFusionDataV1(umi, dataPda);
+  AppLogger.info('Fusion Data', dataAccount);
+
+  const collectionData = await fetchCollection(umi, collectionMint || collection.publicKey);
+  AppLogger.info('Collection Data', collectionData);
 
   AppLogger.info('Done.');
 };

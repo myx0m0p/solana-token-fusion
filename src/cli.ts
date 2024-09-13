@@ -6,10 +6,10 @@ import { none, publicKey, some } from '@metaplex-foundation/umi';
 import { AssetDataV1, FeeDataV1 } from '../packages/client/dist/src';
 
 import { ClusterType } from './types';
-import { deployCollection, showCollection } from './deploy/collection';
+import { deployCollection, showCollection, updateCollection } from './deploy/collection';
 import { deployToken } from './deploy/token';
 import { deployAsset } from './deploy/asset';
-import { initFusion, setPauseFusion, showFusionData, updateFusionData } from './deploy/fusion';
+import { initFusion, redelegate, setPauseFusion, showFusionData, updateFusionData } from './deploy/fusion';
 
 const program = new Command();
 
@@ -62,6 +62,22 @@ collection
   )
   .action(async (options) => {
     await showCollection(options);
+  });
+
+collection
+  .command('update')
+  .description('Update Collection')
+  .option('-n, --name <string>', 'Collection name', 'STF Collection')
+  .option('-u, --uri <string>', 'Collection URI', 'https://stf.org/collection.json')
+  .option('-r, --royalty <number>', 'Collection royalty bp', parseInt, 500)
+  .option(
+    '-c, --cluster <string>',
+    'Solana cluster name to deploy: `localnet`, `devnet`, `mainnet`',
+    (value) => value as ClusterType,
+    'localnet'
+  )
+  .action(async (options) => {
+    await updateCollection(options);
   });
 
 const asset = program.command('asset');
@@ -213,6 +229,24 @@ fusion
   .action(async (options) => {
     await showFusionData({
       cluster: options.cluster,
+    });
+  });
+
+fusion
+  .command('redelegate')
+  .description('Redelegate collection update authority')
+  // collection
+  .option('--collection <string>', 'Collection mint')
+  .option(
+    '-c, --cluster <string>',
+    'Solana cluster name to deploy: `localnet`, `devnet`, `mainnet`',
+    (value) => value as ClusterType,
+    'localnet'
+  )
+  .action(async (options) => {
+    await redelegate({
+      cluster: options.cluster,
+      collectionMint: options.collection ? publicKey(options.collection) : undefined,
     });
   });
 
