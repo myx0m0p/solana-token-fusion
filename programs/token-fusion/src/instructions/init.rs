@@ -3,18 +3,11 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     token::{Mint, Token, TokenAccount},
 };
-use mpl_core::{
-    accounts::BaseCollectionV1,
-    types::{PluginAuthority, PluginType},
-    ID as CORE_PROGRAM_ID,
-};
+use mpl_core::{accounts::BaseCollectionV1, ID as CORE_PROGRAM_ID};
 
 use crate::{
     constants::{AUTHORITY_SEED, DATA_SEED},
-    utils::{
-        approve_collection_authority_v1, ApproveCollectionPluginAuthorityV1Args,
-        CollectionPluginAuthorityV1Accounts,
-    },
+    utils::{approve_asset_collection_delegate, CollectionPluginAuthorityHelperAccounts},
     AssetDataV1, FeeDataV1, FusionDataV1,
 };
 
@@ -36,27 +29,15 @@ pub fn handler_init_v1(
     ctx.accounts.fusion_data.fee_data = fee_data;
 
     // approves the metadata delegate so the program can verify minted NFTs
-    let approve_accounts = CollectionPluginAuthorityV1Accounts {
-        collection: ctx.accounts.collection.to_account_info(),
+    let approve_accounts = CollectionPluginAuthorityHelperAccounts {
         payer: ctx.accounts.payer.to_account_info(),
-        authority: Some(ctx.accounts.authority.to_account_info()),
+        collection: ctx.accounts.collection.to_account_info(),
+        authority_pda: ctx.accounts.authority_pda.to_account_info(),
         core_program: ctx.accounts.core_program.to_account_info(),
         system_program: ctx.accounts.system_program.to_account_info(),
-        log_wrapper: ctx
-            .accounts
-            .log_wrapper
-            .as_ref()
-            .map(|log_wrapper| log_wrapper.to_account_info()),
     };
 
-    let approve_args = ApproveCollectionPluginAuthorityV1Args {
-        plugin_type: PluginType::UpdateDelegate,
-        new_authority: PluginAuthority::Address {
-            address: ctx.accounts.authority_pda.key(),
-        },
-    };
-
-    approve_collection_authority_v1(approve_accounts, approve_args)
+    approve_asset_collection_delegate(approve_accounts)
 }
 
 /// Initializes a new fusion data account.

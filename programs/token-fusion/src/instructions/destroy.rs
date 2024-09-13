@@ -3,15 +3,11 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     token::{CloseAccount, Mint, Token, TokenAccount, Transfer},
 };
-use mpl_core::types::PluginType;
 use mpl_core::ID as CORE_PROGRAM_ID;
 
 use crate::{
     constants::{AUTHORITY_SEED, DATA_SEED},
-    utils::{
-        revoke_collection_authority_v1, CollectionPluginAuthorityV1Accounts,
-        RevokeCollectionPluginAuthorityV1Args,
-    },
+    utils::{revoke_asset_collection_delegate, CollectionPluginAuthorityHelperAccounts},
     FusionDataV1,
 };
 
@@ -35,26 +31,16 @@ pub fn handler_destroy_v1(ctx: Context<DestroyV1Ctx>) -> Result<()> {
     process_transfer(token_accounts, ctx.bumps.authority_pda)?;
 
     // revoke program delegate
-    let revoke_accounts = CollectionPluginAuthorityV1Accounts {
-        collection: ctx.accounts.collection.to_account_info(),
+    let revoke_accounts = CollectionPluginAuthorityHelperAccounts {
         payer: ctx.accounts.authority.to_account_info(),
-        authority: Some(ctx.accounts.authority_pda.to_account_info()),
+        collection: ctx.accounts.collection.to_account_info(),
+        authority_pda: ctx.accounts.authority_pda.to_account_info(),
         core_program: ctx.accounts.core_program.to_account_info(),
         system_program: ctx.accounts.system_program.to_account_info(),
-        log_wrapper: ctx
-            .accounts
-            .log_wrapper
-            .as_ref()
-            .map(|log_wrapper| log_wrapper.to_account_info()),
     };
 
-    let revoke_args = RevokeCollectionPluginAuthorityV1Args {
-        plugin_type: PluginType::UpdateDelegate,
-    };
-
-    revoke_collection_authority_v1(
+    revoke_asset_collection_delegate(
         revoke_accounts,
-        revoke_args,
         [AUTHORITY_SEED.as_bytes(), &[ctx.bumps.authority_pda]],
     )
 }

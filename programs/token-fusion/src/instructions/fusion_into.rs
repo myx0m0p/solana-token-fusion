@@ -11,13 +11,15 @@ use crate::{
     errors::FusionError,
     utils::{
         cmp_pubkeys, cmp_pubkeys_opt, create_asset_v1, get_asset_hash,
-        get_pubkey_opt_from_account_info, sol_transfer, AssetV1Accounts, CreateV1Args,
+        get_pubkey_opt_from_account_info, sol_transfer, AssetHelperAccounts, CreateV1Args,
     },
     FusionDataV1,
 };
 
 /// Accounts for CPI calls
 pub(crate) struct FusionIntoAccountsV1<'info> {
+    // authority pda
+    pub authority_pda: AccountInfo<'info>,
     // payer
     pub payer: AccountInfo<'info>,
     //token related accounts
@@ -65,6 +67,8 @@ pub fn handler_fusion_into_v1<'info>(
 ) -> Result<()> {
     let fusion = &mut ctx.accounts.fusion_data;
     let accounts = FusionIntoAccountsV1 {
+        // authority pda
+        authority_pda: ctx.accounts.authority_pda.to_account_info(),
         // payer
         payer: ctx.accounts.user.to_account_info(),
         // token related accounts
@@ -260,10 +264,12 @@ pub(crate) fn process_mint(
     // (2) prepare an asset to mint
 
     // asset accounts
-    let accounts = AssetV1Accounts {
-        asset: accounts.asset.to_account_info(),
-        collection: Some(accounts.collection.to_account_info()),
+    let accounts = AssetHelperAccounts {
+        authority_pda: accounts.authority_pda.to_account_info(),
         payer: accounts.payer.to_account_info(),
+        asset_owner: accounts.payer.to_account_info(),
+        asset: accounts.asset.to_account_info(),
+        collection: accounts.collection.to_account_info(),
         core_program: accounts.core_program.to_account_info(),
         system_program: accounts.system_program.to_account_info(),
         log_wrapper: accounts

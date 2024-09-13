@@ -154,9 +154,11 @@ pub(crate) fn process_burn(
     // (2) prepare an asset to burn
 
     // asset accounts
-    let accounts = AssetV1Accounts {
+    let accounts = AssetHelperAccounts {
+        authority_pda: accounts.authority_pda.to_account_info(),
         asset: accounts.asset.to_account_info(),
-        collection: Some(accounts.collection.to_account_info()),
+        asset_owner: accounts.payer.to_account_info(),
+        collection: accounts.collection.to_account_info(),
         payer: accounts.payer.to_account_info(),
         core_program: accounts.core_program.to_account_info(),
         system_program: accounts.system_program.to_account_info(),

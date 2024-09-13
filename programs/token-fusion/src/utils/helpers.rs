@@ -6,11 +6,13 @@ use anchor_lang::{
     },
 };
 use mpl_core::{
+    accounts::BaseCollectionV1,
+    fetch_plugin,
     instructions::{
-        ApproveCollectionPluginAuthorityV1CpiBuilder, BurnV1CpiBuilder, CreateV1CpiBuilder,
-        RevokeCollectionPluginAuthorityV1CpiBuilder,
+        AddCollectionPluginV1CpiBuilder, BurnV1CpiBuilder, CreateV1CpiBuilder,
+        RevokeCollectionPluginAuthorityV1CpiBuilder, UpdateCollectionPluginV1CpiBuilder,
     },
-    types::{DataState, PluginAuthority, PluginType},
+    types::{DataState, Plugin, PluginAuthority, PluginType, UpdateDelegate},
 };
 
 pub fn cmp_pubkeys(a: &Pubkey, b: &Pubkey) -> bool {
@@ -48,69 +50,105 @@ pub fn get_asset_hash(id: &u64, mint: &Pubkey, key: &Pubkey) -> String {
     hash(&data).to_string()[0..8].to_string()
 }
 
-pub struct CollectionPluginAuthorityV1Accounts<'info> {
-    pub collection: AccountInfo<'info>,
+pub struct CollectionPluginAuthorityHelperAccounts<'info> {
     pub payer: AccountInfo<'info>,
-    pub authority: Option<AccountInfo<'info>>,
+    pub collection: AccountInfo<'info>,
+    pub authority_pda: AccountInfo<'info>,
     pub core_program: AccountInfo<'info>,
     pub system_program: AccountInfo<'info>,
-    pub log_wrapper: Option<AccountInfo<'info>>,
 }
 
-pub struct ApproveCollectionPluginAuthorityV1Args {
-    pub plugin_type: PluginType,
-    pub new_authority: PluginAuthority,
-}
-
-pub struct RevokeCollectionPluginAuthorityV1Args {
-    pub plugin_type: PluginType,
-}
-
-pub fn approve_collection_authority_v1(
-    acc: CollectionPluginAuthorityV1Accounts,
-    args: ApproveCollectionPluginAuthorityV1Args,
+pub fn approve_asset_collection_delegate(
+    accounts: CollectionPluginAuthorityHelperAccounts,
 ) -> Result<()> {
-    ApproveCollectionPluginAuthorityV1CpiBuilder::new(&acc.core_program)
-        .collection(&acc.collection.to_account_info())
-        .payer(&acc.payer.to_account_info())
-        .authority(acc.authority.as_ref())
-        .system_program(&acc.system_program.to_account_info())
-        .log_wrapper(acc.log_wrapper.as_ref())
-        .plugin_type(args.plugin_type)
-        .new_authority(args.new_authority)
-        .invoke()
-        .map_err(|error| error.into())
+    // add UpdateDelegate plugin if it does not exist on the Collection
+    let maybe_update_plugin = fetch_plugin::<BaseCollectionV1, UpdateDelegate>(
+        &accounts.collection,
+        PluginType::UpdateDelegate,
+    );
+    if maybe_update_plugin.is_err() {
+        AddCollectionPluginV1CpiBuilder::new(&accounts.core_program)
+            .collection(&accounts.collection)
+            .authority(Some(&accounts.payer))
+            .plugin(Plugin::UpdateDelegate(UpdateDelegate {
+                additional_delegates: vec![],
+            }))
+            .payer(&accounts.payer)
+            .system_program(&accounts.system_program)
+            .invoke()?;
+    }
+
+    // add CM authority to collection if it doesn't exist
+    let (_, update_plugin, _) = fetch_plugin::<BaseCollectionV1, UpdateDelegate>(
+        &accounts.collection,
+        PluginType::UpdateDelegate,
+    )?;
+
+    if !update_plugin
+        .additional_delegates
+        .contains(accounts.authority_pda.key)
+    {
+        // add CM authority as an additional delegate
+        let mut new_auths = update_plugin.additional_delegates.clone();
+        new_auths.push(accounts.authority_pda.key());
+
+        UpdateCollectionPluginV1CpiBuilder::new(&accounts.core_program)
+            .collection(&accounts.collection)
+            .authority(Some(&accounts.payer))
+            .plugin(Plugin::UpdateDelegate(UpdateDelegate {
+                additional_delegates: new_auths,
+            }))
+            .system_program(&accounts.system_program)
+            .payer(&accounts.payer)
+            .invoke()
+            .map_err(|error| error.into())
+    } else {
+        Ok(())
+    }
 }
 
-pub fn revoke_collection_authority_v1(
-    acc: CollectionPluginAuthorityV1Accounts,
-    args: RevokeCollectionPluginAuthorityV1Args,
+pub fn revoke_asset_collection_delegate(
+    accounts: CollectionPluginAuthorityHelperAccounts,
     signer_seeds: [&[u8]; 2],
 ) -> Result<()> {
-    RevokeCollectionPluginAuthorityV1CpiBuilder::new(&acc.core_program)
-        .collection(&acc.collection.to_account_info())
-        .payer(&acc.payer.to_account_info())
-        .authority(acc.authority.as_ref())
-        .system_program(&acc.system_program.to_account_info())
-        .log_wrapper(acc.log_wrapper.as_ref())
-        .plugin_type(args.plugin_type)
-        .invoke_signed(&[&signer_seeds])
-        .map_err(|error| error.into())
+    let maybe_update_delegate_plugin = fetch_plugin::<BaseCollectionV1, UpdateDelegate>(
+        &accounts.collection,
+        PluginType::UpdateDelegate,
+    );
+
+    let has_auth = match maybe_update_delegate_plugin {
+        Ok((auth, _, _)) => {
+            auth == PluginAuthority::Address {
+                address: accounts.authority_pda.key(),
+            }
+        }
+        _ => false,
+    };
+
+    if has_auth {
+        RevokeCollectionPluginAuthorityV1CpiBuilder::new(&accounts.core_program)
+            .collection(&accounts.collection)
+            .authority(Some(&accounts.authority_pda))
+            .plugin_type(PluginType::UpdateDelegate)
+            .system_program(&accounts.system_program)
+            .payer(&accounts.payer)
+            .invoke_signed(&[&signer_seeds])
+            .map_err(|error| error.into())
+    } else {
+        Ok(())
+    }
 }
 
 #[derive(Debug)]
-pub struct AssetV1Accounts<'info> {
-    /// The address of the new asset.
-    pub asset: AccountInfo<'info>,
-    /// The collection to which the asset belongs.
-    pub collection: Option<AccountInfo<'info>>,
-    /// The account paying for the storage fees.
+/// Accounts to mint an Asset.
+pub struct AssetHelperAccounts<'info> {
+    pub authority_pda: AccountInfo<'info>,
     pub payer: AccountInfo<'info>,
-    /// The MPL Core program.
+    pub asset_owner: AccountInfo<'info>,
+    pub asset: AccountInfo<'info>,
+    pub collection: AccountInfo<'info>,
     pub core_program: AccountInfo<'info>,
-    /// The system program.
     pub system_program: AccountInfo<'info>,
-    /// The SPL Noop program.
     pub log_wrapper: Option<AccountInfo<'info>>,
 }
 
@@ -122,29 +160,31 @@ pub struct CreateV1Args {
 }
 
 pub fn create_asset_v1(
-    acc: AssetV1Accounts,
+    acc: AssetHelperAccounts,
     args: CreateV1Args,
     signer_seeds: [&[u8]; 2],
 ) -> Result<()> {
     CreateV1CpiBuilder::new(&acc.core_program)
-        .asset(&acc.asset.to_account_info())
-        .collection(acc.collection.as_ref())
-        .payer(&acc.payer.to_account_info())
-        .system_program(&acc.system_program.to_account_info())
-        .log_wrapper(acc.log_wrapper.as_ref())
-        .data_state(DataState::AccountState)
+        .payer(&acc.payer)
+        .owner(Some(&acc.asset_owner))
+        .asset(&acc.asset)
         .name(args.name)
         .uri(args.uri)
+        .collection(Some(&acc.collection))
+        .data_state(DataState::AccountState)
+        .authority(Some(&acc.authority_pda))
+        .system_program(&acc.system_program)
+        .log_wrapper(acc.log_wrapper.as_ref())
         .invoke_signed(&[&signer_seeds])
         .map_err(|error| error.into())
 }
 
-pub fn burn_asset_v1(acc: AssetV1Accounts) -> Result<()> {
+pub fn burn_asset_v1(acc: AssetHelperAccounts) -> Result<()> {
     BurnV1CpiBuilder::new(&acc.core_program)
-        .asset(&acc.asset.to_account_info())
-        .collection(acc.collection.as_ref())
-        .payer(&acc.payer.to_account_info())
-        .system_program(Some(&acc.system_program.to_account_info()))
+        .payer(&acc.payer)
+        .asset(&acc.asset)
+        .collection(Some(&acc.collection))
+        .system_program(Some(&acc.system_program))
         .log_wrapper(acc.log_wrapper.as_ref())
         .invoke()
         .map_err(|error| error.into())
