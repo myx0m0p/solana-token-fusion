@@ -37,7 +37,7 @@ pub fn handler_init_v1(
         system_program: ctx.accounts.system_program.to_account_info(),
     };
 
-    approve_asset_collection_delegate(approve_accounts)
+    approve_asset_collection_delegate(&approve_accounts)
 }
 
 /// Initializes a new fusion data account.

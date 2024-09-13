@@ -291,7 +291,7 @@ pub(crate) fn process_mint(
         .ok_or(FusionError::NumericalOverflowError)?;
 
     // (3) minting
-    create_asset_v1(accounts, args, [AUTHORITY_SEED.as_bytes(), &[bump]])
+    create_asset_v1(&accounts, args, [AUTHORITY_SEED.as_bytes(), &[bump]])
 }
 
 /// Fusion tokens into an asset.

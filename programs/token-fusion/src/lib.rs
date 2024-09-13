@@ -153,4 +153,20 @@ pub mod token_fusion {
     pub fn set_pause_v1(ctx: Context<SetPauseV1Ctx>, paused: bool) -> Result<()> {
         instructions::handler_set_pause_v1(ctx, paused)
     }
+
+    /// Revoke the authority_pda from the collection delegate and
+    /// re-approve the authority PDA as the new authority.
+    ///
+    /// # Accounts
+    ///
+    ///   0. `[writable]` fusion data account (seeds `[b"fusion_data"]`)
+    ///   1. `[writable]` Authority PDA (seeds `[b"authority"]`)
+    ///   2. `[signer]` authority
+    ///   3. `[writable]` Collection account
+    ///   4. `[]` Core program
+    ///   5.`[]` System program
+    ///   6.`[]` SPL Noop program
+    pub fn redelegate_v1(ctx: Context<RedelegateV1Ctx>) -> Result<()> {
+        instructions::handler_redelegate_v1(ctx)
+    }
 }

@@ -59,7 +59,7 @@ pub struct CollectionPluginAuthorityHelperAccounts<'info> {
 }
 
 pub fn approve_asset_collection_delegate(
-    accounts: CollectionPluginAuthorityHelperAccounts,
+    accounts: &CollectionPluginAuthorityHelperAccounts,
 ) -> Result<()> {
     // add UpdateDelegate plugin if it does not exist on the Collection
     let maybe_update_plugin = fetch_plugin::<BaseCollectionV1, UpdateDelegate>(
@@ -108,7 +108,7 @@ pub fn approve_asset_collection_delegate(
 }
 
 pub fn revoke_asset_collection_delegate(
-    accounts: CollectionPluginAuthorityHelperAccounts,
+    accounts: &CollectionPluginAuthorityHelperAccounts,
     signer_seeds: [&[u8]; 2],
 ) -> Result<()> {
     let maybe_update_delegate_plugin = fetch_plugin::<BaseCollectionV1, UpdateDelegate>(
@@ -139,7 +139,6 @@ pub fn revoke_asset_collection_delegate(
     }
 }
 
-#[derive(Debug)]
 /// Accounts to mint an Asset.
 pub struct AssetHelperAccounts<'info> {
     pub authority_pda: AccountInfo<'info>,
@@ -160,7 +159,7 @@ pub struct CreateV1Args {
 }
 
 pub fn create_asset_v1(
-    acc: AssetHelperAccounts,
+    acc: &AssetHelperAccounts,
     args: CreateV1Args,
     signer_seeds: [&[u8]; 2],
 ) -> Result<()> {
@@ -179,7 +178,7 @@ pub fn create_asset_v1(
         .map_err(|error| error.into())
 }
 
-pub fn burn_asset_v1(acc: AssetHelperAccounts) -> Result<()> {
+pub fn burn_asset_v1(acc: &AssetHelperAccounts) -> Result<()> {
     BurnV1CpiBuilder::new(&acc.core_program)
         .payer(&acc.payer)
         .asset(&acc.asset)

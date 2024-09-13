@@ -40,7 +40,7 @@ pub fn handler_destroy_v1(ctx: Context<DestroyV1Ctx>) -> Result<()> {
     };
 
     revoke_asset_collection_delegate(
-        revoke_accounts,
+        &revoke_accounts,
         [AUTHORITY_SEED.as_bytes(), &[ctx.bumps.authority_pda]],
     )
 }

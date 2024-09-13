@@ -171,7 +171,7 @@ pub(crate) fn process_burn(
     msg!("Asset: {} burned", asset_metadata.name);
 
     // (3) burning
-    burn_asset_v1(accounts)
+    burn_asset_v1(&accounts)
 }
 
 /// Fusion tokens from an asset.
