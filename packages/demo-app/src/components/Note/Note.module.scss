@@ -1,0 +1,36 @@
+@import '@/styles/mixins/container';
+@import '@/styles/vars/breakpoints';
+
+$breakpoint500: 500px;
+
+.container {
+  @include container;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 32px;
+  margin: 22px 0 0 0;
+  @media (max-width: $breakpoint-md) {
+    font-size: 28px;
+  }
+}
+
+.subtitle {
+  font-size: 28px;
+  margin: 22px 0 0 0;
+  text-align: center;
+  @media (max-width: $breakpoint-md) {
+    font-size: 24px;
+  }
+}
+
+.text {
+  font-size: 22px;
+  margin: 3px 0;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 18px;
+  }
+}

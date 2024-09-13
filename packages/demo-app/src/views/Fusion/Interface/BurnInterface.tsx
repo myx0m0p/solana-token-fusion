@@ -36,7 +36,7 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
   const { data: accountData, refetch: refetchAccountData } = useAccountData({ publicKey, data: fusionData });
 
   const tokenAmount = useMemo(() => {
-    return new TokenAmount(fusionData.feeData.escrowAmount);
+    return new TokenAmount(fusionData.feeData.escrowAmount, '$MUMU');
   }, [fusionData]);
 
   const isInsufficientFunds = useMemo(() => {
@@ -48,10 +48,10 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
     if (!fusionData) return 'Internal Error';
     if (!connected) return 'Connect Wallet';
     if (isInsufficientFunds) return 'Insufficient balance';
-    if (!asset) return 'Select Asset';
-    if (fusing) return 'Fusing...';
+    if (!asset) return 'Select Mutardio';
+    if (fusing) return 'Burning...';
 
-    return 'Burn your Asset';
+    return 'Burn Mutardio';
   }, [fusionData, connected, isInsufficientFunds, fusing, asset]);
 
   const buttonDisabled = useMemo(() => {
@@ -77,7 +77,7 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
       const res = await fusionFrom(umi, { data: fusionData, asset: asset.publicKey });
       const [mintHash] = base58.deserialize(res.signature);
       Notification.emit({
-        message: 'Successfully fused your Asset',
+        message: 'Successfully burned your Mutardio',
         type: 'success',
         linkType: 'tx',
         linkDest: mintHash,
@@ -114,16 +114,16 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
 
       <div className={S.contentSide}>
         <div>
-          <div className={S.title}>Fusion From</div>
+          <div className={S.title}>The Transmumuter</div>
           <div className={S.description}>
-            Burn your non-fungible asset to receive {tokenAmount.toFormattedAmount()} {tokenAmount.symbol}{' '}
-            fungible tokens.
+            Sacrifice your Mutardio NFT to extract {tokenAmount.symbol} tokens. Beware, your Mutardio NFT will
+            be lost forever.
           </div>
         </div>
 
         <div className={S.actionWrapper}>
-          <div className={S.availableToMint}>
-            <span className={S.availableToMintLabel}>Assset: </span>
+          <div className={S.totalCost}>
+            <span className={S.totalCostLabel}>Assset: </span>
             <span>{getAssetName(asset?.name)}</span>
           </div>
 

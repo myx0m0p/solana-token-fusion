@@ -2,6 +2,7 @@ import { memo } from 'react';
 
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
+import { Note } from '@/components/Note';
 import { NotificationContainer } from '@/components/NotificationContainer';
 
 import { Head } from './components/Head';
@@ -22,7 +23,10 @@ const Component: React.FC<Props> = ({ children }) => {
           <Header />
         </div>
 
-        <main className={S.main}>{children}</main>
+        <main className={S.main}>
+          <div>{children}</div>
+          <Note />
+        </main>
 
         <div className={S.footer}>
           <Footer />

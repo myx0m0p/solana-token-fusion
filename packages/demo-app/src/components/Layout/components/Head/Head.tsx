@@ -7,23 +7,22 @@ const Component: React.FC = () => {
   return (
     <>
       <NextSeo
-        title='Token Fusion Protocol'
+        title='Mutardio'
         // eslint-disable-next-line max-len
-        description='Token Fusion Protocol is a decentralized protocol that allows users fuse spl tokens into asset and vice versa.'
+        description=''
         openGraph={{
-          title: 'Token Fusion Protocol',
-          description:
-            'Token Fusion Protocol is a decentralized protocol that allows users fuse spl tokens into asset and vice versa.',
+          title: 'Mutardio',
+          description: '',
           images: [
             {
               url: `${APP_URL}/media/splash.jpg`,
               width: 600,
               height: 600,
-              alt: 'TokenFusion',
+              alt: 'Mutardio',
               type: 'image/jpeg',
             },
           ],
-          site_name: 'Token Fusion Protocol',
+          site_name: 'Mutardio',
         }}
       />
     </>

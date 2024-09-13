@@ -250,11 +250,11 @@ $breakpoint1050: 1050px;
 }
 
 .totalCostLabel {
-  color: #b3b3b3;
-  font-size: 16px;
+  color: #222;
+  font-size: 20px;
 
   @media (max-width: $breakpoint-md) {
-    font-size: 13px;
+    font-size: 16px;
   }
 }
 

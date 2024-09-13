@@ -16,7 +16,7 @@ const Component: React.FC<Props> = ({ size = 'lg' }) => {
     // This fucking button don't accept className as param, so lets hardcode stuff
     <WalletMultiButtonDynamic
       style={{
-        color: 'white',
+        color: '#000',
         height: '44px',
         padding: '12px 20px 10px',
         fontWeight: '700',
@@ -24,8 +24,8 @@ const Component: React.FC<Props> = ({ size = 'lg' }) => {
         lineHeight: '1.25',
         borderRadius: 0,
         border: '2px solid #eaaa00',
-        backgroundColor: 'black',
-        fontFamily: 'Rethink Sans,sans-serif',
+        backgroundColor: '#f2f2ed',
+        fontFamily: 'Indie Flower, sans-serif',
       }}
     />
   );

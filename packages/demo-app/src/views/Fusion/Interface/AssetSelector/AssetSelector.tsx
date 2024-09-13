@@ -12,7 +12,7 @@ type Props = {
 
 const Component: React.FC<Props> = ({ assets, selected, onSelect }) => {
   if (!assets || assets.length === 0)
-    return <div className={S.container}>You got no assets in your wallet. Go and mint one.</div>;
+    return <div className={S.container}>You got no mutardios. Go and get one!</div>;
 
   return (
     <div className={S.container}>

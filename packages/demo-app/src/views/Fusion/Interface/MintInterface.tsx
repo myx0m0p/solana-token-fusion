@@ -35,7 +35,8 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
 
   const tokenAmount = useMemo(() => {
     return new TokenAmount(
-      fusionData.feeData.escrowAmount + fusionData.feeData.feeAmount + fusionData.feeData.burnAmount
+      fusionData.feeData.escrowAmount + fusionData.feeData.feeAmount + fusionData.feeData.burnAmount,
+      '$MUMU'
     );
   }, [fusionData]);
 
@@ -62,11 +63,11 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
     if (!collectionData) return 'Internal Error';
     if (!connected) return 'Connect Wallet';
     if (isInsufficientFunds) return 'Insufficient balance';
-    if (isMintLimit) return 'Mint limit';
+    if (isMintLimit) return 'No more left';
 
-    if (fusing) return 'Fusing...';
+    if (fusing) return 'Minting...';
 
-    return 'Mint new Asset';
+    return 'Mint Mutardio';
   }, [fusionData, collectionData, connected, isInsufficientFunds, isMintLimit, fusing]);
 
   const buttonDisabled = useMemo(() => {
@@ -93,7 +94,7 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
       const { asset, tx } = fusionInto(umi, { data: fusionData });
       await tx;
       Notification.emit({
-        message: 'Successfully fused your Tokens',
+        message: 'Go check your new Mutardio',
         type: 'success',
         linkType: 'address',
         linkDest: asset.publicKey,
@@ -122,19 +123,23 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
   return (
     <div className={S.interface}>
       <div className={S.animationSide}>
-        <Animation url='media/splash.jpg' />
+        <Animation url='media/splash.gif' />
       </div>
 
       <div className={S.contentSide}>
         <div>
-          <div className={S.title}>Fusion Into</div>
-          <div className={S.description}>
-            Combine your {tokenAmount.toFormattedAmount()} {tokenAmount.symbol} fungible tokens into a single
-            unique non-fungible asset.
-          </div>
+          <div className={S.title}>The Transmumuter</div>
+          <div className={S.description}>Use {tokenAmount.symbol} tokens to mint a unique Mutardio NFT.</div>
         </div>
 
         <div className={S.actionWrapper}>
+          <div className={S.totalCost}>
+            <span className={S.totalCostLabel}>Remaining: </span>
+            <span>
+              {collectionData?.currentSize} /{' '}
+              {unwrapOption(fusionData.assetData.maxSupply, () => Number.POSITIVE_INFINITY)}
+            </span>
+          </div>
           <div className={S.totalCost}>
             <span className={S.totalCostLabel}>Cost: </span>
             <span>

@@ -14,7 +14,7 @@ const Component: React.FC = () => {
       <div className={S.container}>
         <Link href='/'>
           <div className={S.logo}>
-            <img className={S.logoIcon} src='media/logo.svg' alt='logo' />
+            <img className={S.logoIcon} src='media/logo.png' alt='logo' />
           </div>
         </Link>
         <ul className={S.nav}>
