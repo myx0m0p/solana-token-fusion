@@ -95,7 +95,7 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
       setAsset(undefined);
 
       Notification.emit({
-        message: `Fusion error: ${getErrorMessage(e)}`,
+        message: `Burning error: ${getErrorMessage(e)}`,
         type: 'error',
       });
     }

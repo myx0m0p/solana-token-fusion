@@ -108,7 +108,7 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
       setFusing(false);
 
       Notification.emit({
-        message: `Fusion error: ${getErrorMessage(e)}`,
+        message: `Minting error: ${getErrorMessage(e)}`,
         type: 'error',
       });
     }
