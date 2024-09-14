@@ -8,7 +8,7 @@ import { AssetDataV1, FeeDataV1 } from '../packages/client/dist/src';
 import { ClusterType } from './types';
 import { deployCollection, showCollection, updateCollection } from './deploy/collection';
 import { deployToken } from './deploy/token';
-import { deployAsset } from './deploy/asset';
+import { deployAsset, showAsset } from './deploy/asset';
 import { initFusion, redelegate, setPauseFusion, showFusionData, updateFusionData } from './deploy/fusion';
 
 const program = new Command();
@@ -94,6 +94,20 @@ asset
   )
   .action(async (options) => {
     await deployAsset(options);
+  });
+
+asset
+  .command('show')
+  .description('Show Asset')
+  .requiredOption('-m, --mint <string>', 'Asset publickey')
+  .option(
+    '-c, --cluster <string>',
+    'Solana cluster name to deploy: `localnet`, `devnet`, `mainnet`',
+    (value) => value as ClusterType,
+    'localnet'
+  )
+  .action(async (options) => {
+    await showAsset({ cluster: options.cluster, assetMint: publicKey(options.mint) });
   });
 
 const fusion = program.command('fusion');

@@ -5,7 +5,7 @@ import { generateSigner, transactionBuilder } from '@metaplex-foundation/umi';
 import { explorerAddressLink, explorerTxLink } from '../utils/explorer';
 import { AppLogger } from '../utils/logger';
 import { createUmi } from '../utils/umi';
-import { AssetCliOptions } from '../types';
+import { AssetCliOptions, ShowAssetCliOptions } from '../types';
 
 export const deployAsset = async ({ name, uri, cluster }: AssetCliOptions) => {
   const { umi, collection, clusterSettings } = await createUmi(cluster);
@@ -38,6 +38,17 @@ export const deployAsset = async ({ name, uri, cluster }: AssetCliOptions) => {
   AppLogger.info('Asset Data', assetData);
   const collectionData = await fetchCollection(umi, collection.publicKey);
   AppLogger.info('Collection Data', collectionData);
+
+  AppLogger.info('Done');
+};
+
+export const showAsset = async ({ assetMint, cluster }: ShowAssetCliOptions) => {
+  const { umi } = await createUmi(cluster);
+
+  AppLogger.info('Asset Mint', explorerAddressLink(assetMint, { cluster }));
+
+  const assetData = await fetchAssetV1(umi, assetMint);
+  AppLogger.info('Asset Data', assetData);
 
   AppLogger.info('Done');
 };

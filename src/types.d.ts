@@ -27,6 +27,10 @@ export type AssetCliOptions = BaseCliOptions & {
   uri: string;
 };
 
+export type ShowAssetCliOptions = BaseCliOptions & {
+  assetMint: PublicKey;
+};
+
 export type FusionCliOptions = BaseCliOptions & {
   assetData: AssetDataV1;
   feeData: FeeDataV1;
