@@ -10,19 +10,28 @@ $breakpoint500: 500px;
 }
 
 .title {
-  font-size: 32px;
+  font-size: 34px;
   margin: 22px 0 0 0;
   @media (max-width: $breakpoint-md) {
-    font-size: 28px;
+    font-size: 30px;
+  }
+}
+
+.title_center {
+  font-size: 36px;
+  margin: 22px 0 0 0;
+  text-align: center;
+  @media (max-width: $breakpoint-md) {
+    font-size: 30px;
   }
 }
 
 .subtitle {
-  font-size: 28px;
+  font-size: 24px;
   margin: 22px 0 0 0;
   text-align: center;
   @media (max-width: $breakpoint-md) {
-    font-size: 24px;
+    font-size: 20px;
   }
 }
 

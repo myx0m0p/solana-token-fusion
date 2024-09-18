@@ -3,11 +3,12 @@
 $animation-speed: 0.5s;
 
 .popup {
+  font-family: 'Indie Flower', sans-serif;
   display: flex;
   align-items: center;
   padding: 14px;
   color: $basic-color;
-  font-size: 15px;
+  font-size: 20px;
   line-height: 20px;
   letter-spacing: -0.2px;
 }

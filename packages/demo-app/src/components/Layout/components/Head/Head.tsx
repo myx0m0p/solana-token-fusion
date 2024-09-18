@@ -12,12 +12,13 @@ const Component: React.FC = () => {
         description=''
         openGraph={{
           title: 'Mutardio',
-          description: '',
+          description:
+            'Mutardio is the real mascot of the bull run. Mint him or burn – all hail to the Saylor',
           images: [
             {
-              url: `${APP_URL}/media/splash.jpg`,
+              url: `${APP_URL}/media/splash.png`,
               width: 600,
-              height: 600,
+              height: 315,
               alt: 'Mutardio',
               type: 'image/jpeg',
             },

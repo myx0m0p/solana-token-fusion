@@ -11,14 +11,10 @@ const Component: React.FC = () => (
       Look at you fuckers, where ya at? Bears are raping the market and all we got is stupid-ass normie MUMU.
       This gay bull is the problem. It’s time to fix that.
     </p>
-    <p className={S.title}>
+    <p className={S.title_center}>
       Please welcome “MUTARDIO”. The real mascot of the bull run. Mint it with $MUMU. Wear it with pride!
     </p>
-    <p className={S.subtitle}>
-      HOW TO ACTIVATE THE BULL RUN?
-      <br />
-      Mint yourself MUTARDIO and wear it with pride.
-    </p>
+    <br />
     <p className={S.title}>HOW TO MINT MUTARDIO NFT?</p>
     <p className={S.text}>Put 500,000 $MUMU into The Transmumuter and mint yourself a unique MUTARDIO NFT.</p>
     <p className={S.title}>HOW TO BURN MUTARDIO NFT?</p>

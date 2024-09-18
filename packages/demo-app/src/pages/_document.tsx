@@ -6,7 +6,7 @@ export default function Document() {
       <Head>
         <meta
           name='keywords'
-          content='Mutardio nfts using Token Fusion Protocol, fusion spl into nft asset and reverse'
+          content='Mutardio is the real mascot of the bull run. Mint him or burn – all hail to the Saylor'
         />
         <link rel='apple-touch-icon' sizes='180x180' href='/favicons/apple-touch-icon.png' />
         <link rel='icon' type='image/png' sizes='32x32' href='/favicons/favicon-32x32.png' />

@@ -134,7 +134,7 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
 
         <div className={S.actionWrapper}>
           <div className={S.totalCost}>
-            <span className={S.totalCostLabel}>Remaining: </span>
+            <span className={S.totalCostLabel}>Minted: </span>
             <span>
               {collectionData?.currentSize} /{' '}
               {unwrapOption(fusionData.assetData.maxSupply, () => Number.POSITIVE_INFINITY)}
