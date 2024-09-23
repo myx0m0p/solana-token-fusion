@@ -39,8 +39,8 @@ const collection = program.command('collection');
 collection
   .command('deploy')
   .description('Deploy Collection')
-  .option('-n, --name <string>', 'Collection name', 'STF Collection')
-  .option('-u, --uri <string>', 'Collection URI', 'https://stf.org/collection.json')
+  .option('-n, --name <string>', 'Collection name', 'Mutardio')
+  .option('-u, --uri <string>', 'Collection URI', 'https://cdn.mutardio.fun/collection.json')
   .option('-r, --royalty <number>', 'Collection royalty bp', parseInt, 500)
   .option(
     '-c, --cluster <string>',
@@ -67,8 +67,8 @@ collection
 collection
   .command('update')
   .description('Update Collection')
-  .option('-n, --name <string>', 'Collection name', 'STF Collection')
-  .option('-u, --uri <string>', 'Collection URI', 'https://stf.org/collection.json')
+  .option('-n, --name <string>', 'Collection name', 'Mutardio')
+  .option('-u, --uri <string>', 'Collection URI', 'https://cdn.mutardio.fun/collection.json')
   .option('-r, --royalty <number>', 'Collection royalty bp', parseInt, 500)
   .option(
     '-c, --cluster <string>',
@@ -120,17 +120,17 @@ fusion
   // collection
   .option('--collection <string>', 'Collection mint')
   // asset
-  .option('--supply <number>', 'Asset supply', parseInt, 100)
+  .option('--supply <number>', 'Asset supply', parseInt, 5000)
   .option('--index <number>', 'Next index', parseInt, 1)
-  .option('--prefix <string>', 'Asset prefix', 'STF #')
-  .option('--uri-prefix <string>', 'Asset uri prefix', 'https://meta.femininebrother.org/metadata/')
+  .option('--prefix <string>', 'Asset prefix', 'MUTARDIO #')
+  .option('--uri-prefix <string>', 'Asset uri prefix', 'https://meta.mutardio.fun/metadata/')
   .option('--uri-suffix <string>', 'Asset uri suffix', '')
   // fee
-  .option('--escrow <number>', 'Escrow amount', parseInt, 100)
-  .option('--fee <number>', 'Fee amount', parseInt, 0)
+  .option('--escrow <number>', 'Escrow amount', parseInt, 495000)
+  .option('--fee <number>', 'Fee amount', parseInt, 5000)
   .option('--burn <number>', 'Burn amount', parseInt, 0)
   .option('--sol <number>', 'Sol fee amount', parseInt, 0)
-  .option('--fee-recipient <string>', 'Fee recipient')
+  .option('--fee-recipient <string>', 'Fee recipient', '9PY3aGsgdomBNoCSXniW2sLcQ22K4HovZ4UipyFkhSkU')
 
   .option(
     '-c, --cluster <string>',

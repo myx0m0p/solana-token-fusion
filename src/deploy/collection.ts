@@ -14,8 +14,13 @@ import { AppLogger } from '../utils/logger';
 import { createUmi } from '../utils/umi';
 import { BaseCliOptions, CollectionCliOptions } from '../types';
 
+const creators = [
+  { address: publicKey('9YFb2dUiRL9LqRMiJcNrCpob5F9htCgFwqV1hmHvKqfB'), percentage: 50 },
+  { address: publicKey('9PY3aGsgdomBNoCSXniW2sLcQ22K4HovZ4UipyFkhSkU'), percentage: 50 },
+];
+
 export const deployCollection = async ({ name, uri, royalty, cluster }: CollectionCliOptions) => {
-  const { umi, deployer, collection, clusterSettings } = await createUmi(cluster);
+  const { umi, collection, clusterSettings } = await createUmi(cluster);
 
   AppLogger.info('Collection Mint', explorerAddressLink(collection.publicKey, { cluster }));
 
@@ -47,12 +52,7 @@ export const deployCollection = async ({ name, uri, royalty, cluster }: Collecti
         {
           type: 'Royalties',
           basisPoints: royalty,
-          creators: [
-            {
-              address: deployer.publicKey,
-              percentage: 100,
-            },
-          ],
+          creators,
           ruleSet: ruleSet('None'), // Compatibility rule set
         },
       ],
@@ -88,9 +88,7 @@ export const showCollection = async ({ cluster }: BaseCliOptions) => {
 };
 
 export const updateCollection = async ({ name, uri, royalty, cluster }: CollectionCliOptions) => {
-  const { umi, collection, clusterSettings, treasure } = await createUmi(cluster);
-
-  const retardioRoyalty = publicKey('9YFb2dUiRL9LqRMiJcNrCpob5F9htCgFwqV1hmHvKqfB');
+  const { umi, collection, clusterSettings } = await createUmi(cluster);
 
   AppLogger.info('Collection', explorerAddressLink(collection.publicKey, { cluster }));
 
@@ -124,10 +122,7 @@ export const updateCollection = async ({ name, uri, royalty, cluster }: Collecti
       plugin: {
         type: 'Royalties',
         basisPoints: royalty,
-        creators: [
-          { address: treasure.publicKey, percentage: 50 },
-          { address: retardioRoyalty, percentage: 50 },
-        ],
+        creators,
         ruleSet: ruleSet('None'),
       },
     })
