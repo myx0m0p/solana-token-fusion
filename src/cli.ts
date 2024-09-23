@@ -116,7 +116,7 @@ fusion
   .description('Init Token Fusion Program')
   // token
   .option('--mint <string>', 'Token mint')
-  .option('--decimals <number>', 'Token decimals', parseInt, 9)
+  .option('--decimals <number>', 'Token decimals', parseInt, 6)
   // collection
   .option('--collection <string>', 'Collection mint')
   // asset
