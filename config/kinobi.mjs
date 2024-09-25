@@ -40,7 +40,7 @@ kinobi.update(
   setInstructionAccountDefaultValuesVisitor([
     {
       account: 'feeAccount',
-      defaultValue: publicKeyValueNode('CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG'),
+      defaultValue: publicKeyValueNode('GdrZqVh6tFAaB3tfAHSQKdBxb8irbYYmqLq71r5rMktE'),
     },
     {
       account: 'escrowAtaPda',

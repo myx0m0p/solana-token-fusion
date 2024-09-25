@@ -196,7 +196,7 @@ export function fusionFromV1(
   }
   if (!resolvedAccounts.feeAccount.value) {
     resolvedAccounts.feeAccount.value = publicKey(
-      'CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG'
+      'GdrZqVh6tFAaB3tfAHSQKdBxb8irbYYmqLq71r5rMktE'
     );
   }
   if (!resolvedAccounts.tokenProgram.value) {

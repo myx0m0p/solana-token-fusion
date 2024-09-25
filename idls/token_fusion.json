@@ -645,7 +645,7 @@
             "Protocol fee account."
           ],
           "writable": true,
-          "address": "CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG"
+          "address": "GdrZqVh6tFAaB3tfAHSQKdBxb8irbYYmqLq71r5rMktE"
         },
         {
           "name": "token_program",
@@ -1012,7 +1012,7 @@
             "Protocol fee account."
           ],
           "writable": true,
-          "address": "CRumnxQ9i84X7pbmgCdSSMW6WJ7njUad3LgK3kFo11zG"
+          "address": "GdrZqVh6tFAaB3tfAHSQKdBxb8irbYYmqLq71r5rMktE"
         },
         {
           "name": "token_program",
