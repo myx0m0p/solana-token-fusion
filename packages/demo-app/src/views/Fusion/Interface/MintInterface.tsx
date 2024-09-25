@@ -36,7 +36,8 @@ const Component: React.FC<Props> = ({ fusionData, refetchFusionData }) => {
   const tokenAmount = useMemo(() => {
     return new TokenAmount(
       fusionData.feeData.escrowAmount + fusionData.feeData.feeAmount + fusionData.feeData.burnAmount,
-      '$MUMU'
+      '$MUMU',
+      6
     );
   }, [fusionData]);
 
