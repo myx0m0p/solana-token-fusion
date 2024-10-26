@@ -9,11 +9,10 @@ const Component: React.FC = () => {
       <NextSeo
         title='Mutardio'
         // eslint-disable-next-line max-len
-        description=''
+        description='Mutardio in control.'
         openGraph={{
           title: 'Mutardio',
-          description:
-            'Mutardio is the real mascot of the bull run. Mint him or burn – all hail to the Saylor',
+          description: 'Mutardio in control.',
           images: [
             {
               url: `${APP_URL}/media/splash.png`,

@@ -4,10 +4,7 @@ export default function Document() {
   return (
     <Html lang='en'>
       <Head>
-        <meta
-          name='keywords'
-          content='Mutardio is the real mascot of the bull run. Mint him or burn – all hail to the Saylor'
-        />
+        <meta name='keywords' content='Mutardio, Retardio, Solana, NFT' />
         <link rel='apple-touch-icon' sizes='180x180' href='/favicons/apple-touch-icon.png' />
         <link rel='icon' type='image/png' sizes='32x32' href='/favicons/favicon-32x32.png' />
         <link rel='icon' type='image/png' sizes='16x16' href='/favicons/favicon-16x16.png' />

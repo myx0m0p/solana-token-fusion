@@ -1,11 +1,11 @@
 import { Fusion } from '@/views/Fusion';
 import { NextSeo } from 'next-seo';
 
-export default function BurnPage() {
+export default function MintPage() {
   return (
     <>
-      <NextSeo title='Mutardio | Burn' />
-      <Fusion op='burn' />;
+      <NextSeo title='Mutardio | Mint' />
+      <Fusion op='mint' />
     </>
   );
 }
