@@ -168,7 +168,7 @@ fusion
   .command('update')
   .description('Update Token Fusion Program')
   // token
-  .option('--decimals <number>', 'Token decimals', parseInt, 9)
+  .option('--decimals <number>', 'Token decimals', parseInt, 6)
   // asset
   .option('--supply <number>', 'Asset supply', parseInt)
   .option('--index <number>', 'Next index', parseInt)

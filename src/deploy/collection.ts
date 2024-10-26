@@ -1,7 +1,7 @@
 import {
   createCollection,
   fetchCollection,
-  removeCollectionPlugin,
+  // removeCollectionPlugin,
   ruleSet,
   updateCollection as updateCollectionCore,
   updateCollectionPlugin,
@@ -15,7 +15,7 @@ import { createUmi } from '../utils/umi';
 import { BaseCliOptions, CollectionCliOptions } from '../types';
 
 const creators = [
-  { address: publicKey('9YFb2dUiRL9LqRMiJcNrCpob5F9htCgFwqV1hmHvKqfB'), percentage: 50 },
+  { address: publicKey('GdrZqVh6tFAaB3tfAHSQKdBxb8irbYYmqLq71r5rMktE'), percentage: 50 },
   { address: publicKey('9PY3aGsgdomBNoCSXniW2sLcQ22K4HovZ4UipyFkhSkU'), percentage: 50 },
 ];
 
@@ -129,14 +129,14 @@ export const updateCollection = async ({ name, uri, royalty, cluster }: Collecti
   );
 
   // remove updateDelegate plugin
-  builder = builder.add(
-    removeCollectionPlugin(umi, {
-      collection: collection.publicKey,
-      plugin: {
-        type: 'UpdateDelegate',
-      },
-    })
-  );
+  // builder = builder.add(
+  //   removeCollectionPlugin(umi, {
+  //     collection: collection.publicKey,
+  //     plugin: {
+  //       type: 'UpdateDelegate',
+  //     },
+  //   })
+  // );
 
   const builderResult = await builder.sendAndConfirm(umi);
 
