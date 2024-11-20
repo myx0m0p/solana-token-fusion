@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import { PublicKey } from '@metaplex-foundation/umi';
 
-import { AssetV1, fetchCollectionV1 } from '@metaplex-foundation/mpl-core';
+import { AssetV1 } from '@metaplex-foundation/mpl-core';
+import { das } from '@metaplex-foundation/mpl-core-das';
 import { fetchFusionDataV1, findFusionDataPda } from '@stf/token-fusion';
 
 import { useUmi } from '@/providers/useUmi';
@@ -26,7 +27,7 @@ export const useCollectionData = (collection: PublicKey) => {
   return useQuery({
     queryKey: ['collectionData', collection],
     queryFn: () => {
-      return fetchCollectionV1(umi, collection);
+      return das.getCollection(umi, collection);
     },
   });
 };

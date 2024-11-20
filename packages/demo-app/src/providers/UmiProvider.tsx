@@ -3,6 +3,7 @@ import { ReactNode, useMemo } from 'react';
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { walletAdapterIdentity } from '@metaplex-foundation/umi-signer-wallet-adapters';
 import { mplToolbox } from '@metaplex-foundation/mpl-toolbox';
+import { dasApi } from '@metaplex-foundation/digital-asset-standard-api';
 
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 
@@ -18,7 +19,8 @@ export function UmiProvider({ children }: { children: ReactNode }) {
       createUmi(connection)
         .use(walletAdapterIdentity(wallet))
         .use(mplToolbox())
-        .use(tokenFusionPlugin()),
+        .use(tokenFusionPlugin())
+        .use(dasApi()),
     [wallet, connection]
   );
 
